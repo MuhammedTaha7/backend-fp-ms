@@ -1,0 +1,50 @@
+docker build --tag spring-image .
+docker image ls
+docker run -d -p 8080:80 --name spring-container spring-image
+
+after update code:
+mvn clean package
+docker build --tag spring-image .
+docker container rm -f spring-container
+docker run -d -p 8080:80 --name spring-container spring-image
+
+_______________________________________________________________________
+
+docker build --tag react-image .
+docker image ls
+docker run -d -p 3000:80 --name react-container react-image
+
+after update code:
+npm run build
+docker build --tag react-image .
+docker container rm -f react-container
+docker run -d -p 3000:80 --name react-container react-image
+
+_______________________________________________________________________
+
+C:\Users\MOHMAD11\OneDrive\Desktop\backend>docker run -d --name mongodb -e MONGO_INITDB_ROOT_USERNAME=admin_PASSWORD=1234 -v mongodbvolume:/data/db mongo:7.0
+
+_______________________________________________________________________
+				docker-compose
+# if the first time to run docker-compose.yml
+docker-compose up --build
+
+docker-compose up
+docker-compose down
+_________
+##login to the server
+
+cd OneDrive\Desktop\ubuntoServer
+ssh -i EC2edu.pem ubuntu@13.49.225.86
+
+## after working on the project
+cd /path/to/your/project
+git status
+git add .
+git commit -m "Updated..."
+git push origin master
+ssh -i EC2edu.pem ubuntu@13.49.225.86
+cd /path/to/your/project
+git pull origin master
+docker-compose down
+docker-compose up --build -d

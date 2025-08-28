@@ -1,0 +1,74 @@
+# ================================
+# docker-compose.yml (Updated)
+# ================================
+version: "3.8"
+
+services:
+  community-service:
+    build:
+      context: .
+      target: community-service-runtime # specify the build stage
+    image: community-service:latest
+    container_name: community-service
+    ports:
+      - "8081:8081"
+    volumes:
+      - community-uploads:/app/uploads
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  edusphere-service:
+    build:
+      context: .
+      target: edusphere-service-runtime # specify the build stage
+    image: edusphere-service:latest
+    container_name: edusphere-service
+    ports:
+      - "8082:8082"
+    volumes:
+      - edusphere-uploads:/app/uploads
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  extension-service:
+    build:
+      context: .
+      target: extension-service-runtime # specify the build stage
+    image: extension-service:latest
+    container_name: extension-service
+    ports:
+      - "8083:8083"
+    volumes:
+      - extension-uploads:/app/uploads
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+  community-uploads:
+  edusphere-uploads:
+  extension-uploads:
