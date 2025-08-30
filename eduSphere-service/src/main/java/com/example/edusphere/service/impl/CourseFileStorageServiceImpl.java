@@ -38,7 +38,6 @@ public class CourseFileStorageServiceImpl implements CourseFileStorageService {
             Files.createDirectories(this.fileStorageLocation);
 
             // Log the upload directory for debugging
-            System.out.println("File storage location: " + this.fileStorageLocation.toString());
 
         } catch (Exception ex) {
             throw new FileStorageException("Could not create the directory for uploads: " + uploadDir, ex);
@@ -141,10 +140,6 @@ public class CourseFileStorageServiceImpl implements CourseFileStorageService {
             }
 
             boolean deleted = Files.deleteIfExists(filePath);
-
-            if (!deleted) {
-                System.out.println("Warning: File not found for deletion: " + filename);
-            }
 
         } catch (IOException ex) {
             throw new FileStorageException("Could not delete file: " + filename, ex);

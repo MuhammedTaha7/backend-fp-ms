@@ -33,7 +33,7 @@ public class AuthController {
         userService.registerUser(registerRequest);
         return ResponseEntity.ok("User registered successfully!");
     }
-//
+
 //    @PostMapping("/login")
 //    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 //        LoginResponse loginResponse = userService.authenticateUser(loginRequest);
@@ -81,7 +81,6 @@ public class AuthController {
                             .build()
             );
         } catch (Exception e) {
-            System.out.println("❌ Error getting user data: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
@@ -93,15 +92,12 @@ public class AuthController {
     @PostMapping("/auth/extension")
     public ResponseEntity<?> authenticateExtension(@RequestBody Map<String, String> request) {
         try {
-            System.out.println("🔌 === EXTENSION AUTHENTICATION ===");
             String email = request.get("email");
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Email is required"));
             }
-
-            System.out.println("📧 Extension auth request for email: " + email);
 
             // Find user by email
             UserEntity user = userRepository.findByEmail(email.trim())
@@ -126,8 +122,6 @@ public class AuthController {
                     "token", token,
                     "user", authResponse
             );
-
-            System.out.println("✅ Extension authentication successful for: " + user.getName());
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
@@ -148,7 +142,6 @@ public class AuthController {
     @GetMapping("/auth/extension/verify")
     public ResponseEntity<?> verifyExtensionToken(@RequestHeader("Authorization") String authHeader) {
         try {
-            System.out.println("🔍 === VERIFYING EXTENSION TOKEN ===");
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -182,8 +175,6 @@ public class AuthController {
                     .name(user.getName())
                     .profilePic(user.getProfilePic())
                     .build();
-
-            System.out.println("✅ Extension token verified for: " + user.getName());
             return ResponseEntity.ok(Map.of(
                     "valid", true,
                     "user", authResponse

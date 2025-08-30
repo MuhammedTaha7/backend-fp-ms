@@ -103,8 +103,6 @@ public class UsersServiceImpl implements UsersService {
         UserEntity reporter = getUserById(reporterId);
 
         // Log the report (you might want to create a Report entity for this)
-        System.out.println("User " + reporter.getUsername() + " reported user " +
-                reportedUser.getUsername() + " for: " + request.getReason());
 
         // Here you could:
         // 1. Save to a reports collection

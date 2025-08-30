@@ -35,11 +35,8 @@ public class GradeController {
     @PreAuthorize("hasRole('LECTURER') or hasRole('STUDENT')")
     public ResponseEntity<?> getGradeColumns(@PathVariable String courseId) {
         try {
-            System.out.println("📊 === FETCHING GRADE COLUMNS ===");
-            System.out.println("Course ID: " + courseId);
 
             List<GradeColumn> columns = gradeService.getGradeColumnsByCourse(courseId);
-            System.out.println("✅ Found " + columns.size() + " grade columns");
 
             return ResponseEntity.ok(columns);
         } catch (Exception e) {
@@ -57,8 +54,6 @@ public class GradeController {
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> createGradeColumn(@RequestBody GradeColumn gradeColumn) {
         try {
-            System.out.println("➕ === CREATING GRADE COLUMN ===");
-            System.out.println("Request: " + gradeColumn);
 
             // Enhanced validation
             List<String> errors = new ArrayList<>();
@@ -82,7 +77,6 @@ public class GradeController {
             }
 
             GradeColumn created = gradeService.createGradeColumn(gradeColumn);
-            System.out.println("✅ Created grade column with ID: " + created.getId());
 
             return new ResponseEntity<>(created, HttpStatus.CREATED);
 
@@ -106,12 +100,8 @@ public class GradeController {
             @PathVariable String columnId,
             @RequestBody GradeColumn updates) {
         try {
-            System.out.println("🔄 === UPDATING GRADE COLUMN ===");
-            System.out.println("Column ID: " + columnId);
-            System.out.println("Updates: " + updates);
 
             GradeColumn updated = gradeService.updateGradeColumn(columnId, updates);
-            System.out.println("✅ Updated grade column successfully");
 
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
@@ -132,11 +122,8 @@ public class GradeController {
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> deleteGradeColumn(@PathVariable String columnId) {
         try {
-            System.out.println("🗑️ === DELETING GRADE COLUMN ===");
-            System.out.println("Column ID: " + columnId);
 
             gradeService.deleteGradeColumn(columnId);
-            System.out.println("✅ Deleted grade column successfully");
 
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
@@ -160,11 +147,8 @@ public class GradeController {
     @PreAuthorize("hasRole('LECTURER') or hasRole('STUDENT')")
     public ResponseEntity<?> getCourseGrades(@PathVariable String courseId) {
         try {
-            System.out.println("📊 === FETCHING COURSE GRADES ===");
-            System.out.println("Course ID: " + courseId);
 
             List<StudentGrade> grades = gradeService.getGradesByCourse(courseId);
-            System.out.println("✅ Found " + grades.size() + " student grade records");
 
             return ResponseEntity.ok(grades);
         } catch (Exception e) {
@@ -186,33 +170,22 @@ public class GradeController {
             @PathVariable String columnId,
             @RequestBody Map<String, Object> request) {
         try {
-            System.out.println("🔍 === UPDATING STUDENT GRADE ===");
-            System.out.println("Student ID: " + studentId);
-            System.out.println("Column ID: " + columnId);
-            System.out.println("Request body: " + request);
 
             // Enhanced grade parsing with detailed logging
             Double grade = null;
             Object gradeObj = request.get("grade");
 
-            System.out.println("Raw grade object: " + gradeObj +
-                    " (type: " + (gradeObj != null ? gradeObj.getClass().getSimpleName() : "null") + ")");
-
             if (gradeObj != null) {
                 if (gradeObj instanceof Number) {
                     grade = ((Number) gradeObj).doubleValue();
-                    System.out.println("✅ Parsed as Number: " + grade);
                 } else if (gradeObj instanceof String) {
                     String gradeStr = (String) gradeObj;
-                    System.out.println("🔍 String value: '" + gradeStr + "'");
 
                     if (gradeStr.trim().isEmpty() || "null".equalsIgnoreCase(gradeStr.trim())) {
                         grade = null;
-                        System.out.println("⚪ Empty/null string - setting grade to null");
                     } else {
                         try {
                             grade = Double.parseDouble(gradeStr.trim());
-                            System.out.println("✅ Parsed string to double: " + grade);
                         } catch (NumberFormatException e) {
                             System.err.println("❌ Number format error: " + e.getMessage());
                             return ResponseEntity.badRequest()
@@ -225,7 +198,6 @@ public class GradeController {
                             .body(Map.of("error", "Unsupported grade type: " + gradeObj.getClass().getSimpleName()));
                 }
             } else {
-                System.out.println("⚪ Grade object is null");
             }
 
             // Validate grade range (allow null for removing grades)
@@ -234,8 +206,6 @@ public class GradeController {
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Grade must be between 0 and 100, got: " + grade));
             }
-
-            System.out.println("🎯 Final grade to save: " + grade);
 
             // Validate that the grade column exists
             if (!gradeServiceImpl.columnExists(columnId)) {
@@ -246,11 +216,6 @@ public class GradeController {
 
             // Update the grade
             StudentGrade updated = gradeService.updateStudentGrade(studentId, columnId, grade);
-
-            System.out.println("✅ === GRADE UPDATE SUCCESSFUL ===");
-            System.out.println("📊 Updated grades: " + updated.getGrades());
-            System.out.println("🎯 Final calculated grade: " + updated.getFinalGrade() + "%");
-            System.out.println("🔍 Letter grade: " + updated.getFinalLetterGrade());
 
             return ResponseEntity.ok(updated);
 
@@ -276,8 +241,6 @@ public class GradeController {
             @PathVariable String studentId,
             @PathVariable String courseId) {
         try {
-            System.out.println("🎯 === CALCULATING FINAL GRADE ===");
-            System.out.println("Student: " + studentId + ", Course: " + courseId);
 
             Double finalGrade = gradeService.calculateFinalGrade(studentId, courseId);
             String letterGrade = gradeService.calculateLetterGrade(finalGrade);
@@ -289,8 +252,6 @@ public class GradeController {
                     "letterGrade", letterGrade,
                     "calculatedAt", LocalDateTime.now().toString()
             );
-
-            System.out.println("✅ Final grade: " + finalGrade + "% (" + letterGrade + ")");
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             System.err.println("❌ Error calculating final grade: " + e.getMessage());
@@ -307,8 +268,6 @@ public class GradeController {
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> calculateAllFinalGrades(@PathVariable String courseId) {
         try {
-            System.out.println("🔄 === RECALCULATING ALL GRADES FOR COURSE ===");
-            System.out.println("Course ID: " + courseId);
 
             gradeServiceImpl.recalculateAllGradesForCourse(courseId);
 
@@ -334,7 +293,6 @@ public class GradeController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('LECTURER')")
     public ResponseEntity<?> fixAllIncorrectGrades() {
         try {
-            System.out.println("🔧 === ADMIN: FIXING ALL INCORRECT GRADES ===");
 
             gradeServiceImpl.fixAllIncorrectGrades();
 
@@ -358,8 +316,6 @@ public class GradeController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('LECTURER')")
     public ResponseEntity<?> recalculateCourseGrades(@PathVariable String courseId) {
         try {
-            System.out.println("🔧 === ADMIN: RECALCULATING COURSE GRADES ===");
-            System.out.println("Course ID: " + courseId);
 
             gradeServiceImpl.recalculateAllGradesForCourse(courseId);
 
@@ -385,8 +341,6 @@ public class GradeController {
             @PathVariable String studentId,
             @PathVariable String courseId) {
         try {
-            System.out.println("🔍 === DEBUGGING STUDENT GRADES ===");
-            System.out.println("Student: " + studentId + ", Course: " + courseId);
 
             // Get grade columns
             List<GradeColumn> columns = gradeService.getGradeColumnsByCourse(courseId);
@@ -458,8 +412,6 @@ public class GradeController {
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> validateCourse(@PathVariable String courseId) {
         try {
-            System.out.println("🔍 === VALIDATING COURSE CONFIGURATION ===");
-            System.out.println("Course ID: " + courseId);
 
             List<GradeColumn> columns = gradeService.getGradeColumnsByCourse(courseId);
             List<StudentGrade> grades = gradeService.getGradesByCourse(courseId);
@@ -527,8 +479,6 @@ public class GradeController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('LECTURER')")
     public ResponseEntity<?> cleanupOrphanedGrades(@PathVariable String courseId) {
         try {
-            System.out.println("🧹 === CLEANING UP ORPHANED GRADES ===");
-            System.out.println("Course ID: " + courseId);
 
             gradeServiceImpl.cleanupOrphanedGrades(courseId);
 

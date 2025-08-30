@@ -55,12 +55,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     public AssignmentFileResponse uploadAssignmentFile(MultipartFile file, String assignmentId, String courseId,
                                                        String uploadedBy, String description) {
         try {
-            System.out.println("📁 === UPLOADING ASSIGNMENT FILE ===");
-            System.out.println("Original filename: " + file.getOriginalFilename());
-            System.out.println("Size: " + file.getSize());
-            System.out.println("Assignment ID: " + assignmentId);
-            System.out.println("Course ID: " + courseId);
-            System.out.println("Uploaded by: " + uploadedBy);
 
             // Validate file
             validateAssignmentFile(file);
@@ -123,9 +117,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             // Update assignment with file information
             updateAssignmentFileInfo(assignmentId, savedFile);
 
-            System.out.println("✅ Assignment file uploaded successfully with ID: " + savedFile.getId());
-            System.out.println("✅ File stored at: " + filePath.toString());
-
             return convertToResponse(savedFile);
 
         } catch (IOException e) {
@@ -173,8 +164,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
                 // Update download count and last accessed
                 assignmentFile.incrementDownloadCount();
                 assignmentFileRepository.save(assignmentFile);
-
-                System.out.println("✅ Assignment file resource loaded: " + assignmentFile.getOriginalFilename());
                 return resource;
             } else {
                 throw new RuntimeException("Assignment file not found or not readable: " + assignmentFile.getOriginalFilename());
@@ -192,10 +181,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     @Override
     public void deleteAssignmentFile(String fileId, String userId, String userRole) {
         try {
-            System.out.println("🗑️ === DELETING ASSIGNMENT FILE ===");
-            System.out.println("File ID: " + fileId);
-            System.out.println("User ID: " + userId);
-            System.out.println("User Role: " + userRole);
 
             AssignmentFile assignmentFile = assignmentFileRepository.findById(fileId)
                     .orElseThrow(() -> new RuntimeException("Assignment file not found: " + fileId));
@@ -209,7 +194,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             Path filePath = Paths.get(assignmentFile.getFilePath());
             try {
                 Files.deleteIfExists(filePath);
-                System.out.println("✅ Physical assignment file deleted: " + filePath.toString());
             } catch (IOException e) {
                 System.err.println("⚠️ Could not delete physical assignment file: " + e.getMessage());
                 // Continue with database deletion
@@ -223,8 +207,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             // Update assignment to remove file reference
             removeFileFromAssignment(assignmentFile.getAssignmentId(), fileId);
 
-            System.out.println("✅ Assignment file marked as deleted in database");
-
         } catch (Exception e) {
             System.err.println("❌ Error deleting assignment file: " + e.getMessage());
             throw new RuntimeException("Failed to delete assignment file: " + e.getMessage());
@@ -234,10 +216,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     @Override
     public List<AssignmentFileResponse> getFilesByAssignment(String assignmentId, String userId, String userRole) {
         try {
-            System.out.println("📋 === GETTING FILES BY ASSIGNMENT ===");
-            System.out.println("Assignment ID: " + assignmentId);
-            System.out.println("User ID: " + userId);
-            System.out.println("User Role: " + userRole);
 
             // Verify assignment exists and user has access
             Task assignment = taskRepository.findById(assignmentId)
@@ -260,8 +238,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             List<AssignmentFileResponse> responses = assignmentFiles.stream()
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
-
-            System.out.println("✅ Found " + responses.size() + " files for assignment");
             return responses;
 
         } catch (Exception e) {
@@ -273,10 +249,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     @Override
     public List<AssignmentFileResponse> getFilesByCourse(String courseId, String userId, String userRole) {
         try {
-            System.out.println("📚 === GETTING FILES BY COURSE ===");
-            System.out.println("Course ID: " + courseId);
-            System.out.println("User ID: " + userId);
-            System.out.println("User Role: " + userRole);
 
             // Verify course exists and user has access
             Course course = courseRepository.findById(courseId)
@@ -302,8 +274,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             List<AssignmentFileResponse> responses = filteredFiles.stream()
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
-
-            System.out.println("✅ Found " + responses.size() + " files for course");
             return responses;
 
         } catch (Exception e) {
@@ -406,8 +376,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     public AssignmentFileResponse updateAssignmentFileMetadata(String fileId, String description,
                                                                Boolean visibleToStudents, String userId, String userRole) {
         try {
-            System.out.println("📝 === UPDATING ASSIGNMENT FILE METADATA ===");
-            System.out.println("File ID: " + fileId);
 
             AssignmentFile assignmentFile = assignmentFileRepository.findById(fileId)
                     .orElseThrow(() -> new RuntimeException("Assignment file not found: " + fileId));
@@ -427,8 +395,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
 
             assignmentFile.setUpdatedAt(LocalDateTime.now());
             AssignmentFile updatedFile = assignmentFileRepository.save(assignmentFile);
-
-            System.out.println("✅ Assignment file metadata updated successfully");
             return convertToResponse(updatedFile);
 
         } catch (Exception e) {
@@ -489,7 +455,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
         }
 
         // Additional validations can be added here
-        System.out.println("✅ Assignment file validation passed for: " + fileName);
     }
 
     @Override
@@ -547,8 +512,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     @Override
     public void deleteAllFilesForAssignment(String assignmentId, String userId, String userRole) {
         try {
-            System.out.println("🗑️ === DELETING ALL FILES FOR ASSIGNMENT ===");
-            System.out.println("Assignment ID: " + assignmentId);
 
             List<AssignmentFile> files = assignmentFileRepository.findByAssignmentIdAndStatus(assignmentId, "active");
 
@@ -557,8 +520,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
                     deleteAssignmentFile(file.getId(), userId, userRole);
                 }
             }
-
-            System.out.println("✅ All files deleted for assignment: " + assignmentId);
 
         } catch (Exception e) {
             System.err.println("❌ Error deleting all files for assignment: " + e.getMessage());
@@ -574,7 +535,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
     @Override
     public int cleanupOrphanedFiles() {
         try {
-            System.out.println("🧹 === CLEANING UP ORPHANED FILES ===");
 
             List<AssignmentFile> allFiles = assignmentFileRepository.findByStatusOrderByCreatedAtDesc("active");
             int cleanedCount = 0;
@@ -582,14 +542,11 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             for (AssignmentFile file : allFiles) {
                 // Check if assignment still exists
                 if (!taskRepository.existsById(file.getAssignmentId())) {
-                    System.out.println("🗑️ Cleaning up orphaned file: " + file.getOriginalFilename());
                     file.setStatus("deleted");
                     assignmentFileRepository.save(file);
                     cleanedCount++;
                 }
             }
-
-            System.out.println("✅ Cleaned up " + cleanedCount + " orphaned files");
             return cleanedCount;
 
         } catch (Exception e) {
@@ -669,7 +626,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
                 task.setFileName(savedFile.getOriginalFilename());
                 task.setFileSize(savedFile.getFileSize());
                 taskRepository.save(task);
-                System.out.println("✅ Updated assignment with file information");
             }
         } catch (Exception e) {
             System.err.println("⚠️ Could not update assignment with file info: " + e.getMessage());
@@ -687,7 +643,6 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
                     task.setFileName(null);
                     task.setFileSize(null);
                     taskRepository.save(task);
-                    System.out.println("✅ Removed file reference from assignment");
                 }
             }
         } catch (Exception e) {

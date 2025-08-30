@@ -44,9 +44,7 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public List<Exam> getExamsByCourse(String courseId) {
         try {
-            System.out.println("🔍 Fetching exams for course: " + courseId);
             List<Exam> exams = examRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
-            System.out.println("✅ Found " + exams.size() + " exams");
             return exams;
         } catch (Exception e) {
             System.err.println("❌ Error fetching exams: " + e.getMessage());
@@ -62,7 +60,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public Exam createExam(ExamCreateRequest request, String instructorId) {
-        System.out.println("➕ Creating new exam: " + request.getTitle());
 
         // Validation
         if (request.getEndTime().isBefore(request.getStartTime())) {
@@ -98,7 +95,6 @@ public class ExamServiceImpl implements ExamService {
             exam.setPassPercentage(request.getPassPercentage());
 
             Exam savedExam = examRepository.save(exam);
-            System.out.println("✅ Created exam with ID: " + savedExam.getId());
 
             // Create corresponding grade column
             createGradeColumnForExam(savedExam, instructorId);
@@ -114,7 +110,6 @@ public class ExamServiceImpl implements ExamService {
     // FIXED: Helper method to create grade column for exam with default percentage
     private void createGradeColumnForExam(Exam exam, String instructorId) {
         try {
-            System.out.println("📊 Creating grade column for exam: " + exam.getTitle());
 
             // Get existing grade columns to calculate available percentage
             List<GradeColumn> existingColumns = gradeColumnRepository.findByCourseIdOrderByDisplayOrderDesc(exam.getCourseId());
@@ -133,8 +128,6 @@ public class ExamServiceImpl implements ExamService {
                 suggestedPercentage = Math.max(1, 100 - currentTotal);
             }
 
-            System.out.println("📊 Suggested percentage: " + suggestedPercentage + "% (current total: " + currentTotal + "%)");
-
             // Get the next display order for this course
             Integer nextDisplayOrder = getNextDisplayOrderForCourse(exam.getCourseId());
 
@@ -152,8 +145,6 @@ public class ExamServiceImpl implements ExamService {
             gradeColumn.setCreatedBy(instructorId);
 
             GradeColumn savedColumn = gradeColumnRepository.save(gradeColumn);
-            System.out.println("✅ Created grade column with ID: " + savedColumn.getId() +
-                    " for exam: " + exam.getTitle() + " with " + suggestedPercentage + "% weight");
 
         } catch (Exception e) {
             System.err.println("⚠️ Failed to create grade column for exam: " + e.getMessage());
@@ -197,7 +188,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public Exam updateExam(String examId, ExamUpdateRequest request, String instructorId) {
-        System.out.println("🔄 Updating exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -238,8 +228,6 @@ public class ExamServiceImpl implements ExamService {
 
             // Update corresponding grade column if title or points changed
             updateGradeColumnForExam(updatedExam, originalTitle, request.getTitle() != null);
-
-            System.out.println("✅ Updated exam successfully");
             return updatedExam;
 
         } catch (Exception e) {
@@ -263,8 +251,6 @@ public class ExamServiceImpl implements ExamService {
                 if (titleChanged && !exam.getTitle().equals(originalTitle)) {
                     gradeColumn.setName(exam.getTitle());
                     columnUpdated = true;
-                    System.out.println("📊 Updated grade column title from '" + originalTitle +
-                            "' to '" + exam.getTitle() + "'");
                 }
 
                 // Update max points if changed
@@ -272,12 +258,10 @@ public class ExamServiceImpl implements ExamService {
                 if (newMaxPoints != null && !newMaxPoints.equals(gradeColumn.getMaxPoints())) {
                     gradeColumn.setMaxPoints(newMaxPoints);
                     columnUpdated = true;
-                    System.out.println("📊 Updated grade column max points to: " + newMaxPoints);
                 }
 
                 if (columnUpdated) {
                     gradeColumnRepository.save(gradeColumn);
-                    System.out.println("✅ Updated linked grade column for exam: " + exam.getTitle());
                 }
             }
         } catch (Exception e) {
@@ -288,7 +272,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public void deleteExam(String examId, String instructorId) {
-        System.out.println("🗑️ Deleting exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -305,7 +288,6 @@ public class ExamServiceImpl implements ExamService {
 
             // Delete the exam
             examRepository.deleteById(examId);
-            System.out.println("✅ Deleted exam and all responses");
 
         } catch (Exception e) {
             System.err.println("❌ Error deleting exam: " + e.getMessage());
@@ -321,7 +303,6 @@ public class ExamServiceImpl implements ExamService {
 
             for (GradeColumn column : linkedColumns) {
                 gradeColumnRepository.delete(column);
-                System.out.println("🗑️ Deleted linked grade column: " + column.getName());
             }
         } catch (Exception e) {
             System.err.println("⚠️ Failed to delete grade column for exam: " + e.getMessage());
@@ -331,7 +312,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public Exam publishExam(String examId, String instructorId) {
-        System.out.println("📢 Publishing exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -354,8 +334,6 @@ public class ExamServiceImpl implements ExamService {
 
         // Update grade column max points when published
         updateGradeColumnMaxPoints(publishedExam);
-
-        System.out.println("✅ Published exam successfully");
         return publishedExam;
     }
 
@@ -372,7 +350,6 @@ public class ExamServiceImpl implements ExamService {
                 if (examTotalPoints != null && !examTotalPoints.equals(gradeColumn.getMaxPoints())) {
                     gradeColumn.setMaxPoints(examTotalPoints);
                     gradeColumnRepository.save(gradeColumn);
-                    System.out.println("📊 Updated grade column max points to: " + examTotalPoints);
                 }
             }
         } catch (Exception e) {
@@ -383,7 +360,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public Exam unpublishExam(String examId, String instructorId) {
-        System.out.println("📝 Unpublishing exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -395,13 +371,11 @@ public class ExamServiceImpl implements ExamService {
         exam.setVisibleToStudents(false);
 
         Exam unpublishedExam = examRepository.save(exam);
-        System.out.println("✅ Unpublished exam successfully");
         return unpublishedExam;
     }
 
     @Override
     public Exam updateExamStatus(String examId, String status, String instructorId) {
-        System.out.println("🔄 Updating exam status to: " + status);
 
         Exam exam = getExamById(examId);
 
@@ -412,13 +386,11 @@ public class ExamServiceImpl implements ExamService {
         exam.setStatus(status);
 
         Exam updatedExam = examRepository.save(exam);
-        System.out.println("✅ Updated exam status successfully");
         return updatedExam;
     }
 
     @Override
     public ExamQuestion addQuestion(String examId, ExamQuestionRequest request, String instructorId) {
-        System.out.println("➕ Adding question to exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -454,14 +426,11 @@ public class ExamServiceImpl implements ExamService {
 
         // Update grade column max points after adding question
         updateGradeColumnMaxPoints(savedExam);
-
-        System.out.println("✅ Added question successfully");
         return question;
     }
 
     @Override
     public ExamQuestion updateQuestion(String examId, String questionId, ExamQuestionRequest request, String instructorId) {
-        System.out.println("🔄 Updating question: " + questionId);
 
         Exam exam = getExamById(examId);
 
@@ -504,14 +473,11 @@ public class ExamServiceImpl implements ExamService {
 
         // Update grade column max points after updating question
         updateGradeColumnMaxPoints(savedExam);
-
-        System.out.println("✅ Updated question successfully");
         return question;
     }
 
     @Override
     public void deleteQuestion(String examId, String questionId, String instructorId) {
-        System.out.println("🗑️ Deleting question: " + questionId);
 
         Exam exam = getExamById(examId);
 
@@ -524,13 +490,10 @@ public class ExamServiceImpl implements ExamService {
 
         // Update grade column max points after deleting question
         updateGradeColumnMaxPoints(savedExam);
-
-        System.out.println("✅ Deleted question successfully");
     }
 
     @Override
     public void reorderQuestions(String examId, List<String> questionIds, String instructorId) {
-        System.out.println("🔄 Reordering questions for exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -553,12 +516,10 @@ public class ExamServiceImpl implements ExamService {
         }
 
         examRepository.save(exam);
-        System.out.println("✅ Reordered questions successfully");
     }
 
     @Override
     public Exam getStudentExam(String examId, String studentId) {
-        System.out.println("👀 Student viewing exam: " + examId);
 
         Exam exam = getExamById(examId);
 
@@ -581,7 +542,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public ExamResponse startExam(String examId, String studentId) {
-        System.out.println("🎯 Student starting exam: " + examId);
 
         if (!canStudentTakeExam(examId, studentId)) {
             throw new RuntimeException("Student cannot take this exam");
@@ -606,13 +566,11 @@ public class ExamServiceImpl implements ExamService {
         response.setAttemptNumber(getStudentAttemptCount(examId, studentId) + 1);
 
         ExamResponse savedResponse = examResponseRepository.save(response);
-        System.out.println("✅ Started exam attempt: " + savedResponse.getId());
         return savedResponse;
     }
 
     @Override
     public ExamResponse saveProgress(ExamResponseRequest request, String studentId) {
-        System.out.println("💾 Saving exam progress for student: " + studentId);
 
         ExamResponse response = examResponseRepository.findActiveResponse(request.getExamId(), studentId)
                 .orElseThrow(() -> new RuntimeException("No active exam attempt found"));
@@ -627,13 +585,11 @@ public class ExamServiceImpl implements ExamService {
         }
 
         ExamResponse savedResponse = examResponseRepository.save(response);
-        System.out.println("✅ Saved exam progress");
         return savedResponse;
     }
 
     @Override
     public ExamResponse submitExam(ExamResponseRequest request, String studentId) {
-        System.out.println("📤 Student submitting exam: " + request.getExamId());
 
         ExamResponse response = examResponseRepository.findActiveResponse(request.getExamId(), studentId)
                 .orElseThrow(() -> new RuntimeException("No active exam attempt found"));
@@ -665,8 +621,6 @@ public class ExamServiceImpl implements ExamService {
             System.err.println("⚠️ Auto-grading failed: " + e.getMessage());
             e.printStackTrace();
         }
-
-        System.out.println("✅ Submitted exam successfully");
         return submittedResponse;
     }
 
@@ -678,12 +632,9 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public List<ExamResponse> getExamResponses(String examId) {
         try {
-            System.out.println("📊 === FETCHING RESPONSES FOR EXAM ===");
-            System.out.println("📊 Exam ID: " + examId);
 
             // Debug: Check if exam exists first
             Exam exam = getExamById(examId);
-            System.out.println("📊 Exam found: " + exam.getTitle() + " (Course: " + exam.getCourseId() + ")");
 
             // Try multiple repository methods to see which works
             List<ExamResponse> responses = null;
@@ -691,7 +642,6 @@ public class ExamServiceImpl implements ExamService {
             // Method 1: Your current approach
             try {
                 responses = examResponseRepository.findByExamIdOrderBySubmittedAtDesc(examId);
-                System.out.println("📊 Method 1 (findByExamIdOrderBySubmittedAtDesc): Found " + responses.size() + " responses");
             } catch (Exception e) {
                 System.err.println("❌ Method 1 failed: " + e.getMessage());
                 responses = new ArrayList<>();
@@ -701,7 +651,6 @@ public class ExamServiceImpl implements ExamService {
             if (responses.isEmpty()) {
                 try {
                     responses = examResponseRepository.findByExamId(examId);
-                    System.out.println("📊 Method 2 (findByExamId): Found " + responses.size() + " responses");
                 } catch (Exception e) {
                     System.err.println("❌ Method 2 failed: " + e.getMessage());
                     responses = new ArrayList<>();
@@ -711,22 +660,16 @@ public class ExamServiceImpl implements ExamService {
             // Method 3: Try findAll and filter (last resort for debugging)
             if (responses.isEmpty()) {
                 try {
-                    System.out.println("📊 Method 3: Trying findAll and filter...");
                     List<ExamResponse> allResponses = examResponseRepository.findAll();
-                    System.out.println("📊 Total responses in database: " + allResponses.size());
 
                     // Filter manually to see what's happening
                     responses = new ArrayList<>();
                     for (ExamResponse response : allResponses) {
-                        System.out.println("📊 Checking response: " + response.getId() +
-                                " (examId: '" + response.getExamId() + "', target: '" + examId + "')");
 
                         if (examId.equals(response.getExamId())) {
                             responses.add(response);
-                            System.out.println("📊 ✅ Match found!");
                         }
                     }
-                    System.out.println("📊 Method 3 (manual filter): Found " + responses.size() + " responses");
 
                     // If we found responses this way, there might be an issue with the repository method
                     if (!responses.isEmpty()) {
@@ -742,30 +685,13 @@ public class ExamServiceImpl implements ExamService {
 
             // Log detailed information about found responses
             if (!responses.isEmpty()) {
-                System.out.println("📊 === RESPONSE DETAILS ===");
                 for (int i = 0; i < Math.min(responses.size(), 3); i++) {
                     ExamResponse response = responses.get(i);
-                    System.out.println("📊 Response " + (i + 1) + ":");
-                    System.out.println("📊   ID: " + response.getId());
-                    System.out.println("📊   ExamId: " + response.getExamId());
-                    System.out.println("📊   StudentId: " + response.getStudentId());
-                    System.out.println("📊   CourseId: " + response.getCourseId());
-                    System.out.println("📊   Status: " + response.getStatus());
-                    System.out.println("📊   Graded: " + response.getGraded());
-                    System.out.println("📊   Submitted: " + response.getSubmittedAt());
                 }
                 if (responses.size() > 3) {
-                    System.out.println("📊 ... and " + (responses.size() - 3) + " more responses");
                 }
             } else {
-                System.out.println("📊 ❌ NO RESPONSES FOUND");
-                System.out.println("📊 Debugging info:");
-                System.out.println("📊   Target examId: '" + examId + "'");
-                System.out.println("📊   ExamId length: " + examId.length());
-                System.out.println("📊   ExamId class: " + examId.getClass().getSimpleName());
             }
-
-            System.out.println("✅ Found " + responses.size() + " responses for exam: " + examId);
             return responses;
 
         } catch (Exception e) {
@@ -780,18 +706,9 @@ public class ExamServiceImpl implements ExamService {
      */
     public void debugExamResponses() {
         try {
-            System.out.println("🔍 === DEBUG: ALL EXAM RESPONSES ===");
             List<ExamResponse> allResponses = examResponseRepository.findAll();
-            System.out.println("🔍 Total responses in database: " + allResponses.size());
 
             for (ExamResponse response : allResponses) {
-                System.out.println("🔍 Response: " + response.getId());
-                System.out.println("🔍   ExamId: '" + response.getExamId() + "' (length: " +
-                        (response.getExamId() != null ? response.getExamId().length() : "null") + ")");
-                System.out.println("🔍   StudentId: " + response.getStudentId());
-                System.out.println("🔍   CourseId: " + response.getCourseId());
-                System.out.println("🔍   Status: " + response.getStatus());
-                System.out.println("🔍   ---");
             }
         } catch (Exception e) {
             System.err.println("❌ Debug method failed: " + e.getMessage());
@@ -813,15 +730,11 @@ public class ExamServiceImpl implements ExamService {
     // NEW: Get responses for a specific student and exam (response history)
     @Override
     public List<ExamResponse> getStudentExamResponses(String examId, String studentId) {
-        System.out.println("📚 Fetching exam responses for student: " + studentId + " exam: " + examId);
         return examResponseRepository.findByExamIdAndStudentIdOrderByAttemptNumberDesc(examId, studentId);
     }
 
     @Override
     public ExamResponse gradeResponse(ExamGradeRequest request, String instructorId) {
-        System.out.println("📝 === GRADING EXAM RESPONSE WITH GRADE COLUMN SYNC ===");
-        System.out.println("Response ID: " + request.getResponseId());
-        System.out.println("Grader: " + instructorId);
 
         ExamResponse response = getResponse(request.getResponseId());
 
@@ -847,7 +760,6 @@ public class ExamServiceImpl implements ExamService {
         response.setPassed(response.getPercentage() >= exam.getPassPercentage());
 
         ExamResponse gradedResponse = examResponseRepository.save(response);
-        System.out.println("✅ Graded exam response: " + gradedResponse.getTotalScore() + "/" + gradedResponse.getMaxScore());
 
         // Sync with grade column
         try {
@@ -863,8 +775,6 @@ public class ExamServiceImpl implements ExamService {
     // FIXED: Enhanced auto-grading method with better short answer handling
     @Override
     public ExamResponse autoGradeResponse(String responseId) {
-        System.out.println("🤖 === AUTO-GRADING RESPONSE WITH GRADE COLUMN SYNC ===");
-        System.out.println("Response ID: " + responseId);
 
         ExamResponse response = getResponse(responseId);
         Exam exam = getExamById(response.getExamId());
@@ -875,30 +785,21 @@ public class ExamServiceImpl implements ExamService {
         // Update response max score to current exam total
         response.setMaxScore(exam.getTotalPoints());
 
-        System.out.println("📊 Exam total points: " + exam.getTotalPoints());
-        System.out.println("📊 Response max score updated to: " + response.getMaxScore());
-
         Map<String, Integer> autoScores = new HashMap<>();
         boolean hasManualGradingRequired = false;
 
         // Enhanced grading logic with better error handling
         for (ExamQuestion question : exam.getQuestions()) {
-            System.out.println("🔍 Processing question: " + question.getId() + " (Type: " + question.getType() + ")");
 
             // FIXED: Use our enhanced method to check if question can be auto-graded
             boolean canAutoGrade = canQuestionBeAutoGraded(question);
-            System.out.println("🔍 Can auto-grade: " + canAutoGrade);
 
             if (canAutoGrade) {
                 try {
                     String studentAnswer = response.getAnswers().get(question.getId());
-                    System.out.println("🔍 Student answer: '" + studentAnswer + "' for question: " + question.getId());
 
                     int score = gradeQuestionWithEnhancedDebugging(question, studentAnswer);
                     autoScores.put(question.getId(), score);
-
-                    System.out.println("🔍 Auto-graded question " + question.getId() +
-                            ": " + score + "/" + question.getPoints() + " points");
                 } catch (Exception e) {
                     System.err.println("⚠️ Error grading question " + question.getId() + ": " + e.getMessage());
                     e.printStackTrace();
@@ -908,7 +809,6 @@ public class ExamServiceImpl implements ExamService {
             } else {
                 // Essay questions or other non-auto-gradable questions
                 hasManualGradingRequired = true;
-                System.out.println("🔍 Question " + question.getId() + " requires manual grading");
             }
         }
 
@@ -926,11 +826,9 @@ public class ExamServiceImpl implements ExamService {
         if (hasManualGradingRequired) {
             response.setStatus("PARTIALLY_GRADED");
             response.setGraded(false); // Still needs manual review
-            System.out.println("⚠️ Response partially auto-graded - manual grading required");
         } else {
             response.setStatus("GRADED");
             response.setGraded(true);
-            System.out.println("✅ Response fully auto-graded");
         }
 
         response.setAutoGraded(true);
@@ -945,10 +843,6 @@ public class ExamServiceImpl implements ExamService {
         }
 
         ExamResponse gradedResponse = examResponseRepository.save(response);
-
-        System.out.println("✅ Auto-graded response: " + gradedResponse.getTotalScore() +
-                "/" + gradedResponse.getMaxScore() + " points (" +
-                String.format("%.1f", gradedResponse.getPercentage()) + "%)");
 
         // Sync with grade column (only if fully graded)
         if (!hasManualGradingRequired) {
@@ -965,17 +859,12 @@ public class ExamServiceImpl implements ExamService {
 
     // FIXED: Better method to check if a question can be auto-graded
     private boolean canQuestionBeAutoGraded(ExamQuestion question) {
-        System.out.println("🔧 === CHECKING AUTO-GRADE CAPABILITY ===");
-        System.out.println("🔧 Question ID: " + question.getId());
-        System.out.println("🔧 Question Type: " + question.getType());
 
         if (question.getType() == null) {
-            System.out.println("❌ Question type is null");
             return false;
         }
 
         String type = question.getType().toLowerCase().trim();
-        System.out.println("🔧 Normalized type: '" + type + "'");
 
         switch (type) {
             case "multiple-choice":
@@ -983,7 +872,6 @@ public class ExamServiceImpl implements ExamService {
             case "multiplechoice":
                 boolean hasOptions = question.getOptions() != null && !question.getOptions().isEmpty();
                 boolean hasCorrectIndex = question.getCorrectAnswerIndex() != null;
-                System.out.println("🔧 Multiple Choice - Has options: " + hasOptions + ", Has correct index: " + hasCorrectIndex);
                 return hasOptions && hasCorrectIndex;
 
             case "true-false":
@@ -991,7 +879,6 @@ public class ExamServiceImpl implements ExamService {
             case "truefalse":
             case "boolean":
                 boolean hasCorrectAnswer = question.getCorrectAnswer() != null && !question.getCorrectAnswer().trim().isEmpty();
-                System.out.println("🔧 True/False - Has correct answer: " + hasCorrectAnswer);
                 return hasCorrectAnswer;
 
             case "short-answer":
@@ -1002,22 +889,17 @@ public class ExamServiceImpl implements ExamService {
             case "fill_in_the_blank":
                 List<String> acceptableAnswers = question.getAcceptableAnswers();
                 boolean hasAcceptableAnswers = acceptableAnswers != null && !acceptableAnswers.isEmpty();
-                System.out.println("🔧 Short Answer - Has acceptable answers: " + hasAcceptableAnswers);
                 if (hasAcceptableAnswers) {
-                    System.out.println("🔧 Acceptable answers count: " + acceptableAnswers.size());
                     for (int i = 0; i < acceptableAnswers.size(); i++) {
                         String answer = acceptableAnswers.get(i);
                         boolean isValidAnswer = answer != null && !answer.trim().isEmpty();
-                        System.out.println("🔧 Answer " + i + ": '" + answer + "' (valid: " + isValidAnswer + ")");
                     }
                     // Check if at least one acceptable answer is valid
                     for (String answer : acceptableAnswers) {
                         if (answer != null && !answer.trim().isEmpty()) {
-                            System.out.println("✅ Found at least one valid acceptable answer");
                             return true;
                         }
                     }
-                    System.out.println("❌ No valid acceptable answers found");
                     return false;
                 }
                 return false;
@@ -1026,24 +908,17 @@ public class ExamServiceImpl implements ExamService {
             case "long-answer":
             case "long_answer":
             case "paragraph":
-                System.out.println("🔧 Essay question - requires manual grading");
                 return false;
 
             default:
-                System.out.println("🔧 Unknown question type: '" + type + "' - requires manual grading");
                 return false;
         }
     }
 
     // FIXED: Enhanced grading method with better debugging
     private int gradeQuestionWithEnhancedDebugging(ExamQuestion question, String studentAnswer) {
-        System.out.println("🔍 === GRADING QUESTION WITH ENHANCED DEBUG ===");
-        System.out.println("🔍 Question ID: " + question.getId());
-        System.out.println("🔍 Question Type: " + question.getType());
-        System.out.println("🔍 Student Answer: '" + studentAnswer + "'");
 
         if (studentAnswer == null || studentAnswer.trim().isEmpty()) {
-            System.out.println("🔍 Empty answer for question " + question.getId());
             return 0;
         }
 
@@ -1071,7 +946,6 @@ public class ExamServiceImpl implements ExamService {
                     return gradeTextQuestionWithEnhancedDebugging(question, studentAnswer);
 
                 default:
-                    System.out.println("🔍 Question type '" + type + "' requires manual grading");
                     return 0;
             }
 
@@ -1084,86 +958,62 @@ public class ExamServiceImpl implements ExamService {
 
     // FIXED: Enhanced text question grading with detailed debugging
     private int gradeTextQuestionWithEnhancedDebugging(ExamQuestion question, String studentAnswer) {
-        System.out.println("🔍 === DEBUGGING TEXT QUESTION GRADING ===");
-        System.out.println("🔍 Question ID: " + question.getId());
-        System.out.println("🔍 Question Type: " + question.getType());
-        System.out.println("🔍 Student Answer: '" + studentAnswer + "'");
-        System.out.println("🔍 Student Answer Length: " + (studentAnswer != null ? studentAnswer.length() : "null"));
 
         List<String> acceptableAnswers = question.getAcceptableAnswers();
-        System.out.println("🔍 Acceptable Answers: " + acceptableAnswers);
-        System.out.println("🔍 Acceptable Answers Size: " + (acceptableAnswers != null ? acceptableAnswers.size() : "null"));
 
         if (acceptableAnswers != null && !acceptableAnswers.isEmpty()) {
             for (int i = 0; i < acceptableAnswers.size(); i++) {
-                System.out.println("🔍 Acceptable Answer " + i + ": '" + acceptableAnswers.get(i) + "'");
             }
         }
 
         Boolean caseSensitive = question.getCaseSensitive();
         boolean isCaseSensitive = caseSensitive != null && caseSensitive;
-        System.out.println("🔍 Case Sensitive: " + isCaseSensitive);
 
         Integer questionPoints = question.getPoints();
-        System.out.println("🔍 Question Points: " + questionPoints);
 
         if (acceptableAnswers == null || acceptableAnswers.isEmpty()) {
-            System.out.println("⚠️ No acceptable answers set for text question " + question.getId() + " - skipping auto-grade");
             return 0;
         }
 
         // Trim student answer and handle null case
         if (studentAnswer == null) {
-            System.out.println("❌ Student answer is null");
             return 0;
         }
 
         String trimmedStudentAnswer = studentAnswer.trim();
         if (trimmedStudentAnswer.isEmpty()) {
-            System.out.println("❌ Student answer is empty after trimming");
             return 0;
         }
 
         final String answerToCheck = isCaseSensitive ? trimmedStudentAnswer : trimmedStudentAnswer.toLowerCase();
-        System.out.println("🔍 Answer to check: '" + answerToCheck + "'");
 
         // Check if answer matches any acceptable answer
         boolean correct = false;
         for (int i = 0; i < acceptableAnswers.size(); i++) {
             String acceptable = acceptableAnswers.get(i);
-            System.out.println("🔍 Checking against acceptable answer " + i + ": '" + acceptable + "'");
 
             if (acceptable == null) {
-                System.out.println("🔍 Acceptable answer " + i + " is null - skipping");
                 continue;
             }
 
             String trimmedAcceptable = acceptable.trim();
             if (trimmedAcceptable.isEmpty()) {
-                System.out.println("🔍 Acceptable answer " + i + " is empty after trimming - skipping");
                 continue;
             }
 
             String acceptableAnswer = isCaseSensitive ? trimmedAcceptable : trimmedAcceptable.toLowerCase();
-            System.out.println("🔍 Processed acceptable answer " + i + ": '" + acceptableAnswer + "'");
 
             if (acceptableAnswer.equals(answerToCheck)) {
-                System.out.println("✅ MATCH FOUND! Acceptable answer " + i + " matches student answer");
                 correct = true;
                 break;
             } else {
-                System.out.println("❌ No match for acceptable answer " + i);
-                System.out.println("❌ Expected: '" + acceptableAnswer + "' (length: " + acceptableAnswer.length() + ")");
-                System.out.println("❌ Actual: '" + answerToCheck + "' (length: " + answerToCheck.length() + ")");
 
                 // Character-by-character comparison for debugging
                 if (acceptableAnswer.length() == answerToCheck.length()) {
-                    System.out.println("🔍 Same length - checking character differences:");
                     for (int j = 0; j < acceptableAnswer.length(); j++) {
                         char expected = acceptableAnswer.charAt(j);
                         char actual = answerToCheck.charAt(j);
                         if (expected != actual) {
-                            System.out.println("🔍 Difference at position " + j + ": expected '" + expected + "' (code: " + (int)expected + "), got '" + actual + "' (code: " + (int)actual + ")");
                         }
                     }
                 }
@@ -1173,20 +1023,14 @@ public class ExamServiceImpl implements ExamService {
         int pointsToAward = 0;
         if (correct) {
             pointsToAward = questionPoints != null ? questionPoints : 0;
-            System.out.println("✅ Correct text answer for question " + question.getId() + " - awarding " + pointsToAward + " points");
         } else {
-            System.out.println("❌ Incorrect text answer for question " + question.getId() + " - awarding 0 points");
         }
-
-        System.out.println("🔍 Final result: awarding " + pointsToAward + " points");
         return pointsToAward;
     }
 
     // NEW: Update individual question score
     @Override
     public ExamResponse updateQuestionScore(String responseId, String questionId, Integer score, String feedback, String instructorId) {
-        System.out.println("🔢 === UPDATING INDIVIDUAL QUESTION SCORE ===");
-        System.out.println("Response ID: " + responseId + ", Question ID: " + questionId + ", Score: " + score);
 
         ExamResponse response = getResponse(responseId);
         Exam exam = getExamById(response.getExamId());
@@ -1251,16 +1095,12 @@ public class ExamServiceImpl implements ExamService {
                 e.printStackTrace();
             }
         }
-
-        System.out.println("✅ Updated question score successfully");
         return updatedResponse;
     }
 
     // NEW: Flag response for review
     @Override
     public ExamResponse flagResponseForReview(String responseId, String reason, String priority, String instructorId) {
-        System.out.println("🚩 === FLAGGING RESPONSE FOR REVIEW ===");
-        System.out.println("Response ID: " + responseId + ", Reason: " + reason);
 
         ExamResponse response = getResponse(responseId);
 
@@ -1271,15 +1111,12 @@ public class ExamServiceImpl implements ExamService {
         response.setInstructorFeedback(response.getInstructorFeedback() + "\n[FLAGGED: " + reason + "]");
 
         ExamResponse flaggedResponse = examResponseRepository.save(response);
-        System.out.println("✅ Response flagged for review successfully");
         return flaggedResponse;
     }
 
     // NEW: Unflag response
     @Override
     public ExamResponse unflagResponse(String responseId, String instructorId) {
-        System.out.println("🚩 === UNFLAGGING RESPONSE ===");
-        System.out.println("Response ID: " + responseId);
 
         ExamResponse response = getResponse(responseId);
 
@@ -1292,15 +1129,12 @@ public class ExamServiceImpl implements ExamService {
         }
 
         ExamResponse unflaggedResponse = examResponseRepository.save(response);
-        System.out.println("✅ Response unflagged successfully");
         return unflaggedResponse;
     }
 
     // NEW: Batch grade multiple responses
     @Override
     public List<ExamResponse> batchGradeResponses(List<String> responseIds, String instructorFeedback, Boolean flagForReview, String instructorId) {
-        System.out.println("📦 === BATCH GRADING RESPONSES ===");
-        System.out.println("Grading " + responseIds.size() + " responses");
 
         List<ExamResponse> batchGradedResponses = new ArrayList<>();
 
@@ -1329,16 +1163,12 @@ public class ExamServiceImpl implements ExamService {
                 e.printStackTrace();
             }
         }
-
-        System.out.println("✅ Batch grading completed for " + batchGradedResponses.size() + " responses");
         return batchGradedResponses;
     }
 
     // NEW: Get grading statistics for an exam
     @Override
     public Map<String, Object> getExamGradingStats(String examId) {
-        System.out.println("📊 === CALCULATING GRADING STATISTICS ===");
-        System.out.println("Exam ID: " + examId);
 
         List<ExamResponse> responses = examResponseRepository.findByExamId(examId);
 
@@ -1411,18 +1241,11 @@ public class ExamServiceImpl implements ExamService {
         stats.put("gradingProgress", Math.round(gradingProgress * 100.0) / 100.0);
         stats.put("inProgressResponses", responses.stream().filter(r -> "IN_PROGRESS".equals(r.getStatus())).count());
         stats.put("submittedResponses", responses.stream().filter(r -> "SUBMITTED".equals(r.getStatus())).count());
-
-        System.out.println("✅ Grading statistics calculated successfully");
         return stats;
     }
 
     // Sync exam grade to grade column
     private void syncExamGradeToGradeColumn(ExamResponse examResponse, Exam exam) {
-        System.out.println("🔄 === SYNCING EXAM GRADE TO GRADE COLUMN ===");
-        System.out.println("Student: " + examResponse.getStudentId());
-        System.out.println("Exam: " + exam.getTitle());
-        System.out.println("Score: " + examResponse.getTotalScore() + "/" + examResponse.getMaxScore() +
-                " (" + String.format("%.2f", examResponse.getPercentage()) + "%)");
 
         try {
             // Find linked grade column for this exam
@@ -1430,18 +1253,15 @@ public class ExamServiceImpl implements ExamService {
                     exam.getCourseId(), exam.getId());
 
             if (linkedColumns.isEmpty()) {
-                System.out.println("⚠️ No linked grade column found for exam: " + exam.getTitle());
                 return;
             }
 
             GradeColumn gradeColumn = linkedColumns.get(0);
-            System.out.println("📊 Found linked grade column: " + gradeColumn.getName() + " (ID: " + gradeColumn.getId() + ")");
 
             // Update the grade column's max points to match current exam total
             if (!exam.getTotalPoints().equals(gradeColumn.getMaxPoints())) {
                 gradeColumn.setMaxPoints(exam.getTotalPoints());
                 gradeColumnRepository.save(gradeColumn);
-                System.out.println("📊 Updated grade column max points to " + exam.getTotalPoints());
             }
 
             // Calculate the grade as a percentage (0-100)
@@ -1449,10 +1269,6 @@ public class ExamServiceImpl implements ExamService {
 
             // Use GradeService to update the student's grade for this column
             gradeService.updateStudentGrade(examResponse.getStudentId(), gradeColumn.getId(), gradePercentage);
-
-            System.out.println("✅ Successfully synced exam grade to grade column");
-            System.out.println("📊 Student " + examResponse.getStudentId() + " received " +
-                    String.format("%.2f", gradePercentage) + "% for " + gradeColumn.getName());
 
         } catch (Exception e) {
             System.err.println("❌ Error syncing exam grade to grade column: " + e.getMessage());
@@ -1463,7 +1279,6 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public List<ExamResponse> autoGradeAllResponses(String examId) {
-        System.out.println("🤖 Auto-grading all responses for exam: " + examId);
 
         // Verify exam exists and get updated total points
         Exam exam = getExamById(examId);
@@ -1475,13 +1290,10 @@ public class ExamServiceImpl implements ExamService {
         int successCount = 0;
         int failCount = 0;
 
-        System.out.println("📊 Found " + ungraded.size() + " ungraded responses");
-
         for (ExamResponse response : ungraded) {
             try {
                 // Skip if response is already being manually graded
                 if ("GRADING_IN_PROGRESS".equals(response.getStatus())) {
-                    System.out.println("⏭️ Skipping response " + response.getId() + " - manual grading in progress");
                     continue;
                 }
 
@@ -1505,15 +1317,11 @@ public class ExamServiceImpl implements ExamService {
             }
         }
 
-        System.out.println("✅ Auto-grading completed: " + successCount + " successful, " +
-                failCount + " failed out of " + ungraded.size() + " total responses");
-
         return graded;
     }
 
     @Override
     public ExamStatsResponse getExamStats(String examId) {
-        System.out.println("📊 Calculating stats for exam: " + examId);
 
         Exam exam = getExamById(examId);
         List<ExamResponse> responses = examResponseRepository.findByExamId(examId);
@@ -1619,7 +1427,6 @@ public class ExamServiceImpl implements ExamService {
     // ORIGINAL: Keep the original gradeQuestion method for backward compatibility
     private int gradeQuestion(ExamQuestion question, String studentAnswer) {
         if (studentAnswer == null || studentAnswer.trim().isEmpty()) {
-            System.out.println("🔍 Empty answer for question " + question.getId());
             return 0;
         }
 
@@ -1637,7 +1444,6 @@ public class ExamServiceImpl implements ExamService {
             }
 
             // Essay questions cannot be auto-graded
-            System.out.println("🔍 Essay question " + question.getId() + " requires manual grading");
             return 0;
 
         } catch (Exception e) {
@@ -1665,15 +1471,12 @@ public class ExamServiceImpl implements ExamService {
         // Try to parse as index first (for backward compatibility)
         try {
             studentAnswerIndex = Integer.parseInt(studentAnswer.trim());
-            System.out.println("🔍 Parsed student answer as index: " + studentAnswerIndex);
         } catch (NumberFormatException e) {
             // If not a number, treat as text answer and find its index
-            System.out.println("🔍 Student answer is text, searching for matching option: '" + studentAnswer + "'");
 
             for (int i = 0; i < options.size(); i++) {
                 if (options.get(i) != null && options.get(i).trim().equals(studentAnswer.trim())) {
                     studentAnswerIndex = i;
-                    System.out.println("🔍 Found matching option at index: " + i);
                     break;
                 }
             }
@@ -1686,12 +1489,8 @@ public class ExamServiceImpl implements ExamService {
 
         // Check if the answer is correct
         if (studentAnswerIndex == correctIndex) {
-            System.out.println("✅ Correct multiple choice answer for question " + question.getId() +
-                    " (student: " + studentAnswerIndex + ", correct: " + correctIndex + ")");
             return question.getPoints() != null ? question.getPoints() : 0;
         } else {
-            System.out.println("❌ Incorrect multiple choice answer for question " + question.getId() +
-                    " (student: " + studentAnswerIndex + ", correct: " + correctIndex + ")");
             return 0;
         }
     }
@@ -1714,12 +1513,8 @@ public class ExamServiceImpl implements ExamService {
         boolean correct = (studentBool == correctBool);
 
         if (correct) {
-            System.out.println("✅ Correct true/false answer for question " + question.getId() +
-                    " (student: '" + studentAnswer + "', correct: '" + correctAnswer + "')");
             return question.getPoints() != null ? question.getPoints() : 0;
         } else {
-            System.out.println("❌ Incorrect true/false answer for question " + question.getId() +
-                    " (student: '" + studentAnswer + "', correct: '" + correctAnswer + "')");
             return 0;
         }
     }
@@ -1746,45 +1541,34 @@ public class ExamServiceImpl implements ExamService {
 
     // FIXED: Enhanced original gradeTextQuestion method
     private int gradeTextQuestion(ExamQuestion question, String studentAnswer) {
-        System.out.println("🔍 === GRADING TEXT QUESTION (ORIGINAL METHOD) ===");
-        System.out.println("🔍 Question ID: " + question.getId());
-        System.out.println("🔍 Student Answer: '" + studentAnswer + "'");
 
         List<String> acceptableAnswers = question.getAcceptableAnswers();
-        System.out.println("🔍 Acceptable Answers: " + acceptableAnswers);
 
         if (acceptableAnswers == null || acceptableAnswers.isEmpty()) {
-            System.out.println("⚠️ No acceptable answers set for text question " + question.getId() + " - skipping auto-grade");
             return 0;
         }
 
         Boolean caseSensitive = question.getCaseSensitive();
         boolean isCaseSensitive = caseSensitive != null && caseSensitive;
-        System.out.println("🔍 Case Sensitive: " + isCaseSensitive);
 
         // Handle null/empty student answer
         if (studentAnswer == null || studentAnswer.trim().isEmpty()) {
-            System.out.println("❌ Student answer is null or empty");
             return 0;
         }
 
         // Make this variable final by not reassigning it
         final String answerToCheck = isCaseSensitive ? studentAnswer.trim() : studentAnswer.trim().toLowerCase();
-        System.out.println("🔍 Answer to check: '" + answerToCheck + "'");
 
         // Check if answer matches any acceptable answer without using lambda
         boolean correct = false;
         for (String acceptable : acceptableAnswers) {
             if (acceptable == null || acceptable.trim().isEmpty()) {
-                System.out.println("🔍 Skipping null/empty acceptable answer");
                 continue;
             }
 
             String acceptableAnswer = isCaseSensitive ? acceptable.trim() : acceptable.trim().toLowerCase();
-            System.out.println("🔍 Checking against: '" + acceptableAnswer + "'");
 
             if (acceptableAnswer.equals(answerToCheck)) {
-                System.out.println("✅ MATCH FOUND!");
                 correct = true;
                 break;
             }
@@ -1792,12 +1576,8 @@ public class ExamServiceImpl implements ExamService {
 
         if (correct) {
             int points = question.getPoints() != null ? question.getPoints() : 0;
-            System.out.println("✅ Correct text answer for question " + question.getId() +
-                    " (student: '" + studentAnswer + "') - awarding " + points + " points");
             return points;
         } else {
-            System.out.println("❌ Incorrect text answer for question " + question.getId() +
-                    " (student: '" + studentAnswer + "', acceptable: " + acceptableAnswers + ")");
             return 0;
         }
     }

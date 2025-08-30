@@ -41,8 +41,6 @@ public class ExtensionServiceImpl implements ExtensionService {
 
     @Override
     public ExtensionDashboardResponse getDashboardData(String userId, String userRole) {
-        System.out.println("📚 === GETTING EXTENSION DASHBOARD DATA ===");
-        System.out.println("User ID: " + userId + ", Role: " + userRole);
 
         try {
             // Get user's courses by calling the edusphere-service API
@@ -51,7 +49,6 @@ public class ExtensionServiceImpl implements ExtensionService {
                     .map(course -> (String) course.get("id"))
                     .collect(Collectors.toList());
 
-            System.out.println("📋 User has access to " + courseIds.size() + " courses");
 
             if (courseIds.isEmpty()) {
                 return new ExtensionDashboardResponse(new ArrayList<>(), new ExtensionStatsResponse());
@@ -62,8 +59,6 @@ public class ExtensionServiceImpl implements ExtensionService {
             // Get all tasks from user's courses by calling the edusphere-service API
             List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds);
 
-            System.out.println("✅ Found " + allTasks.size() + " accessible tasks");
-
             // Convert tasks to extension items
             List<ExtensionItemResponse> taskItems = allTasks.stream()
                     .map(this::convertTaskToExtensionItem)
@@ -73,8 +68,6 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             // Get all meetings from user's courses by calling the edusphere-service API
             List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds);
-
-            System.out.println("✅ Found " + allMeetings.size() + " accessible meetings");
 
             // Convert meetings to extension items
             List<ExtensionItemResponse> meetingItems = allMeetings.stream()
@@ -96,7 +89,6 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             ExtensionDashboardResponse response = new ExtensionDashboardResponse(items, stats);
 
-            System.out.println("✅ Dashboard data prepared with " + items.size() + " total items");
             return response;
 
         } catch (Exception e) {
@@ -116,9 +108,6 @@ public class ExtensionServiceImpl implements ExtensionService {
     public List<ExtensionItemResponse> getTasks(String userId, String userRole, String status,
                                                 String priority, String type, int limit) {
         try {
-            System.out.println("✅ === GETTING EXTENSION TASKS ===");
-            System.out.println("Filters - Status: " + status + ", Priority: " + priority + ", Type: " + type);
-
             // Get user's courses via API client
             List<Map<String, Object>> userCourses = eduSphereClient.getUserCourses(userId, userRole);
             List<String> courseIds = userCourses.stream()
@@ -164,7 +153,6 @@ public class ExtensionServiceImpl implements ExtensionService {
                     .limit(limit)
                     .collect(Collectors.toList());
 
-            System.out.println("✅ Filtered items: " + filteredItems.size());
             return filteredItems;
 
         } catch (Exception e) {
@@ -176,7 +164,6 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public List<ExtensionItemResponse> getAnnouncements(String userId, String userRole, int limit) {
         try {
-            System.out.println("📢 === GETTING EXTENSION ANNOUNCEMENTS ===");
 
             // Get user's courses via API client
             List<Map<String, Object>> userCourses = eduSphereClient.getUserCourses(userId, userRole);
@@ -187,7 +174,6 @@ public class ExtensionServiceImpl implements ExtensionService {
                     .limit(limit)
                     .collect(Collectors.toList());
 
-            System.out.println("✅ Generated " + announcements.size() + " announcements");
             return announcements;
 
         } catch (Exception e) {
@@ -199,7 +185,6 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public ExtensionStatsResponse getUserStats(String userId, String userRole) {
         try {
-            System.out.println("📊 === CALCULATING EXTENSION STATS ===");
 
             // Get dashboard data to calculate stats
             ExtensionDashboardResponse dashboardData = getDashboardData(userId, userRole);
@@ -214,7 +199,6 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public List<ExtensionItemResponse> getUrgentItems(String userId, String userRole) {
         try {
-            System.out.println("🚨 === GETTING URGENT ITEMS ===");
 
             // Get all items and filter for urgent ones
             ExtensionDashboardResponse dashboardData = getDashboardData(userId, userRole);
@@ -223,7 +207,6 @@ public class ExtensionServiceImpl implements ExtensionService {
                     .sorted(this::compareItemsByDueDate)
                     .collect(Collectors.toList());
 
-            System.out.println("✅ Found " + urgentItems.size() + " urgent items");
             return urgentItems;
 
         } catch (Exception e) {

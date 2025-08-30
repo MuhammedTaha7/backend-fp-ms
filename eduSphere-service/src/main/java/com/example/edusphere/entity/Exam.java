@@ -112,7 +112,6 @@ public class Exam {
         }
         questions.add(question);
         recalculateTotalPoints();
-        System.out.println("✅ Added question to exam. New total: " + totalPoints + " points");
     }
 
     public void removeQuestion(String questionId) {
@@ -120,7 +119,6 @@ public class Exam {
             boolean removed = questions.removeIf(q -> questionId.equals(q.getId()));
             if (removed) {
                 recalculateTotalPoints();
-                System.out.println("✅ Removed question from exam. New total: " + totalPoints + " points");
             }
         }
     }
@@ -136,19 +134,13 @@ public class Exam {
     public void recalculateTotalPoints() {
         if (questions == null || questions.isEmpty()) {
             totalPoints = 0;
-            System.out.println("📊 Recalculated total points: 0 (no questions)");
         } else {
             int calculatedTotal = questions.stream()
                     .mapToInt(q -> q.getPoints() != null ? q.getPoints() : 0)
                     .sum();
 
             totalPoints = calculatedTotal;
-            System.out.println("📊 Recalculated total points: " + totalPoints + " (" + questions.size() + " questions)");
 
-            // Debug: Show breakdown
-            questions.forEach(q -> {
-                System.out.println("  - Question " + q.getId() + ": " + q.getPoints() + " points (" + q.getType() + ")");
-            });
         }
     }
 
@@ -167,12 +159,10 @@ public class Exam {
             if (totalPoints == null || !totalPoints.equals(calculatedTotal)) {
                 int oldTotal = totalPoints != null ? totalPoints : 0;
                 totalPoints = calculatedTotal;
-                System.out.println("📊 Updated total points: " + oldTotal + " → " + totalPoints);
             }
         } else {
             if (totalPoints == null || totalPoints != 0) {
                 totalPoints = 0;
-                System.out.println("📊 Updated total points: → 0 (no questions)");
             }
         }
 
@@ -221,7 +211,6 @@ public class Exam {
         // Ensure total points are calculated
         recalculateTotalPoints();
 
-        System.out.println("✅ Exam can be published: " + questions.size() + " questions, " + totalPoints + " total points");
         return true;
     }
 
@@ -253,7 +242,6 @@ public class Exam {
         }
 
         boolean hasAuto = questions.stream().anyMatch(ExamQuestion::canAutoGrade);
-        System.out.println("🤖 Exam has auto-gradable questions: " + hasAuto);
         return hasAuto;
     }
 
@@ -266,7 +254,6 @@ public class Exam {
         }
 
         boolean requiresManual = questions.stream().anyMatch(q -> !q.canAutoGrade());
-        System.out.println("👨‍🏫 Exam requires manual grading: " + requiresManual);
         return requiresManual;
     }
 
@@ -377,11 +364,8 @@ public class Exam {
                     questions.stream().mapToInt(q -> q.getPoints() != null ? q.getPoints() : 0).sum() : 0;
 
             if (totalPoints == null || !totalPoints.equals(calculatedTotal)) {
-                System.out.println("⚠️ Total points mismatch detected - recalculating");
                 recalculateTotalPoints();
             }
-
-            System.out.println("✅ Exam data integrity validated successfully");
             return true;
 
         } catch (Exception e) {

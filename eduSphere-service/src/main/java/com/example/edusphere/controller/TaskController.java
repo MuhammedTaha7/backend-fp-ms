@@ -60,7 +60,6 @@ public class TaskController {
         this.taskSubmissionService = taskSubmissionService;
     }
 
-
     /**
      * POST /api/tasks/upload-file : Upload file for task with proper encoding
      */
@@ -74,14 +73,6 @@ public class TaskController {
             @RequestParam(value = "description", required = false) String description,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📁 === UPLOADING TASK FILE ===");
-            System.out.println("File: " + file.getOriginalFilename());
-            System.out.println("Size: " + file.getSize() + " bytes");
-            System.out.println("Content Type: " + file.getContentType());
-            System.out.println("Context: " + context);
-            System.out.println("Assignment ID: " + assignmentId);
-            System.out.println("Course ID: " + courseId);
-
             // Validate file
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -121,9 +112,7 @@ public class TaskController {
             Path filePath = uploadPath.resolve(uniqueFilename);
             try {
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("📁 File saved to: " + filePath.toAbsolutePath());
             } catch (IOException e) {
-                System.err.println("❌ Error saving file: " + e.getMessage());
                 throw new IOException("Failed to save file: " + e.getMessage());
             }
 
@@ -153,19 +142,12 @@ public class TaskController {
             response.put("context", context);
             response.put("uniqueFilename", uniqueFilename);
 
-            System.out.println("✅ File uploaded successfully: " + uniqueFilename);
-            System.out.println("📄 Detected content type: " + detectedContentType);
-
             return ResponseEntity.ok(response);
 
         } catch (IOException e) {
-            System.err.println("❌ Error uploading file: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to upload file: " + e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error uploading file: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -181,22 +163,16 @@ public class TaskController {
             @PathVariable String filename,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📁 === SERVING FILE ===");
-            System.out.println("Raw filename parameter: " + filename);
-
             // Decode URL-encoded filename properly
             String decodedFilename;
             try {
                 decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8);
-                System.out.println("📄 Decoded filename: " + decodedFilename);
             } catch (Exception e) {
-                System.err.println("⚠️ Could not decode filename, using as-is: " + e.getMessage());
                 decodedFilename = filename;
             }
 
             // Enhanced security validation
             if (!isValidFilename(decodedFilename)) {
-                System.err.println("❌ Invalid filename: " + decodedFilename);
                 return ResponseEntity.badRequest().build();
             }
 
@@ -206,24 +182,19 @@ public class TaskController {
 
             // Security check: ensure file is within upload directory
             if (!filePath.startsWith(uploadPath)) {
-                System.err.println("❌ Security violation: file path outside upload directory");
                 return ResponseEntity.badRequest().build();
             }
 
             Resource resource = new FileSystemResource(filePath);
 
             if (!resource.exists() || !resource.isReadable()) {
-                System.err.println("❌ File not found or not readable: " + decodedFilename);
                 return ResponseEntity.notFound().build();
             }
 
             // Content type detection with better accuracy
             String contentType = detectContentType(filePath, decodedFilename);
-            System.out.println("📄 Serving with content type: " + contentType);
-
             // Get original filename from the unique filename
             String originalFilename = extractOriginalFilename(decodedFilename);
-            System.out.println("📄 Original filename: " + originalFilename);
 
             // Build response headers (REMOVED manual CORS headers to prevent duplication)
             HttpHeaders headers = new HttpHeaders();
@@ -253,9 +224,8 @@ public class TaskController {
             try {
                 long fileSize = Files.size(filePath);
                 headers.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileSize));
-                System.out.println("📄 File size: " + fileSize + " bytes");
             } catch (IOException e) {
-                System.err.println("⚠️ Could not determine file size: " + e.getMessage());
+                // Continue without content length
             }
 
             // Set proper media type with charset for text files
@@ -267,12 +237,8 @@ public class TaskController {
                     mediaType = MediaType.parseMediaType(contentType);
                 }
             } catch (Exception e) {
-                System.err.println("⚠️ Invalid content type, using octet-stream: " + e.getMessage());
                 mediaType = MediaType.APPLICATION_OCTET_STREAM;
             }
-
-            System.out.println("✅ Serving file: " + decodedFilename + " as " + originalFilename);
-            System.out.println("📄 Content-Type: " + mediaType);
 
             return ResponseEntity.ok()
                     .headers(headers)
@@ -280,8 +246,6 @@ public class TaskController {
                     .body(resource);
 
         } catch (Exception e) {
-            System.err.println("❌ Error serving file: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -295,16 +259,11 @@ public class TaskController {
             @PathVariable String filename,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🗑️ === DELETING FILE ===");
-            System.out.println("Raw filename: " + filename);
-
             // Decode URL-encoded filename
             String decodedFilename;
             try {
                 decodedFilename = URLDecoder.decode(filename, StandardCharsets.UTF_8);
-                System.out.println("📄 Decoded filename: " + decodedFilename);
             } catch (Exception e) {
-                System.err.println("⚠️ Could not decode filename, using as-is: " + e.getMessage());
                 decodedFilename = filename;
             }
 
@@ -326,20 +285,15 @@ public class TaskController {
 
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
-                System.out.println("✅ File deleted successfully: " + decodedFilename);
                 return ResponseEntity.ok(Map.of("message", "File deleted successfully"));
             } else {
-                System.out.println("⚠️ File not found: " + decodedFilename);
                 return ResponseEntity.ok(Map.of("message", "File not found (may already be deleted)"));
             }
 
         } catch (IOException e) {
-            System.err.println("❌ Error deleting file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to delete file: " + e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error deleting file: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -364,7 +318,6 @@ public class TaskController {
 
         // Check extension first
         if (!allowedExtensions.contains(extension)) {
-            System.err.println("❌ Invalid file extension: " + extension);
             return false;
         }
 
@@ -386,7 +339,6 @@ public class TaskController {
 
             // Be more lenient with content type validation
             if (!allowedTypes.contains(contentType.toLowerCase())) {
-                System.err.println("⚠️ Suspicious content type: " + contentType + " for extension: " + extension);
                 // Still allow if extension is valid (browser MIME detection can be unreliable)
             }
         }
@@ -403,18 +355,15 @@ public class TaskController {
             String detectedType = Files.probeContentType(filePath);
 
             if (detectedType != null && !detectedType.equals("application/octet-stream")) {
-                System.out.println("📄 Content type detected from file: " + detectedType);
                 return detectedType;
             }
 
             // Fallback to extension-based detection
             String extension = getFileExtension(filename).toLowerCase();
             String typeFromExtension = getContentTypeByExtension(extension);
-            System.out.println("📄 Content type from extension: " + typeFromExtension);
             return typeFromExtension;
 
         } catch (IOException e) {
-            System.err.println("⚠️ Error detecting content type, using extension-based detection: " + e.getMessage());
             String extension = getFileExtension(filename).toLowerCase();
             return getContentTypeByExtension(extension);
         }
@@ -482,7 +431,6 @@ public class TaskController {
             // Fallback to the unique filename if pattern doesn't match
             return uniqueFilename;
         } catch (Exception e) {
-            System.err.println("⚠️ Could not extract original filename from: " + uniqueFilename);
             return uniqueFilename;
         }
     }
@@ -552,25 +500,17 @@ public class TaskController {
             @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📝 === CREATING TASK ===");
-            System.out.println("User: " + userDetails.getUsername());
-            System.out.println("Request: " + request);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
 
             TaskResponse createdTask = taskService.createTask(request, currentUser.getId());
-            System.out.println("✅ Task created successfully: " + createdTask.getId());
 
             return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error creating task: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error creating task: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -586,25 +526,17 @@ public class TaskController {
             @Valid @RequestBody TaskUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔄 === UPDATING TASK ===");
-            System.out.println("Task ID: " + taskId);
-            System.out.println("User: " + userDetails.getUsername());
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
 
             TaskResponse updatedTask = taskService.updateTask(taskId, request, currentUser.getId());
-            System.out.println("✅ Task updated successfully");
 
             return ResponseEntity.ok(updatedTask);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error updating task: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error updating task: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -619,26 +551,18 @@ public class TaskController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🗑️ === DELETING TASK ===");
-            System.out.println("Task ID: " + taskId);
-            System.out.println("User: " + userDetails.getUsername());
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
 
             taskService.deleteTask(taskId, currentUser.getId());
-            System.out.println("✅ Task deleted successfully");
 
             return ResponseEntity.noContent().build();
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error deleting task: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error deleting task: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -653,10 +577,6 @@ public class TaskController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔍 === FETCHING TASK ===");
-            System.out.println("Task ID: " + taskId);
-            System.out.println("User: " + userDetails.getUsername());
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -669,19 +589,15 @@ public class TaskController {
 
             Optional<TaskResponse> task = taskService.getTaskById(taskId);
             if (task.isPresent()) {
-                System.out.println("✅ Task found: " + task.get().getTitle());
                 return ResponseEntity.ok(task.get());
             } else {
                 return ResponseEntity.notFound().build();
             }
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error fetching task: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error fetching task: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -696,25 +612,18 @@ public class TaskController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📋 === FETCHING TASK DETAILS ===");
-            System.out.println("Task ID: " + taskId);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
 
             TaskDetailResponse taskDetails = taskService.getTaskDetails(taskId, currentUser.getId());
-            System.out.println("✅ Task details fetched successfully");
 
             return ResponseEntity.ok(taskDetails);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error fetching task details: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error fetching task details: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -729,9 +638,6 @@ public class TaskController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📥 === DOWNLOADING TASK FILE ===");
-            System.out.println("Task ID: " + taskId);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -760,8 +666,6 @@ public class TaskController {
             return serveFile(filename, userDetails);
 
         } catch (Exception e) {
-            System.err.println("❌ Error downloading task file: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -777,9 +681,6 @@ public class TaskController {
             @PathVariable String studentId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔍 === CHECKING SUBMISSION ELIGIBILITY ===");
-            System.out.println("Task ID: " + taskId + ", Student ID: " + studentId);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -802,12 +703,9 @@ public class TaskController {
                     "studentId", studentId
             );
 
-            System.out.println("✅ Submission eligibility checked");
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking submission eligibility: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -829,11 +727,6 @@ public class TaskController {
             @RequestParam(required = false) String priority,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📚 === FETCHING TASKS BY COURSE ===");
-            System.out.println("Course ID: " + courseId);
-            System.out.println("User: " + userDetails.getUsername());
-            System.out.println("Filters - Status: " + status + ", Category: " + category + ", Priority: " + priority);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -864,16 +757,12 @@ public class TaskController {
                 }
             }
 
-            System.out.println("✅ Found " + tasks.size() + " tasks");
             return ResponseEntity.ok(tasks);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error fetching tasks: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error fetching tasks: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -892,9 +781,6 @@ public class TaskController {
             @RequestParam(required = false) String status,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("👨‍🎓 === FETCHING TASKS FOR STUDENT ===");
-            System.out.println("Student ID: " + studentId + ", Course ID: " + courseId);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -906,13 +792,10 @@ public class TaskController {
             }
 
             List<TaskResponse> tasks = taskService.getTasksForStudent(studentId, courseId, status);
-            System.out.println("✅ Found " + tasks.size() + " tasks for student");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks for student: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -928,9 +811,6 @@ public class TaskController {
             @RequestParam(required = false) String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("⏰ === FETCHING OVERDUE TASKS FOR STUDENT ===");
-            System.out.println("Student ID: " + studentId + ", Course ID: " + courseId);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -942,13 +822,10 @@ public class TaskController {
             }
 
             List<TaskResponse> tasks = taskService.getOverdueTasksForStudent(studentId, courseId);
-            System.out.println("✅ Found " + tasks.size() + " overdue tasks for student");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching overdue tasks for student: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -965,9 +842,6 @@ public class TaskController {
             @RequestParam(defaultValue = "7") int daysAhead,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📅 === FETCHING UPCOMING TASKS FOR STUDENT ===");
-            System.out.println("Student ID: " + studentId + ", Course ID: " + courseId + ", Days Ahead: " + daysAhead);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -979,13 +853,10 @@ public class TaskController {
             }
 
             List<TaskResponse> tasks = taskService.getUpcomingTasksForStudent(studentId, courseId, daysAhead);
-            System.out.println("✅ Found " + tasks.size() + " upcoming tasks for student");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching upcoming tasks for student: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1000,17 +871,11 @@ public class TaskController {
             @PathVariable String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("⏰ === FETCHING OVERDUE TASKS ===");
-            System.out.println("Course ID: " + courseId);
-
             List<TaskResponse> tasks = taskService.getOverdueTasks(courseId);
-            System.out.println("✅ Found " + tasks.size() + " overdue tasks");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching overdue tasks: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1026,17 +891,11 @@ public class TaskController {
             @RequestParam(defaultValue = "7") int daysAhead,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📅 === FETCHING UPCOMING TASKS ===");
-            System.out.println("Course ID: " + courseId + ", Days Ahead: " + daysAhead);
-
             List<TaskResponse> tasks = taskService.getUpcomingTasks(courseId, daysAhead);
-            System.out.println("✅ Found " + tasks.size() + " upcoming tasks");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching upcoming tasks: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1052,17 +911,11 @@ public class TaskController {
             @RequestParam String searchTerm,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔍 === SEARCHING TASKS ===");
-            System.out.println("Course ID: " + courseId + ", Search Term: " + searchTerm);
-
             List<TaskResponse> tasks = taskService.searchTasks(courseId, searchTerm);
-            System.out.println("✅ Found " + tasks.size() + " tasks matching search");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error searching tasks: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1077,9 +930,6 @@ public class TaskController {
             @PathVariable String instructorId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("👨‍🏫 === FETCHING TASKS BY INSTRUCTOR ===");
-            System.out.println("Instructor ID: " + instructorId);
-
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -1091,13 +941,10 @@ public class TaskController {
             }
 
             List<TaskResponse> tasks = taskService.getTasksByInstructor(instructorId);
-            System.out.println("✅ Found " + tasks.size() + " tasks for instructor");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks by instructor: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1112,17 +959,11 @@ public class TaskController {
             @PathVariable String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📝 === FETCHING TASKS NEEDING GRADING ===");
-            System.out.println("Course ID: " + courseId);
-
             List<TaskResponse> tasks = taskService.getTasksNeedingGrading(courseId);
-            System.out.println("✅ Found " + tasks.size() + " tasks needing grading");
 
             return ResponseEntity.ok(tasks);
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks needing grading: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1137,20 +978,14 @@ public class TaskController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📊 === FETCHING TASK STATISTICS ===");
-            System.out.println("Task ID: " + taskId);
-
             TaskDetailResponse.TaskStatistics statistics = taskService.getTaskStatistics(taskId);
             if (statistics != null) {
-                System.out.println("✅ Task statistics retrieved successfully");
                 return ResponseEntity.ok(statistics);
             } else {
                 return ResponseEntity.notFound().build();
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching task statistics: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1165,17 +1000,11 @@ public class TaskController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔄 === RECALCULATING TASK STATISTICS ===");
-            System.out.println("Task ID: " + taskId);
-
             taskService.recalculateTaskStatistics(taskId);
-            System.out.println("✅ Task statistics recalculated successfully");
 
             return ResponseEntity.ok(Map.of("message", "Task statistics recalculated successfully"));
 
         } catch (Exception e) {
-            System.err.println("❌ Error recalculating task statistics: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
@@ -1190,17 +1019,11 @@ public class TaskController {
             @PathVariable String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔄 === RECALCULATING ALL TASK STATISTICS FOR COURSE ===");
-            System.out.println("Course ID: " + courseId);
-
             taskService.recalculateAllTaskStatisticsForCourse(courseId);
-            System.out.println("✅ All task statistics recalculated successfully for course");
 
             return ResponseEntity.ok(Map.of("message", "All task statistics recalculated successfully for course"));
 
         } catch (Exception e) {
-            System.err.println("❌ Error recalculating all task statistics: " + e.getMessage());
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }

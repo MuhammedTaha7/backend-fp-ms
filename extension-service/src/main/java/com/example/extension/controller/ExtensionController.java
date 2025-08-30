@@ -32,8 +32,7 @@ public class ExtensionController {
     @GetMapping("/dashboard")
     public ResponseEntity<?> getDashboardData(@RequestParam String email) {
         try {
-            System.out.println("📚 === EXTENSION DASHBOARD REQUEST ===");
-            System.out.println("Email: " + email);
+
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -46,9 +45,6 @@ public class ExtensionController {
 
             // Get dashboard data
             ExtensionDashboardResponse dashboardData = extensionService.getDashboardData(user.getId(), user.getRole());
-
-            System.out.println("✅ Dashboard data retrieved for: " + user.getName());
-            System.out.println("📊 Total items: " + dashboardData.getItems().size());
 
             return ResponseEntity.ok(dashboardData);
 
@@ -70,8 +66,6 @@ public class ExtensionController {
     @GetMapping("/meeting/{id}")
     public ResponseEntity<?> getMeetingDetails(@PathVariable String id, @RequestParam String email) {
         try {
-            System.out.println("🎥 === EXTENSION MEETING DETAILS REQUEST ===");
-            System.out.println("Meeting ID: " + id + ", Email: " + email);
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -110,8 +104,6 @@ public class ExtensionController {
             @RequestParam(required = false) String type,
             @RequestParam(defaultValue = "20") int limit) {
         try {
-            System.out.println("✅ === EXTENSION TASKS REQUEST ===");
-            System.out.println("Email: " + email + ", Status: " + status + ", Priority: " + priority);
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -124,8 +116,6 @@ public class ExtensionController {
 
             // Get filtered tasks
             var tasks = extensionService.getTasks(user.getId(), user.getRole(), status, priority, type, limit);
-
-            System.out.println("✅ Tasks retrieved: " + tasks.size());
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "tasks", tasks,
@@ -152,8 +142,6 @@ public class ExtensionController {
             @RequestParam String email,
             @RequestParam(defaultValue = "10") int limit) {
         try {
-            System.out.println("📢 === EXTENSION ANNOUNCEMENTS REQUEST ===");
-            System.out.println("Email: " + email);
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -166,8 +154,6 @@ public class ExtensionController {
 
             // Get announcements
             var announcements = extensionService.getAnnouncements(user.getId(), user.getRole(), limit);
-
-            System.out.println("✅ Announcements retrieved: " + announcements.size());
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "announcements", announcements,
@@ -192,8 +178,6 @@ public class ExtensionController {
     @GetMapping("/stats")
     public ResponseEntity<?> getStats(@RequestParam String email) {
         try {
-            System.out.println("📊 === EXTENSION STATS REQUEST ===");
-            System.out.println("Email: " + email);
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -206,8 +190,6 @@ public class ExtensionController {
 
             // Get stats
             var stats = extensionService.getUserStats(user.getId(), user.getRole());
-
-            System.out.println("✅ Stats retrieved for: " + user.getName());
             return ResponseEntity.ok(stats);
 
         } catch (RuntimeException e) {
@@ -228,8 +210,6 @@ public class ExtensionController {
     @GetMapping("/urgent")
     public ResponseEntity<?> getUrgentItems(@RequestParam String email) {
         try {
-            System.out.println("🚨 === EXTENSION URGENT ITEMS REQUEST ===");
-            System.out.println("Email: " + email);
 
             if (email == null || email.trim().isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -243,7 +223,6 @@ public class ExtensionController {
             // Get urgent items
             var urgentItems = extensionService.getUrgentItems(user.getId(), user.getRole());
 
-            System.out.println("✅ Urgent items retrieved: " + urgentItems.size());
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "urgentItems", urgentItems,

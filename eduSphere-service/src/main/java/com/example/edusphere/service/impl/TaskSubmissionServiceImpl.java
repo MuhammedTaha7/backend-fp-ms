@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public TaskSubmission createSubmission(TaskSubmission submission) {
-        System.out.println("➕ Creating task submission for task: " + submission.getTaskId());
 
         try {
             // Validate task exists and get course information
@@ -53,7 +53,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             // ✅ AUTO-POPULATE COURSE ID FROM TASK - THIS IS THE KEY FIX
             submission.setCourseId(task.getCourseId());
-            System.out.println("🎯 Auto-populated courseId: " + task.getCourseId() + " for submission");
 
             // Validate student exists
             userRepository.findById(submission.getStudentId())
@@ -86,7 +85,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 // Calculate late penalty if applicable
                 if (task.getLatePenaltyPerDay() != null && task.getLatePenaltyPerDay() > 0) {
                     // Calculate days late
-                    long daysLate = java.time.Duration.between(
+                    long daysLate = Duration.between(
                             task.getDueDateTime(), submission.getSubmittedAt()).toDays();
                     double penalty = Math.min(daysLate * task.getLatePenaltyPerDay(), 100.0);
                     submission.setLatePenaltyApplied(penalty);
@@ -97,9 +96,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             // Update task statistics
             recalculateTaskStatistics(submission.getTaskId());
-
-            System.out.println("✅ Task submission created with ID: " + savedSubmission.getId() +
-                    " for course: " + savedSubmission.getCourseId());
             return savedSubmission;
 
         } catch (Exception e) {
@@ -110,7 +106,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public TaskSubmission updateSubmission(String submissionId, TaskSubmission submission) {
-        System.out.println("🔄 Updating task submission: " + submissionId);
 
         try {
             TaskSubmission existing = taskSubmissionRepository.findById(submissionId)
@@ -139,7 +134,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 Optional<Task> taskOpt = taskRepository.findById(existing.getTaskId());
                 if (taskOpt.isPresent()) {
                     existing.setCourseId(taskOpt.get().getCourseId());
-                    System.out.println("🎯 Fixed missing courseId during update: " + taskOpt.get().getCourseId());
                 }
             }
 
@@ -149,8 +143,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             if (submission.getGrade() != null) {
                 recalculateTaskStatistics(existing.getTaskId());
             }
-
-            System.out.println("✅ Task submission updated successfully");
             return savedSubmission;
 
         } catch (Exception e) {
@@ -161,7 +153,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public void deleteSubmission(String submissionId) {
-        System.out.println("🗑️ Deleting task submission: " + submissionId);
 
         try {
             TaskSubmission submission = taskSubmissionRepository.findById(submissionId)
@@ -178,8 +169,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             // Update task statistics
             recalculateTaskStatistics(taskId);
-
-            System.out.println("✅ Task submission deleted successfully");
 
         } catch (Exception e) {
             System.err.println("❌ Error deleting task submission: " + e.getMessage());
@@ -199,7 +188,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 if (taskOpt.isPresent()) {
                     sub.setCourseId(taskOpt.get().getCourseId());
                     taskSubmissionRepository.save(sub);
-                    System.out.println("🎯 Fixed missing courseId for existing submission: " + submissionId);
                 }
             }
 
@@ -223,7 +211,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public List<TaskSubmission> findSubmissionsByCourseId(String courseId) {
-        System.out.println("📄 Finding submissions for course: " + courseId);
         try {
             List<TaskSubmission> submissions = taskSubmissionRepository.findByCourseIdOrderBySubmittedAtDesc(courseId);
 
@@ -237,7 +224,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                     sub.setCourseId(courseId);
                     TaskSubmission saved = taskSubmissionRepository.save(sub);
                     fixedSubmissions.add(saved);
-                    System.out.println("🎯 Fixed and included submission: " + sub.getId() + " for course: " + courseId);
                 }
             }
 
@@ -245,8 +231,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             submissions = submissions.stream()
                     .sorted((a, b) -> b.getSubmittedAt().compareTo(a.getSubmittedAt()))
                     .collect(Collectors.toList());
-
-            System.out.println("✅ Found " + submissions.size() + " submissions for course " + courseId);
             return submissions;
         } catch (Exception e) {
             System.err.println("❌ Error finding submissions by course ID: " + e.getMessage());
@@ -280,7 +264,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                     TaskSubmission saved = taskSubmissionRepository.save(submission);
                     fixed.add(saved);
                     anyFixed = true;
-                    System.out.println("🎯 Fixed missing courseId for submission: " + submission.getId());
                 } else {
                     fixed.add(submission);
                 }
@@ -290,7 +273,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         }
 
         if (anyFixed) {
-            System.out.println("✅ Fixed courseId for some submissions in batch");
         }
 
         return fixed;
@@ -318,7 +300,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 if (taskOpt.isPresent()) {
                     sub.setCourseId(taskOpt.get().getCourseId());
                     taskSubmissionRepository.save(sub);
-                    System.out.println("🎯 Fixed missing courseId for found submission");
                 }
             }
 
@@ -356,7 +337,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public TaskSubmission updateSubmissionGrade(String submissionId, Integer grade, String feedback) {
-        System.out.println("📊 Updating submission grade: " + submissionId + " -> " + grade);
 
         try {
             TaskSubmission submission = taskSubmissionRepository.findById(submissionId)
@@ -371,8 +351,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             // Update task statistics
             recalculateTaskStatistics(submission.getTaskId());
-
-            System.out.println("✅ Submission grade updated successfully");
             return savedSubmission;
 
         } catch (Exception e) {
@@ -383,10 +361,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public TaskSubmission updateSubmissionGradeWithSync(String submissionId, Integer grade, String feedback) {
-        System.out.println("🔄 === UPDATING SUBMISSION GRADE WITH SYNC ===");
-        System.out.println("Submission ID: " + submissionId);
-        System.out.println("Grade: " + grade);
-        System.out.println("Feedback: " + feedback);
 
         try {
             // First update the submission grade
@@ -394,8 +368,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             // Now sync with grade column
             syncSubmissionGradeToGradeColumn(submission);
-
-            System.out.println("✅ Submission grade updated and synced successfully");
             return submission;
 
         } catch (Exception e) {
@@ -510,10 +482,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
      */
     private void syncSubmissionGradeToGradeColumn(TaskSubmission submission) {
         try {
-            System.out.println("🔄 === SYNCING GRADE TO GRADE COLUMN ===");
-            System.out.println("Task ID: " + submission.getTaskId());
-            System.out.println("Student ID: " + submission.getStudentId());
-            System.out.println("Grade: " + submission.getGrade());
 
             // Find the task to get course information
             Optional<Task> taskOpt = taskRepository.findById(submission.getTaskId());
@@ -530,8 +498,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                     .findByCourseIdAndLinkedAssignmentId(courseId, submission.getTaskId());
 
             if (gradeColumnOpt.isEmpty()) {
-                System.out.println("⚠️ No grade column found linked to task: " + submission.getTaskId());
-                System.out.println("Attempting to auto-create grade column...");
 
                 // Try to auto-create grade column
                 GradeColumn autoCreatedColumn = autoCreateGradeColumnForTask(task);
@@ -543,18 +509,12 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             }
 
             GradeColumn gradeColumn = gradeColumnOpt.get();
-            System.out.println("✅ Found grade column: " + gradeColumn.getName() + " (ID: " + gradeColumn.getId() + ")");
 
             // Convert submission grade to percentage if needed
             Double gradePercentage = convertGradeToPercentage(submission.getGrade(), task.getMaxPoints());
 
-            System.out.println("📊 Converting grade: " + submission.getGrade() + "/" + task.getMaxPoints() +
-                    " = " + gradePercentage + "%");
-
             // Update the student's grade in the grade column
             gradeService.updateStudentGrade(submission.getStudentId(), gradeColumn.getId(), gradePercentage);
-
-            System.out.println("✅ Grade synced successfully to grade column");
 
         } catch (Exception e) {
             System.err.println("❌ Error syncing grade to grade column: " + e.getMessage());
@@ -568,7 +528,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
      */
     private void removeGradeFromGradeColumn(TaskSubmission submission) {
         try {
-            System.out.println("🗑️ Removing grade from column for submission: " + submission.getId());
 
             // Find the task
             Optional<Task> taskOpt = taskRepository.findById(submission.getTaskId());
@@ -586,7 +545,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 GradeColumn gradeColumn = gradeColumnOpt.get();
                 // Remove the grade (set to null)
                 gradeService.updateStudentGrade(submission.getStudentId(), gradeColumn.getId(), null);
-                System.out.println("✅ Removed grade from column");
             }
 
         } catch (Exception e) {
@@ -599,14 +557,12 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
      */
     private GradeColumn autoCreateGradeColumnForTask(Task task) {
         try {
-            System.out.println("🔄 Auto-creating grade column for task: " + task.getTitle());
 
             // Check if grade column already exists
             Optional<GradeColumn> existingColumn = gradeColumnRepository
                     .findByCourseIdAndLinkedAssignmentId(task.getCourseId(), task.getId());
 
             if (existingColumn.isPresent()) {
-                System.out.println("📊 Grade column already exists");
                 return existingColumn.get();
             }
 
@@ -639,7 +595,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             gradeColumn.setDisplayOrder(existingColumns.size() + 1);
 
             GradeColumn savedColumn = gradeColumnRepository.save(gradeColumn);
-            System.out.println("✅ Auto-created grade column with ID: " + savedColumn.getId());
 
             return savedColumn;
 
@@ -791,7 +746,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public List<TaskSubmission> batchGradeSubmissions(List<String> submissionIds, Integer grade, String feedback) {
-        System.out.println("📊 Batch grading " + submissionIds.size() + " submissions");
 
         try {
             List<TaskSubmission> updatedSubmissions = new ArrayList<>();
@@ -800,8 +754,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 TaskSubmission updated = updateSubmissionGrade(submissionId, grade, feedback);
                 updatedSubmissions.add(updated);
             }
-
-            System.out.println("✅ Batch grading completed");
             return updatedSubmissions;
 
         } catch (Exception e) {
@@ -812,9 +764,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
     @Override
     public List<TaskSubmission> batchGradeSubmissionsWithSync(List<String> submissionIds, Integer grade, String feedback) {
-        System.out.println("🔄 === BATCH GRADING WITH SYNC ===");
-        System.out.println("Submissions to grade: " + submissionIds.size());
-        System.out.println("Grade: " + grade);
 
         try {
             List<TaskSubmission> updatedSubmissions = new ArrayList<>();
@@ -823,14 +772,11 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 try {
                     TaskSubmission updated = updateSubmissionGradeWithSync(submissionId, grade, feedback);
                     updatedSubmissions.add(updated);
-                    System.out.println("✅ Graded and synced submission: " + submissionId);
                 } catch (Exception e) {
                     System.err.println("❌ Error grading submission " + submissionId + ": " + e.getMessage());
                     // Continue with other submissions
                 }
             }
-
-            System.out.println("✅ Batch grading with sync completed: " + updatedSubmissions.size() + " successful");
             return updatedSubmissions;
 
         } catch (Exception e) {
@@ -842,7 +788,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
     @Override
     public void recalculateTaskStatistics(String taskId) {
         try {
-            System.out.println("📊 Recalculating statistics for task: " + taskId);
 
             Optional<Task> taskOpt = taskRepository.findById(taskId);
             if (taskOpt.isEmpty()) {
@@ -867,7 +812,6 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             task.setAverageGrade(averageGrade);
 
             taskRepository.save(task);
-            System.out.println("✅ Task statistics updated");
 
         } catch (Exception e) {
             System.err.println("❌ Error recalculating task statistics: " + e.getMessage());

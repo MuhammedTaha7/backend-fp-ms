@@ -51,14 +51,12 @@ public class TaskServiceImpl implements TaskService {
      */
     private GradeColumn autoCreateGradeColumnForTask(Task task, String instructorId) {
         try {
-            System.out.println("🎯 Auto-creating grade column for task: " + task.getTitle());
 
             // Check if grade column already exists for this task
             Optional<GradeColumn> existingColumn = gradeColumnRepository
                     .findByCourseIdAndLinkedAssignmentId(task.getCourseId(), task.getId());
 
             if (existingColumn.isPresent()) {
-                System.out.println("📊 Grade column already exists for this task");
                 return existingColumn.get();
             }
 
@@ -91,7 +89,6 @@ public class TaskServiceImpl implements TaskService {
             gradeColumn.setDisplayOrder(existingColumns.size() + 1);
 
             GradeColumn savedColumn = gradeColumnRepository.save(gradeColumn);
-            System.out.println("✅ Auto-created grade column with ID: " + savedColumn.getId());
 
             return savedColumn;
 
@@ -122,10 +119,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponse createTask(TaskCreateRequest request, String instructorId) {
-        System.out.println("🎯 === CREATING TASK ===");
-        System.out.println("Instructor: " + instructorId);
-        System.out.println("Course: " + request.getCourseId());
-        System.out.println("Title: " + request.getTitle());
 
         try {
             // Validate that the course exists and instructor has access
@@ -181,13 +174,9 @@ public class TaskServiceImpl implements TaskService {
             task.setAverageGrade(0.0);
 
             Task savedTask = taskRepository.save(task);
-            System.out.println("✅ Task created with ID: " + savedTask.getId());
 
             // AUTO-CREATE GRADE COLUMN FOR THE TASK
             GradeColumn gradeColumn = autoCreateGradeColumnForTask(savedTask, instructorId);
-            if (gradeColumn != null) {
-                System.out.println("✅ Grade column auto-created: " + gradeColumn.getId());
-            }
 
             return convertToResponse(savedTask);
 
@@ -203,9 +192,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponse updateTask(String taskId, TaskUpdateRequest request, String instructorId) {
-        System.out.println("📝 === UPDATING TASK ===");
-        System.out.println("Task ID: " + taskId);
-        System.out.println("Instructor: " + instructorId);
 
         try {
             Task task = taskRepository.findById(taskId)
@@ -319,11 +305,9 @@ public class TaskServiceImpl implements TaskService {
 
                 if (columnChanged) {
                     gradeColumnRepository.save(column);
-                    System.out.println("✅ Updated corresponding grade column");
                 }
             }
 
-            System.out.println("✅ Task updated successfully");
             return convertToResponse(savedTask);
 
         } catch (RuntimeException e) {
@@ -338,9 +322,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(String taskId, String instructorId) {
-        System.out.println("🗑️ === DELETING TASK ===");
-        System.out.println("Task ID: " + taskId);
-        System.out.println("Instructor: " + instructorId);
 
         try {
             Task task = taskRepository.findById(taskId)
@@ -353,7 +334,6 @@ public class TaskServiceImpl implements TaskService {
             // Check if there are submissions
             List<TaskSubmission> submissions = taskSubmissionRepository.findByTaskId(taskId);
             if (!submissions.isEmpty()) {
-                System.out.println("⚠️ Warning: Deleting task with " + submissions.size() + " submissions");
                 // Delete submissions as well
                 taskSubmissionRepository.deleteAll(submissions);
             }
@@ -364,11 +344,9 @@ public class TaskServiceImpl implements TaskService {
 
             if (linkedColumn.isPresent()) {
                 gradeColumnRepository.delete(linkedColumn.get());
-                System.out.println("✅ Deleted corresponding grade column");
             }
 
             taskRepository.deleteById(taskId);
-            System.out.println("✅ Task deleted successfully");
 
         } catch (RuntimeException e) {
             System.err.println("❌ Error deleting task: " + e.getMessage());
@@ -481,7 +459,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskResponse> getTasksForStudent(String studentId, String courseId, String status) {
         try {
-            System.out.println("👨‍🎓 Getting tasks for student: " + studentId + " in course: " + courseId);
 
             List<Task> tasks;
             if (status != null && !status.trim().isEmpty()) {
@@ -506,7 +483,6 @@ public class TaskServiceImpl implements TaskService {
                 taskResponses.add(response);
             }
 
-            System.out.println("✅ Found " + taskResponses.size() + " visible tasks for student");
             return taskResponses;
 
         } catch (Exception e) {
@@ -518,7 +494,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskResponse> getOverdueTasksForStudent(String studentId, String courseId) {
         try {
-            System.out.println("⏰ Getting overdue tasks for student: " + studentId);
 
             LocalDateTime now = LocalDateTime.now();
             List<Task> tasks;
@@ -551,7 +526,6 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
 
-            System.out.println("✅ Found " + overdueTasks.size() + " overdue tasks for student");
             return overdueTasks;
 
         } catch (Exception e) {
@@ -563,7 +537,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<TaskResponse> getUpcomingTasksForStudent(String studentId, String courseId, int daysAhead) {
         try {
-            System.out.println("📅 Getting upcoming tasks for student: " + studentId);
 
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime endDate = now.plusDays(daysAhead);
@@ -594,7 +567,6 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
 
-            System.out.println("✅ Found " + upcomingTasks.size() + " upcoming tasks for student");
             return upcomingTasks;
 
         } catch (Exception e) {
@@ -783,8 +755,6 @@ public class TaskServiceImpl implements TaskService {
     // Implement remaining interface methods...
     @Override
     public TaskDetailResponse getTaskDetails(String taskId, String instructorId) {
-        System.out.println("📋 === FETCHING TASK DETAILS ===");
-        System.out.println("Task ID: " + taskId);
 
         try {
             Task task = taskRepository.findById(taskId)
@@ -876,7 +846,6 @@ public class TaskServiceImpl implements TaskService {
                 // Continue without additional details
             }
 
-            System.out.println("✅ Task details loaded successfully");
             return response;
 
         } catch (RuntimeException e) {

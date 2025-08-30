@@ -28,7 +28,6 @@ public class GradeServiceImpl implements GradeService {
     public List<GradeColumn> getGradeColumnsByCourse(String courseId) {
         try {
             List<GradeColumn> columns = gradeColumnRepository.findByCourseIdAndIsActiveTrue(courseId);
-            System.out.println("📊 Found " + columns.size() + " active grade columns for course: " + courseId);
             return columns;
         } catch (Exception e) {
             System.err.println("❌ Error fetching grade columns: " + e.getMessage());
@@ -38,7 +37,6 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public GradeColumn createGradeColumn(GradeColumn gradeColumn) {
-        System.out.println("➕ Creating grade column: " + gradeColumn.getName() + " (" + gradeColumn.getPercentage() + "%)");
 
         // Validate required fields
         if (gradeColumn.getName() == null || gradeColumn.getName().trim().isEmpty()) {
@@ -71,7 +69,6 @@ public class GradeServiceImpl implements GradeService {
         }
 
         GradeColumn savedColumn = gradeColumnRepository.save(gradeColumn);
-        System.out.println("✅ Created grade column with ID: " + savedColumn.getId());
 
         // Recalculate all student grades for this course after adding new column
         recalculateAllGradesForCourse(gradeColumn.getCourseId());
@@ -81,7 +78,6 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public GradeColumn updateGradeColumn(String columnId, GradeColumn updates) {
-        System.out.println("🔄 Updating grade column: " + columnId);
 
         GradeColumn existingColumn = gradeColumnRepository.findById(columnId)
                 .orElseThrow(() -> new RuntimeException("Grade column not found with ID: " + columnId));
@@ -112,7 +108,6 @@ public class GradeServiceImpl implements GradeService {
         }
 
         GradeColumn savedColumn = gradeColumnRepository.save(existingColumn);
-        System.out.println("✅ Updated grade column successfully");
 
         // Recalculate all student grades for this course after updating column
         recalculateAllGradesForCourse(existingColumn.getCourseId());
@@ -122,7 +117,6 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public void deleteGradeColumn(String columnId) {
-        System.out.println("🗑️ Deleting grade column: " + columnId);
 
         GradeColumn column = gradeColumnRepository.findById(columnId)
                 .orElseThrow(() -> new RuntimeException("Grade column not found with ID: " + columnId));
@@ -138,7 +132,6 @@ public class GradeServiceImpl implements GradeService {
 
         // Delete the column
         gradeColumnRepository.deleteById(columnId);
-        System.out.println("✅ Deleted grade column successfully");
 
         // Recalculate all final grades after deleting column
         recalculateAllGradesForCourse(courseId);
@@ -148,7 +141,6 @@ public class GradeServiceImpl implements GradeService {
     public List<StudentGrade> getGradesByCourse(String courseId) {
         try {
             List<StudentGrade> grades = studentGradeRepository.findByCourseId(courseId);
-            System.out.println("📊 Found " + grades.size() + " student grade records for course: " + courseId);
             return grades;
         } catch (Exception e) {
             System.err.println("❌ Error fetching grades: " + e.getMessage());
@@ -158,10 +150,6 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public StudentGrade updateStudentGrade(String studentId, String columnId, Double grade) {
-        System.out.println("🔧 === UPDATING STUDENT GRADE ===");
-        System.out.println("Student: " + studentId);
-        System.out.println("Column: " + columnId);
-        System.out.println("Grade: " + grade);
 
         try {
             // Get the column to find the course and validate it exists
@@ -173,7 +161,6 @@ public class GradeServiceImpl implements GradeService {
             }
 
             String courseId = column.getCourseId();
-            System.out.println("Course: " + courseId);
 
             // Validate grade value
             if (grade != null && (grade < 0 || grade > 100)) {
@@ -184,17 +171,12 @@ public class GradeServiceImpl implements GradeService {
             StudentGrade studentGrade = findOrCreateStudentGradeRecord(studentId, courseId);
 
             // Update the specific grade
-            System.out.println("📊 Before update - Student grades: " + studentGrade.getGrades());
 
             if (grade == null) {
                 studentGrade.removeGrade(columnId);
-                System.out.println("🗑️ Removed grade for column: " + columnId);
             } else {
                 studentGrade.setGrade(columnId, grade);
-                System.out.println("✏️ Set grade " + grade + " for column: " + columnId);
             }
-
-            System.out.println("📊 After update - Student grades: " + studentGrade.getGrades());
 
             // FIXED: Calculate final grade using the UPDATED record, not fetching from database again
             Double finalGrade = calculateFinalGradeFromRecord(studentGrade, courseId);
@@ -204,12 +186,8 @@ public class GradeServiceImpl implements GradeService {
             studentGrade.setFinalGrade(finalGrade);
             studentGrade.setFinalLetterGrade(letterGrade);
 
-            System.out.println("🎯 Calculated final grade: " + finalGrade + "% (" + letterGrade + ")");
-
             // Save the updated record
             StudentGrade savedGrade = studentGradeRepository.save(studentGrade);
-            System.out.println("💾 Saved grade record successfully");
-            System.out.println("✅ === GRADE UPDATE COMPLETE ===");
 
             return savedGrade;
 
@@ -225,49 +203,35 @@ public class GradeServiceImpl implements GradeService {
      * Now properly handles total percentages > 100% by normalizing to 100%
      */
     private Double calculateFinalGradeFromRecord(StudentGrade studentGrade, String courseId) {
-        System.out.println("🧮 === CALCULATING FINAL GRADE FROM RECORD ===");
-        System.out.println("Student: " + studentGrade.getStudentId());
-        System.out.println("Course: " + courseId);
 
         try {
             // Get active grade columns for the course
             List<GradeColumn> columns = getGradeColumnsByCourse(courseId);
-            System.out.println("📊 Active grade columns: " + columns.size());
 
             if (columns.isEmpty()) {
-                System.out.println("❌ No grade columns found, returning 0");
                 return 0.0;
             }
 
             // Use the grades from the provided record (already updated in memory)
             Map<String, Double> grades = studentGrade.getGrades();
             if (grades == null || grades.isEmpty()) {
-                System.out.println("❌ No grades found for student, returning 0");
                 return 0.0;
             }
-
-            System.out.println("🔍 Student grades (from updated record): " + grades);
 
             // FIXED: Calculate total percentage and normalize if > 100%
             double totalPercentageOfAllColumns = columns.stream()
                     .mapToDouble(col -> col.getPercentage().doubleValue())
                     .sum();
 
-            System.out.println("📐 Total percentage of all columns: " + totalPercentageOfAllColumns + "%");
-
             double totalWeightedScore = 0.0;
             double totalPercentageOfGradedItems = 0.0;
             int gradedItemsCount = 0;
-
-            System.out.println("🔍 === GRADE BREAKDOWN ===");
 
             // Calculate weighted score for each grade column
             for (GradeColumn column : columns) {
                 String columnId = column.getId();
                 Double grade = grades.get(columnId);
                 double columnPercentage = column.getPercentage().doubleValue();
-
-                System.out.println("📋 " + column.getName() + " (" + columnPercentage + "%):");
 
                 if (grade != null && grade >= 0) {
                     // FIXED: Normalize weight if total > 100%
@@ -280,42 +244,26 @@ public class GradeServiceImpl implements GradeService {
                     totalWeightedScore += weightContribution;
                     totalPercentageOfGradedItems += normalizedWeight;
                     gradedItemsCount++;
-
-                    System.out.println("   ✅ Grade: " + grade +
-                            " → Normalized Weight: " + String.format("%.2f", normalizedWeight) + "%" +
-                            " → Contribution: " + String.format("%.2f", weightContribution) + " points");
                 } else {
-                    System.out.println("   ⚪ No grade entered (skipping)");
                 }
             }
-
-            System.out.println("📊 === CALCULATION SUMMARY ===");
-            System.out.println("Total weighted score: " + String.format("%.2f", totalWeightedScore));
-            System.out.println("Total percentage of graded items: " + String.format("%.2f", totalPercentageOfGradedItems) + "%");
-            System.out.println("Number of graded items: " + gradedItemsCount);
 
             // Calculate final grade
             double finalGrade;
 
             if (totalPercentageOfGradedItems == 0) {
                 finalGrade = 0.0;
-                System.out.println("❌ No grades entered → Final: 0%");
             } else {
                 // FIXED: Always calculate as percentage of total possible
                 finalGrade = totalWeightedScore;
-                System.out.println("✅ Final grade calculation: " + String.format("%.2f", finalGrade) + "%");
 
                 if (totalPercentageOfAllColumns > 100.0) {
-                    System.out.println("⚖️ Note: Grades were normalized due to total percentage > 100%");
                 }
             }
 
             // Ensure grade is within valid bounds and round to 2 decimal places
             finalGrade = Math.max(0.0, Math.min(100.0, finalGrade));
             finalGrade = Math.round(finalGrade * 100.0) / 100.0;
-
-            System.out.println("🎯 FINAL CALCULATED GRADE: " + finalGrade + "%");
-            System.out.println("✅ === CALCULATION COMPLETE ===");
 
             return finalGrade;
 
@@ -330,14 +278,12 @@ public class GradeServiceImpl implements GradeService {
      * FIXED: Properly handle duplicate records and always return a single record
      */
     private StudentGrade findOrCreateStudentGradeRecord(String studentId, String courseId) {
-        System.out.println("🔍 Finding or creating grade record for student: " + studentId + ", course: " + courseId);
 
         // First, check for duplicates and clean them up
         List<StudentGrade> existingRecords = studentGradeRepository.findAllByStudentIdAndCourseId(studentId, courseId);
 
         if (existingRecords.isEmpty()) {
             // No record exists, create new one
-            System.out.println("➕ Creating new grade record");
             StudentGrade newRecord = new StudentGrade();
             newRecord.setStudentId(studentId);
             newRecord.setCourseId(courseId);
@@ -345,11 +291,9 @@ public class GradeServiceImpl implements GradeService {
             return newRecord;
         } else if (existingRecords.size() == 1) {
             // Single record exists, return it
-            System.out.println("🔍 Found existing grade record");
             return existingRecords.get(0);
         } else {
             // Multiple records exist - merge and clean up duplicates
-            System.out.println("⚠️ Found " + existingRecords.size() + " duplicate records, merging...");
             return mergeDuplicateRecords(existingRecords);
         }
     }
@@ -372,7 +316,6 @@ public class GradeServiceImpl implements GradeService {
 
         // Take the most recent record as base
         StudentGrade primaryRecord = duplicates.get(0);
-        System.out.println("📋 Using primary record ID: " + primaryRecord.getId());
 
         // Merge grades from all records (prefer non-null values)
         Map<String, Double> mergedGrades = new HashMap<>();
@@ -396,35 +339,25 @@ public class GradeServiceImpl implements GradeService {
         // Delete duplicate records (keep only the primary)
         for (int i = 1; i < duplicates.size(); i++) {
             StudentGrade duplicate = duplicates.get(i);
-            System.out.println("🗑️ Deleting duplicate record ID: " + duplicate.getId());
             studentGradeRepository.deleteById(duplicate.getId());
         }
-
-        System.out.println("✅ Merged grades: " + mergedGrades);
         return primaryRecord;
     }
 
     @Override
     public void deleteStudentGrades(String studentId, String courseId) {
-        System.out.println("🗑️ Deleting all grades for student: " + studentId + " in course: " + courseId);
         studentGradeRepository.deleteByStudentIdAndCourseId(studentId, courseId);
-        System.out.println("✅ Deleted student grades successfully");
     }
 
     // Keep the original calculateFinalGrade method for other uses (like bulk recalculation)
     @Override
     public Double calculateFinalGrade(String studentId, String courseId) {
-        System.out.println("🧮 === CALCULATING FINAL GRADE ===");
-        System.out.println("Student: " + studentId);
-        System.out.println("Course: " + courseId);
 
         try {
             // Get active grade columns for the course
             List<GradeColumn> columns = getGradeColumnsByCourse(courseId);
-            System.out.println("📊 Active grade columns: " + columns.size());
 
             if (columns.isEmpty()) {
-                System.out.println("❌ No grade columns found, returning 0");
                 return 0.0;
             }
 
@@ -473,8 +406,6 @@ public class GradeServiceImpl implements GradeService {
                 .sum();
 
         boolean isValid = (totalPercentage + percentage) <= 100;
-        System.out.println("📊 Percentage validation: " + totalPercentage + " + " + percentage + " = " +
-                (totalPercentage + percentage) + "% (valid: " + isValid + ")");
 
         return isValid;
     }
@@ -484,12 +415,9 @@ public class GradeServiceImpl implements GradeService {
      * This ensures consistency when grade columns are modified
      */
     public void recalculateAllGradesForCourse(String courseId) {
-        System.out.println("🔄 === RECALCULATING ALL GRADES FOR COURSE ===");
-        System.out.println("Course: " + courseId);
 
         try {
             List<StudentGrade> studentGrades = studentGradeRepository.findByCourseId(courseId);
-            System.out.println("👥 Found " + studentGrades.size() + " student records");
 
             int updatedCount = 0;
 
@@ -521,17 +449,11 @@ public class GradeServiceImpl implements GradeService {
 
                         studentGradeRepository.save(currentRecord);
                         updatedCount++;
-
-                        System.out.println("✅ Updated student " + studentId +
-                                ": " + newFinalGrade + "% (" + newLetterGrade + ")");
                     }
                 } catch (Exception e) {
                     System.err.println("❌ Error updating grades for student " + studentId + ": " + e.getMessage());
                 }
             }
-
-            System.out.println("🎉 Recalculation complete: " + updatedCount + "/" +
-                    processedStudents.size() + " records updated");
 
         } catch (Exception e) {
             System.err.println("❌ Error during bulk recalculation: " + e.getMessage());
@@ -543,7 +465,6 @@ public class GradeServiceImpl implements GradeService {
      * Admin method to fix all existing incorrect grades and clean up duplicates
      */
     public void fixAllIncorrectGrades() {
-        System.out.println("🔧 === FIXING ALL INCORRECT GRADES ===");
 
         try {
             // Get all unique course IDs
@@ -553,15 +474,10 @@ public class GradeServiceImpl implements GradeService {
                     .distinct()
                     .collect(Collectors.toList());
 
-            System.out.println("📚 Found " + allCourseIds.size() + " courses with grades");
-
             for (String courseId : allCourseIds) {
-                System.out.println("🔄 Processing course: " + courseId);
                 cleanupDuplicatesForCourse(courseId);
                 recalculateAllGradesForCourse(courseId);
             }
-
-            System.out.println("🎉 COMPLETED: Fixed all grades for " + allCourseIds.size() + " courses");
 
         } catch (Exception e) {
             System.err.println("❌ Error fixing all grades: " + e.getMessage());
@@ -574,7 +490,6 @@ public class GradeServiceImpl implements GradeService {
      * Clean up duplicate records for a specific course
      */
     private void cleanupDuplicatesForCourse(String courseId) {
-        System.out.println("🧹 Cleaning up duplicates for course: " + courseId);
 
         List<StudentGrade> allGrades = studentGradeRepository.findByCourseId(courseId);
         Map<String, List<StudentGrade>> groupedByStudent = allGrades.stream()
@@ -583,13 +498,10 @@ public class GradeServiceImpl implements GradeService {
         int duplicatesFixed = 0;
         for (Map.Entry<String, List<StudentGrade>> entry : groupedByStudent.entrySet()) {
             if (entry.getValue().size() > 1) {
-                System.out.println("🔧 Merging " + entry.getValue().size() + " records for student: " + entry.getKey());
                 mergeDuplicateRecords(entry.getValue());
                 duplicatesFixed++;
             }
         }
-
-        System.out.println("✅ Fixed " + duplicatesFixed + " duplicate student records");
     }
 
     /**
@@ -600,7 +512,6 @@ public class GradeServiceImpl implements GradeService {
     }
 
     public void cleanupOrphanedGrades(String courseId) {
-        System.out.println("🧹 Cleaning up orphaned grades for course: " + courseId);
 
         try {
             // Get valid column IDs
@@ -608,8 +519,6 @@ public class GradeServiceImpl implements GradeService {
             Set<String> validColumnIds = validColumns.stream()
                     .map(GradeColumn::getId)
                     .collect(Collectors.toSet());
-
-            System.out.println("📊 Valid columns: " + validColumnIds);
 
             List<StudentGrade> studentGrades = studentGradeRepository.findByCourseId(courseId);
             int cleanedCount = 0;
@@ -623,8 +532,6 @@ public class GradeServiceImpl implements GradeService {
                     if (validColumnIds.contains(entry.getKey())) {
                         cleanedGrades.put(entry.getKey(), entry.getValue());
                     } else {
-                        System.out.println("🗑️ Removing orphaned grade: " + entry.getKey() +
-                                " for student " + sg.getStudentId());
                     }
                 }
 
@@ -641,8 +548,6 @@ public class GradeServiceImpl implements GradeService {
                     cleanedCount++;
                 }
             }
-
-            System.out.println("✅ Cleanup complete: " + cleanedCount + " records cleaned");
 
         } catch (Exception e) {
             System.err.println("❌ Error during cleanup: " + e.getMessage());

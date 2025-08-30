@@ -186,13 +186,6 @@ public class VideoMeetingServiceImpl implements VideoMeetingService {
                     }
 
                     // Debug output
-                    System.out.println("MEETING: " + meeting.getTitle() +
-                            " | Start UTC: " + meeting.getDatetime() +
-                            " | Start Local: " + meetingStartLocal +
-                            " | End Local: " + meetingEndLocal +
-                            " | Current: " + currentLocalTime +
-                            " | 3h ago: " + threeHoursAgo +
-                            " | KEPT: " + shouldKeep);
                 }
             }
 

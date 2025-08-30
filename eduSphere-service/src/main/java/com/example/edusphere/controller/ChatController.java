@@ -60,10 +60,6 @@ public class ChatController {
     // EXISTING METHOD: EduSphere chat (backward compatibility)
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage message) {
-        System.out.println("=== EDUSPHERE CHAT MESSAGE ===");
-        System.out.println("From: " + message.getSenderId());
-        System.out.println("To: " + message.getReceiverId());
-        System.out.println("Content: " + message.getContent());
 
         LocalDateTime now = LocalDateTime.now();
         ChatMessageEntity chatMessageEntity = new ChatMessageEntity(
@@ -77,7 +73,6 @@ public class ChatController {
         );
 
         ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
-        System.out.println("Saved eduSphere message with ID: " + savedMessage.getId());
 
         // Create response message with proper timestamp format
         ChatMessage responseMessage = new ChatMessage(
@@ -91,19 +86,12 @@ public class ChatController {
 
         // Send ONLY to receiver (not to sender to avoid duplicates)
         String receiverTopic = "/topic/messages/eduSphere/" + message.getReceiverId();
-        System.out.println("Sending to receiver topic: " + receiverTopic);
         messagingTemplate.convertAndSend(receiverTopic, responseMessage);
-
-        System.out.println("EduSphere message sent successfully");
     }
 
     // NEW METHOD: Community chat
     @MessageMapping("/community.sendMessage")
     public void sendCommunityMessage(@Payload ChatMessage message) {
-        System.out.println("=== COMMUNITY CHAT MESSAGE ===");
-        System.out.println("From: " + message.getSenderId());
-        System.out.println("To: " + message.getReceiverId());
-        System.out.println("Content: " + message.getContent());
 
         LocalDateTime now = LocalDateTime.now();
         ChatMessageEntity chatMessageEntity = new ChatMessageEntity(
@@ -117,7 +105,6 @@ public class ChatController {
         );
 
         ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
-        System.out.println("Saved community message with ID: " + savedMessage.getId());
 
         // Create response message with proper timestamp format
         ChatMessage responseMessage = new ChatMessage(
@@ -131,10 +118,7 @@ public class ChatController {
 
         // Send ONLY to receiver (not to sender to avoid duplicates)
         String receiverTopic = "/topic/messages/community/" + message.getReceiverId();
-        System.out.println("Sending to receiver topic: " + receiverTopic);
         messagingTemplate.convertAndSend(receiverTopic, responseMessage);
-
-        System.out.println("Community message sent successfully");
     }
 
     // EXISTING METHOD: EduSphere chat history (backward compatibility)
@@ -143,11 +127,9 @@ public class ChatController {
             @PathVariable String user1,
             @PathVariable String user2
     ) {
-        System.out.println("Fetching eduSphere messages between " + user1 + " and " + user2);
         List<ChatMessageEntity> messages = chatMessageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderIdAndContext(
                 user1, user2, "eduSphere"
         );
-        System.out.println("Found " + messages.size() + " eduSphere messages");
         return messages;
     }
 
@@ -157,11 +139,9 @@ public class ChatController {
             @PathVariable String user1,
             @PathVariable String user2
     ) {
-        System.out.println("Fetching community messages between " + user1 + " and " + user2);
         List<ChatMessageEntity> messages = chatMessageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderIdAndContext(
                 user1, user2, "community"
         );
-        System.out.println("Found " + messages.size() + " community messages");
         return messages;
     }
 
@@ -171,9 +151,7 @@ public class ChatController {
             @PathVariable String userId,
             @RequestParam(defaultValue = "eduSphere") String context
     ) {
-        System.out.println("Fetching conversations for user " + userId + " in context " + context);
         List<ChatMessageEntity> messages = chatMessageRepository.findRecentMessagesByUserIdAndContext(userId, context);
-        System.out.println("Found " + messages.size() + " recent messages");
         return messages;
     }
 
@@ -183,9 +161,7 @@ public class ChatController {
             @PathVariable String userId,
             @RequestParam(defaultValue = "eduSphere") String context
     ) {
-        System.out.println("Getting unread count for user " + userId + " in context " + context);
         long unreadCount = chatMessageRepository.countUnreadMessagesByUserIdAndContext(userId, context);
-        System.out.println("Unread count: " + unreadCount);
 
         return Map.of(
                 "userId", userId,
@@ -203,13 +179,8 @@ public class ChatController {
         String senderId = request.get("senderId");
         String context = request.getOrDefault("context", "eduSphere");
 
-        System.out.println("Marking messages as read:");
-        System.out.println("Receiver: " + receiverId + ", Sender: " + senderId + ", Context: " + context);
-
         List<ChatMessageEntity> unreadMessages = chatMessageRepository
                 .findUnreadMessagesFromSenderInContext(receiverId, senderId, context);
-
-        System.out.println("Found " + unreadMessages.size() + " unread messages to mark as read");
 
         unreadMessages.forEach(message -> {
             message.setRead(true);
@@ -225,15 +196,11 @@ public class ChatController {
     // NEW METHOD: Get all contexts a user has chats in
     @GetMapping("/contexts/{userId}")
     public Map<String, Object> getUserChatContexts(@PathVariable String userId) {
-        System.out.println("Getting chat contexts for user " + userId);
 
         List<ChatMessageEntity> eduSphereMessages = chatMessageRepository
                 .findAllByUserIdAndContext(userId, "eduSphere");
         List<ChatMessageEntity> communityMessages = chatMessageRepository
                 .findAllByUserIdAndContext(userId, "community");
-
-        System.out.println("EduSphere messages: " + eduSphereMessages.size());
-        System.out.println("Community messages: " + communityMessages.size());
 
         return Map.of(
                 "eduSphere", eduSphereMessages.size() > 0,

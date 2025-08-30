@@ -43,24 +43,18 @@ public class TaskSubmissionController {
             @RequestParam(required = false) String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€œâ€ž === FETCHING SUBMISSIONS BY COURSE ===");
-            System.out.println("Course ID: " + courseId);
-            System.out.println("User: " + userDetails.getUsername());
 
             List<TaskSubmission> submissions;
 
             if (taskId != null && !taskId.trim().isEmpty()) {
                 submissions = taskSubmissionService.findSubmissionsByTaskId(taskId);
-                System.out.println("Ã°Å¸â€œâ€ž Found " + submissions.size() + " submissions for task: " + taskId);
             } else if (status != null && !status.trim().isEmpty()) {
                 submissions = taskSubmissionService.findSubmissionsByCourseId(courseId)
                         .stream()
                         .filter(sub -> status.equals(sub.getStatus()))
                         .toList();
-                System.out.println("Ã°Å¸â€œâ€ž Found " + submissions.size() + " submissions with status: " + status);
             } else {
                 submissions = taskSubmissionService.findSubmissionsByCourseId(courseId);
-                System.out.println("Ã°Å¸â€œâ€ž Found " + submissions.size() + " submissions for course: " + courseId);
             }
 
             return ResponseEntity.ok(submissions);
@@ -82,8 +76,6 @@ public class TaskSubmissionController {
             @PathVariable String submissionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€œâ€ž === FETCHING SUBMISSION BY ID ===");
-            System.out.println("Submission ID: " + submissionId);
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -101,8 +93,6 @@ public class TaskSubmissionController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Access denied: You can only view your own submissions"));
             }
-
-            System.out.println("Ã¢Å“â€¦ Submission found");
             return ResponseEntity.ok(sub);
 
         } catch (Exception e) {
@@ -125,10 +115,6 @@ public class TaskSubmissionController {
             @RequestParam(value = "files", required = false) MultipartFile[] files,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã¢Å¾â€¢ === CREATING SUBMISSION WITH FILES ===");
-            System.out.println("User: " + userDetails.getUsername());
-            System.out.println("Task ID: " + taskId);
-            System.out.println("Files count: " + (files != null ? files.length : 0));
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -165,8 +151,6 @@ public class TaskSubmissionController {
                             fileUrls.add(fileUrl);
                             fileNames.add(fileName);
                             fileSizes.add(fileSize);
-
-                            System.out.println("Ã°Å¸â€Å½ File processed: " + fileName + " (" + fileSize + " bytes)");
                         } catch (Exception e) {
                             System.err.println("Ã¢ÂÅ’ Error processing file: " + file.getOriginalFilename() + " - " + e.getMessage());
                             // Continue processing other files
@@ -180,7 +164,6 @@ public class TaskSubmissionController {
             }
 
             TaskSubmission createdSubmission = taskSubmissionService.createSubmission(submission);
-            System.out.println("Ã¢Å“â€¦ Submission created successfully: " + createdSubmission.getId());
 
             return new ResponseEntity<>(createdSubmission, HttpStatus.CREATED);
 
@@ -201,8 +184,6 @@ public class TaskSubmissionController {
             @RequestBody TaskSubmission submission,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã¢Å¾â€¢ === CREATING SIMPLE SUBMISSION ===");
-            System.out.println("User: " + userDetails.getUsername());
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -218,7 +199,6 @@ public class TaskSubmissionController {
             }
 
             TaskSubmission createdSubmission = taskSubmissionService.createSubmission(submission);
-            System.out.println("Ã¢Å“â€¦ Simple submission created successfully: " + createdSubmission.getId());
 
             return new ResponseEntity<>(createdSubmission, HttpStatus.CREATED);
 
@@ -240,8 +220,6 @@ public class TaskSubmissionController {
             @RequestBody Map<String, Object> updates,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€œÂ === UPDATING SUBMISSION ===");
-            System.out.println("Submission ID: " + submissionId);
 
             // Handle grade update specifically with sync
             if (updates.containsKey("grade")) {
@@ -267,8 +245,6 @@ public class TaskSubmissionController {
                 // Use sync method when grading
                 TaskSubmission updatedSubmission = taskSubmissionService.updateSubmissionGradeWithSync(
                         submissionId, grade, feedback);
-
-                System.out.println("Ã¢Å“â€¦ Submission grade updated and synced successfully");
                 return ResponseEntity.ok(updatedSubmission);
             }
 
@@ -288,7 +264,6 @@ public class TaskSubmissionController {
             }
 
             TaskSubmission updatedSubmission = taskSubmissionService.updateSubmission(submissionId, updateData);
-            System.out.println("Ã¢Å“â€¦ Submission updated successfully");
 
             return ResponseEntity.ok(updatedSubmission);
 
@@ -310,8 +285,6 @@ public class TaskSubmissionController {
             @RequestBody Map<String, Object> updates,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã¢Å“ÂÃ¯Â¸Â === STUDENT UPDATING SUBMISSION ===");
-            System.out.println("Submission ID: " + submissionId);
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -352,7 +325,6 @@ public class TaskSubmissionController {
             }
 
             TaskSubmission updatedSubmission = taskSubmissionService.updateSubmission(submissionId, updateData);
-            System.out.println("Ã¢Å“â€¦ Student submission updated successfully");
 
             return ResponseEntity.ok(updatedSubmission);
 
@@ -374,9 +346,6 @@ public class TaskSubmissionController {
             @RequestBody Map<String, Object> gradeRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸Å½Â¯ === GRADING SUBMISSION ===");
-            System.out.println("Submission ID: " + submissionId);
-            System.out.println("Grade request: " + gradeRequest);
 
             // Parse grade
             Object gradeObj = gradeRequest.get("grade");
@@ -414,8 +383,6 @@ public class TaskSubmissionController {
             // Grade the submission with sync to grade column
             TaskSubmission gradedSubmission = taskSubmissionService.updateSubmissionGradeWithSync(
                     submissionId, grade, finalFeedback);
-
-            System.out.println("Ã¢Å“â€¦ Submission graded and synced successfully");
             return ResponseEntity.ok(Map.of(
                     "message", "Submission graded successfully",
                     "submission", gradedSubmission,
@@ -440,8 +407,6 @@ public class TaskSubmissionController {
             @PathVariable String submissionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€”â€˜Ã¯Â¸Â === DELETING SUBMISSION ===");
-            System.out.println("Submission ID: " + submissionId);
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -475,7 +440,6 @@ public class TaskSubmissionController {
             }
 
             taskSubmissionService.deleteSubmission(submissionId);
-            System.out.println("Ã¢Å“â€¦ Submission deleted successfully");
 
             return ResponseEntity.noContent().build();
 
@@ -498,11 +462,8 @@ public class TaskSubmissionController {
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€œâ€ž === FETCHING SUBMISSIONS BY TASK ===");
-            System.out.println("Task ID: " + taskId);
 
             List<TaskSubmission> submissions = taskSubmissionService.findSubmissionsByTaskId(taskId);
-            System.out.println("Ã¢Å“â€¦ Found " + submissions.size() + " submissions");
 
             return ResponseEntity.ok(submissions);
 
@@ -524,9 +485,6 @@ public class TaskSubmissionController {
             @RequestParam(required = false) String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€œâ€ž === FETCHING SUBMISSIONS BY STUDENT ===");
-            System.out.println("Student ID: " + studentId);
-            System.out.println("Course ID: " + courseId);
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -543,8 +501,6 @@ public class TaskSubmissionController {
             } else {
                 submissions = taskSubmissionService.findSubmissionsByStudentId(studentId);
             }
-
-            System.out.println("Ã¢Å“â€¦ Found " + submissions.size() + " submissions");
             return ResponseEntity.ok(submissions);
 
         } catch (Exception e) {
@@ -565,8 +521,6 @@ public class TaskSubmissionController {
             @PathVariable String taskId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("Ã°Å¸â€œâ€ž === FETCHING STUDENT SUBMISSION FOR TASK ===");
-            System.out.println("Student ID: " + studentId + ", Task ID: " + taskId);
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -580,7 +534,6 @@ public class TaskSubmissionController {
             Optional<TaskSubmission> submission = taskSubmissionService.findSubmissionByTaskAndStudent(taskId, studentId);
 
             if (submission.isPresent()) {
-                System.out.println("Ã¢Å“â€¦ Found submission");
                 return ResponseEntity.ok(submission.get());
             } else {
                 return ResponseEntity.ok(Map.of(
@@ -615,8 +568,6 @@ public class TaskSubmissionController {
         String uniqueFileName = System.currentTimeMillis() + "_" + fileName.replaceAll("[^a-zA-Z0-9.]", "_");
         String simulatedUrl = "/uploads/submissions/" + uniqueFileName;
 
-        System.out.println("Ã°Å¸â€œÂ Simulated file save: " + fileName + " -> " + simulatedUrl);
-
         // TODO: Implement actual file storage logic here
         return simulatedUrl;
     }
@@ -632,8 +583,6 @@ public class TaskSubmissionController {
             @PathVariable String submissionId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🔍 === CHECKING DELETE PERMISSION ===");
-            System.out.println("Submission ID: " + submissionId);
 
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
@@ -660,8 +609,6 @@ public class TaskSubmissionController {
                     result.put("reason", "Submission not found");
                 }
             }
-
-            System.out.println("✅ Delete permission checked: " + canDelete);
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {

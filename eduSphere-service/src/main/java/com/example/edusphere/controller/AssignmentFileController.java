@@ -43,12 +43,6 @@ public class AssignmentFileController {
             @RequestParam(value = "description", required = false) String description,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📁 === UPLOADING ASSIGNMENT FILE ===");
-            System.out.println("File: " + file.getOriginalFilename());
-            System.out.println("Size: " + file.getSize());
-            System.out.println("Assignment ID: " + assignmentId);
-            System.out.println("Course ID: " + courseId);
-            System.out.println("Description: " + description);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -62,8 +56,6 @@ public class AssignmentFileController {
                     currentUser.getId(),
                     description
             );
-
-            System.out.println("✅ Assignment file uploaded successfully: " + fileResponse.getId());
             return new ResponseEntity<>(fileResponse, HttpStatus.CREATED);
 
         } catch (RuntimeException e) {
@@ -86,9 +78,6 @@ public class AssignmentFileController {
             @PathVariable String fileId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📥 === DOWNLOADING ASSIGNMENT FILE ===");
-            System.out.println("File ID: " + fileId);
-            System.out.println("User: " + userDetails.getUsername());
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -110,8 +99,6 @@ public class AssignmentFileController {
 
             // Determine content type
             String contentType = assignmentFileService.getContentType(fileInfo.getOriginalFilename());
-
-            System.out.println("✅ Assignment file download initiated: " + fileInfo.getOriginalFilename());
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -139,8 +126,6 @@ public class AssignmentFileController {
             @PathVariable String fileId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("👁️ === VIEWING ASSIGNMENT FILE ===");
-            System.out.println("File ID: " + fileId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -162,8 +147,6 @@ public class AssignmentFileController {
 
             // Determine content type
             String contentType = assignmentFileService.getContentType(fileInfo.getOriginalFilename());
-
-            System.out.println("✅ Assignment file view initiated: " + fileInfo.getOriginalFilename());
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileInfo.getOriginalFilename() + "\"")
@@ -190,8 +173,6 @@ public class AssignmentFileController {
             @PathVariable String fileId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("ℹ️ === GETTING ASSIGNMENT FILE INFO ===");
-            System.out.println("File ID: " + fileId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -204,7 +185,6 @@ public class AssignmentFileController {
             }
 
             AssignmentFileResponse fileInfo = assignmentFileService.getAssignmentFileInfo(fileId);
-            System.out.println("✅ Assignment file info retrieved: " + fileInfo.getOriginalFilename());
             return ResponseEntity.ok(fileInfo);
 
         } catch (RuntimeException e) {
@@ -228,8 +208,6 @@ public class AssignmentFileController {
             @PathVariable String fileId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🗑️ === DELETING ASSIGNMENT FILE ===");
-            System.out.println("File ID: " + fileId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -242,7 +220,6 @@ public class AssignmentFileController {
             }
 
             assignmentFileService.deleteAssignmentFile(fileId, currentUser.getId(), currentUser.getRole());
-            System.out.println("✅ Assignment file deleted successfully");
 
             return ResponseEntity.ok(Map.of("message", "Assignment file deleted successfully"));
 
@@ -267,8 +244,6 @@ public class AssignmentFileController {
             @PathVariable String assignmentId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📋 === GETTING FILES BY ASSIGNMENT ===");
-            System.out.println("Assignment ID: " + assignmentId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -279,8 +254,6 @@ public class AssignmentFileController {
                     currentUser.getId(),
                     currentUser.getRole()
             );
-
-            System.out.println("✅ Found " + files.size() + " files for assignment");
             return ResponseEntity.ok(files);
 
         } catch (RuntimeException e) {
@@ -303,8 +276,6 @@ public class AssignmentFileController {
             @PathVariable String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📚 === GETTING FILES BY COURSE ===");
-            System.out.println("Course ID: " + courseId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -315,8 +286,6 @@ public class AssignmentFileController {
                     currentUser.getId(),
                     currentUser.getRole()
             );
-
-            System.out.println("✅ Found " + files.size() + " files for course");
             return ResponseEntity.ok(files);
 
         } catch (RuntimeException e) {
@@ -340,8 +309,6 @@ public class AssignmentFileController {
             @RequestBody Map<String, Object> updateRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📝 === UPDATING ASSIGNMENT FILE METADATA ===");
-            System.out.println("File ID: " + fileId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -357,8 +324,6 @@ public class AssignmentFileController {
                     currentUser.getId(),
                     currentUser.getRole()
             );
-
-            System.out.println("✅ Assignment file metadata updated successfully");
             return ResponseEntity.ok(updatedFile);
 
         } catch (RuntimeException e) {
@@ -381,11 +346,8 @@ public class AssignmentFileController {
             @PathVariable String assignmentId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📊 === GETTING ASSIGNMENT FILE STATISTICS ===");
-            System.out.println("Assignment ID: " + assignmentId);
 
             AssignmentFileService.AssignmentFileStats stats = assignmentFileService.getAssignmentFileStats(assignmentId);
-            System.out.println("✅ Assignment file statistics retrieved");
             return ResponseEntity.ok(stats);
 
         } catch (RuntimeException e) {
@@ -408,11 +370,8 @@ public class AssignmentFileController {
             @PathVariable String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("📊 === GETTING COURSE FILE STATISTICS ===");
-            System.out.println("Course ID: " + courseId);
 
             AssignmentFileService.CourseFileStats stats = assignmentFileService.getCourseFileStats(courseId);
-            System.out.println("✅ Course file statistics retrieved");
             return ResponseEntity.ok(stats);
 
         } catch (RuntimeException e) {
@@ -434,10 +393,8 @@ public class AssignmentFileController {
     public ResponseEntity<?> cleanupOrphanedFiles(
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("🧹 === CLEANING UP ORPHANED FILES ===");
 
             int cleanedCount = assignmentFileService.cleanupOrphanedFiles();
-            System.out.println("✅ Orphaned files cleanup completed");
 
             return ResponseEntity.ok(Map.of(
                     "message", "Orphaned files cleanup completed",
@@ -462,9 +419,6 @@ public class AssignmentFileController {
             @RequestParam(required = false) String courseId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            System.out.println("👤 === GETTING FILES BY UPLOADER ===");
-            System.out.println("User ID: " + userId);
-            System.out.println("Course ID: " + courseId);
 
             // Get current user
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
@@ -477,7 +431,6 @@ public class AssignmentFileController {
             }
 
             List<AssignmentFileResponse> files = assignmentFileService.getFilesByUploader(userId, courseId, currentUser.getRole());
-            System.out.println("✅ Found " + files.size() + " files for uploader");
             return ResponseEntity.ok(files);
 
         } catch (RuntimeException e) {

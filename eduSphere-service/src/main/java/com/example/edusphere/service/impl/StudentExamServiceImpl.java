@@ -11,6 +11,7 @@ import com.example.edusphere.dto.request.ExamResponseRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,13 +38,9 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public List<Map<String, Object>> getAvailableExamsForStudent(String studentId, String courseId) {
-        System.out.println("📚 === FETCHING AVAILABLE EXAMS FOR STUDENT ===");
-        System.out.println("Student ID: " + studentId);
-        System.out.println("Course ID: " + courseId);
 
         try {
             List<Exam> allExams = examRepository.findByCourseIdOrderByStartTimeAsc(courseId);
-            System.out.println("Found " + allExams.size() + " total exams in course");
 
             List<Map<String, Object>> availableExams = new ArrayList<>();
             LocalDateTime now = LocalDateTime.now();
@@ -51,15 +48,12 @@ public class StudentExamServiceImpl implements StudentExamService {
             for (Exam exam : allExams) {
                 // Only include published and visible exams
                 if (!"PUBLISHED".equals(exam.getStatus()) || !exam.getVisibleToStudents()) {
-                    System.out.println("⭐ Skipping exam " + exam.getId() + " - not published or visible");
                     continue;
                 }
 
                 Map<String, Object> examInfo = createStudentExamInfo(exam, studentId, now);
                 availableExams.add(examInfo);
             }
-
-            System.out.println("✅ Returning " + availableExams.size() + " available exams");
             return availableExams;
 
         } catch (Exception e) {
@@ -71,9 +65,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> getStudentExamDetails(String examId, String studentId) {
-        System.out.println("📄 === FETCHING STUDENT EXAM DETAILS ===");
-        System.out.println("Exam ID: " + examId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             Exam exam = examRepository.findById(examId)
@@ -115,8 +106,6 @@ public class StudentExamServiceImpl implements StudentExamService {
                 }
             }
             examDetails.put("questionPreviews", questionPreviews);
-
-            System.out.println("✅ Retrieved exam details successfully");
             return examDetails;
 
         } catch (RuntimeException e) {
@@ -135,9 +124,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> startExamAttempt(String examId, String studentId) {
-        System.out.println("🎯 === STARTING EXAM ATTEMPT ===");
-        System.out.println("Exam ID: " + examId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             // Check eligibility first
@@ -187,8 +173,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             attemptData.put("startedAt", savedResponse.getStartedAt());
             attemptData.put("status", "IN_PROGRESS");
             attemptData.put("exam", examData);
-
-            System.out.println("✅ Started exam attempt " + attemptNumber + " for student " + studentId);
             return attemptData;
 
         } catch (RuntimeException e) {
@@ -203,9 +187,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public ExamResponse saveExamProgress(ExamResponseRequest request, String studentId) {
-        System.out.println("💾 === SAVING EXAM PROGRESS ===");
-        System.out.println("Exam ID: " + request.getExamId());
-        System.out.println("Student ID: " + studentId);
 
         try {
             ExamResponse response = examResponseRepository.findActiveResponse(request.getExamId(), studentId)
@@ -225,23 +206,17 @@ public class StudentExamServiceImpl implements StudentExamService {
 
                 // CRITICAL: Store answers as received from frontend (already converted to original indices)
                 // Frontend hook now properly converts shuffled indices back to original indices
-                System.out.println("📝 Saving answers (already converted from shuffled): " + request.getAnswers());
                 currentAnswers.putAll(request.getAnswers());
                 response.setAnswers(currentAnswers);
-
-                System.out.println("🔍 Updated " + request.getAnswers().size() + " answers");
             }
 
             // Update time spent
             if (request.getTimeSpent() != null) {
                 response.setTimeSpent(request.getTimeSpent());
-                System.out.println("⏱️ Updated time spent: " + request.getTimeSpent() + " seconds");
             }
 
             response.setUpdatedAt(LocalDateTime.now());
             ExamResponse savedResponse = examResponseRepository.save(response);
-
-            System.out.println("✅ Saved exam progress successfully");
             return savedResponse;
 
         } catch (RuntimeException e) {
@@ -256,9 +231,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> submitExam(ExamResponseRequest request, String studentId) {
-        System.out.println("📤 === SUBMITTING EXAM ===");
-        System.out.println("Exam ID: " + request.getExamId());
-        System.out.println("Student ID: " + studentId);
 
         try {
             ExamResponse response = examResponseRepository.findActiveResponse(request.getExamId(), studentId)
@@ -280,7 +252,6 @@ public class StudentExamServiceImpl implements StudentExamService {
                 }
 
                 // Frontend already converted shuffled indices to original indices
-                System.out.println("📤 Final answers (converted from shuffled): " + request.getAnswers());
                 currentAnswers.putAll(request.getAnswers());
                 response.setAnswers(currentAnswers);
             }
@@ -297,7 +268,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             // Check if late submission
             if (LocalDateTime.now().isAfter(exam.getEndTime())) {
                 response.setLateSubmission(true);
-                System.out.println("⚠️ Late submission detected");
             }
 
             ExamResponse submittedResponse = examResponseRepository.save(response);
@@ -307,12 +277,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             Map<String, Object> results = null;
 
             try {
-                System.out.println("🤖 Attempting auto-grading...");
                 ExamResponse gradedResponse = examService.autoGradeResponse(submittedResponse.getId());
                 autoGraded = gradedResponse.getAutoGraded() != null && gradedResponse.getAutoGraded();
 
                 if (autoGraded && exam.getShowResults()) {
-                    System.out.println("📊 Auto-grading successful, preparing results...");
                     results = getStudentExamResults(gradedResponse.getId(), studentId);
                 }
 
@@ -335,13 +303,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             if (results != null && exam.getShowResults()) {
                 submitResult.put("results", results);
                 submitResult.put("graded", true);
-                System.out.println("📊 Including immediate results in response");
             } else {
                 submitResult.put("graded", false);
                 submitResult.put("message", "Exam submitted successfully. Results will be available once graded.");
             }
-
-            System.out.println("✅ Submitted exam successfully");
             return submitResult;
 
         } catch (RuntimeException e) {
@@ -356,9 +321,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> resumeExamAttempt(String examId, String studentId) {
-        System.out.println("🔄 === RESUMING EXAM ATTEMPT ===");
-        System.out.println("Exam ID: " + examId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             ExamResponse activeResponse = examResponseRepository.findActiveResponse(examId, studentId)
@@ -379,7 +341,7 @@ public class StudentExamServiceImpl implements StudentExamService {
             }
 
             // Calculate elapsed time
-            long elapsedMinutes = java.time.Duration.between(activeResponse.getStartedAt(), now).toMinutes();
+            long elapsedMinutes = Duration.between(activeResponse.getStartedAt(), now).toMinutes();
             long remainingMinutes = Math.max(0, exam.getDuration() - elapsedMinutes);
 
             if (remainingMinutes <= 0) {
@@ -394,7 +356,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             Map<String, String> displayAnswers = new HashMap<>();
 
             if (currentAnswers != null && exam.getShuffleOptions()) {
-                System.out.println("🔄 Converting stored answers back to shuffled format for resume");
                 // Note: This is complex because we need the original shuffle mapping
                 // For now, we'll pass the stored answers as-is and let frontend handle
                 displayAnswers = currentAnswers;
@@ -414,9 +375,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             resumeData.put("exam", examData);
             resumeData.put("status", "RESUMED");
 
-            System.out.println("✅ Resumed exam attempt successfully");
-            System.out.println("⏱️ Remaining time: " + remainingMinutes + " minutes");
-
             return resumeData;
 
         } catch (RuntimeException e) {
@@ -435,9 +393,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> checkExamEligibility(String examId, String studentId) {
-        System.out.println("🔍 === CHECKING EXAM ELIGIBILITY ===");
-        System.out.println("Exam ID: " + examId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             Exam exam = examRepository.findById(examId)
@@ -494,8 +449,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             eligibility.put("startTime", exam.getStartTime());
             eligibility.put("endTime", exam.getEndTime());
             eligibility.put("isWithinTimeWindow", !now.isBefore(exam.getStartTime()) && !now.isAfter(exam.getEndTime()));
-
-            System.out.println("✅ Eligibility check completed - Can take: " + canTake + ", Has active: " + hasActiveAttempt);
             return eligibility;
 
         } catch (RuntimeException e) {
@@ -510,9 +463,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public List<Map<String, Object>> getStudentAttemptHistory(String examId, String studentId) {
-        System.out.println("📚 === FETCHING STUDENT ATTEMPT HISTORY ===");
-        System.out.println("Exam ID: " + examId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             List<ExamResponse> attempts = examResponseRepository.findByExamIdAndStudentIdOrderByAttemptNumberDesc(examId, studentId);
@@ -521,8 +471,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             for (ExamResponse attempt : attempts) {
                 attemptHistory.add(createAttemptSummary(attempt));
             }
-
-            System.out.println("✅ Retrieved " + attemptHistory.size() + " attempt records");
             return attemptHistory;
 
         } catch (Exception e) {
@@ -538,9 +486,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> getStudentExamResults(String responseId, String studentId) {
-        System.out.println("📊 === FETCHING STUDENT EXAM RESULTS ===");
-        System.out.println("Response ID: " + responseId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             ExamResponse response = examResponseRepository.findById(responseId)
@@ -595,8 +540,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             if (response.getTimeSpent() != null) {
                 results.put("timeSpentFormatted", formatTimeSpent(response.getTimeSpent()));
             }
-
-            System.out.println("✅ Retrieved exam results successfully");
             return results;
 
         } catch (RuntimeException e) {
@@ -611,9 +554,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> getDetailedExamResults(String responseId, String studentId) {
-        System.out.println("📋 === FETCHING DETAILED EXAM RESULTS ===");
-        System.out.println("Response ID: " + responseId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             ExamResponse response = examResponseRepository.findById(responseId)
@@ -740,8 +680,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             }
 
             detailedResults.put("summary", summary);
-
-            System.out.println("✅ Retrieved detailed exam results successfully");
             return detailedResults;
 
         } catch (RuntimeException e) {
@@ -760,9 +698,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> getStudentExamStats(String studentId, String courseId) {
-        System.out.println("📈 === FETCHING STUDENT EXAM STATISTICS ===");
-        System.out.println("Student ID: " + studentId);
-        System.out.println("Course ID: " + courseId);
 
         try {
             List<ExamResponse> responses = examResponseRepository.findByStudentIdAndCourseId(studentId, courseId);
@@ -817,8 +752,6 @@ public class StudentExamServiceImpl implements StudentExamService {
                 stats.put("averageTimeSpent", Math.round(averageTime));
                 stats.put("averageTimeSpentFormatted", formatTimeSpent((int) averageTime));
             }
-
-            System.out.println("✅ Retrieved exam statistics successfully");
             return stats;
 
         } catch (Exception e) {
@@ -830,9 +763,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> checkActiveAttempt(String examId, String studentId) {
-        System.out.println("🔍 === CHECKING ACTIVE ATTEMPT ===");
-        System.out.println("Exam ID: " + examId);
-        System.out.println("Student ID: " + studentId);
 
         try {
             Optional<ExamResponse> activeAttempt = examResponseRepository.findActiveResponse(examId, studentId);
@@ -851,14 +781,12 @@ public class StudentExamServiceImpl implements StudentExamService {
                 // Calculate remaining time
                 Exam exam = examRepository.findById(examId).orElse(null);
                 if (exam != null) {
-                    long elapsedMinutes = java.time.Duration.between(response.getStartedAt(), LocalDateTime.now()).toMinutes();
+                    long elapsedMinutes = Duration.between(response.getStartedAt(), LocalDateTime.now()).toMinutes();
                     long remainingMinutes = Math.max(0, exam.getDuration() - elapsedMinutes);
                     result.put("remainingMinutes", remainingMinutes);
                     result.put("canResume", remainingMinutes > 0);
                 }
             }
-
-            System.out.println("✅ Checked active attempt successfully");
             return result;
 
         } catch (Exception e) {
@@ -870,8 +798,6 @@ public class StudentExamServiceImpl implements StudentExamService {
 
     @Override
     public Map<String, Object> getExamDashboardSummary(String studentId) {
-        System.out.println("📊 === FETCHING EXAM DASHBOARD SUMMARY ===");
-        System.out.println("Student ID: " + studentId);
 
         try {
             List<ExamResponse> allResponses = examResponseRepository.findByStudentId(studentId);
@@ -920,8 +846,6 @@ public class StudentExamServiceImpl implements StudentExamService {
             // Find upcoming exams (this would need exam repository access)
             // For now, just indicate if there are active attempts
             summary.put("hasActiveAttempts", inProgress > 0);
-
-            System.out.println("✅ Retrieved dashboard summary successfully");
             return summary;
 
         } catch (Exception e) {

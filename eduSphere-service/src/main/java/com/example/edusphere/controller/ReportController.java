@@ -26,11 +26,9 @@ public class ReportController {
     @PostMapping("/generate")
     public ResponseEntity<GenerateReportResponse> generateReport(@RequestBody GenerateReportRequest request) {
         try {
-            System.out.println("🎯 Report generation request received: " + request.getQuery());
             GenerateReportResponse response = reportService.generateReport(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.out.println("❌ Error in report controller: " + e.getMessage());
             return ResponseEntity.internalServerError()
                     .body(GenerateReportResponse.builder().data(List.of()).build());
         }
@@ -68,7 +66,6 @@ public class ReportController {
             reportService.deleteReport(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            System.out.println("❌ Error deleting report: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -83,7 +80,6 @@ public class ReportController {
 
             return ResponseEntity.ok(GenerateReportResponse.builder().data(reportData).build());
         } catch (Exception e) {
-            System.out.println("❌ Error viewing report: " + e.getMessage());
             return ResponseEntity.internalServerError()
                     .body(GenerateReportResponse.builder().data(List.of()).build());
         }

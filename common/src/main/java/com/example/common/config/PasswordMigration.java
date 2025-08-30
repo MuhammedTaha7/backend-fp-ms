@@ -19,7 +19,6 @@ public class PasswordMigration implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("🔄 Starting password migration...");
 
         try {
             List<UserEntity> users = userRepository.findAll();
@@ -39,11 +38,8 @@ public class PasswordMigration implements CommandLineRunner {
                     user.setPassword(encryptedPassword);
                     userRepository.save(user);
                     updated++;
-                    System.out.println("✅ Updated password for user: " + user.getEmail());
                 }
             }
-
-            System.out.println("🎉 Migration completed successfully! Updated " + updated + " passwords.");
 
         } catch (Exception e) {
             System.err.println("❌ Migration failed: " + e.getMessage());
