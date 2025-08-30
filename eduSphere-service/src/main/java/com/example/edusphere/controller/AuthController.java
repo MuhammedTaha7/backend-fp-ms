@@ -40,7 +40,7 @@ public class AuthController {
 
         // ✅ Store JWT Token in HTTP-only Cookie
         Cookie jwtCookie = new Cookie("jwtToken", loginResponse.getToken());
-        jwtCookie.setHttpOnly(true); // Prevent JavaScript access
+        jwtCookie.setHttpOnly(false); // Prevent JavaScript access
         jwtCookie.setSecure(false);  // Allow use on localhost (should be true for production)
         jwtCookie.setPath("/");      // Available across the app
         jwtCookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
