@@ -33,22 +33,30 @@ public class AuthController {
         userService.registerUser(registerRequest);
         return ResponseEntity.ok("User registered successfully!");
     }
+//
+//    @PostMapping("/login")
+//    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+//        LoginResponse loginResponse = userService.authenticateUser(loginRequest);
+//
+//        ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", loginResponse.getToken())
+//                .httpOnly(true)        // ✅ safer
+//                .secure(false)         // ✅ keep false for localhost, true on AWS/HTTPS
+//                .path("/")             // ✅ cookie valid for all paths
+//                .sameSite("None")      // ✅ required for cross-domain cookies
+//                .maxAge(7 * 24 * 60 * 60)
+//                .build();
+//
+//        response.addHeader("Set-Cookie", jwtCookie.toString());
+//
+//        return ResponseEntity.ok("Login Successful");
+//    }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = userService.authenticateUser(loginRequest);
 
-        ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", loginResponse.getToken())
-                .httpOnly(true)        // ✅ safer
-                .secure(false)         // ✅ keep false for localhost, true on AWS/HTTPS
-                .path("/")             // ✅ cookie valid for all paths
-                .sameSite("None")      // ✅ required for cross-domain cookies
-                .maxAge(7 * 24 * 60 * 60)
-                .build();
-
-        response.addHeader("Set-Cookie", jwtCookie.toString());
-
-        return ResponseEntity.ok("Login Successful");
+        // ✅ Instead of setting a cookie, return the token in the response body
+        return ResponseEntity.ok(loginResponse);
     }
 
 
