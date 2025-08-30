@@ -12,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -35,19 +36,21 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-
         LoginResponse loginResponse = userService.authenticateUser(loginRequest);
 
-        // ✅ Store JWT Token in HTTP-only Cookie
-        Cookie jwtCookie = new Cookie("jwtToken", loginResponse.getToken());
-        jwtCookie.setHttpOnly(false); // Prevent JavaScript access
-        jwtCookie.setSecure(false);  // Allow use on localhost (should be true for production)
-        jwtCookie.setPath("/");      // Available across the app
-        jwtCookie.setMaxAge(7 * 24 * 60 * 60); // Expires in 7 days
-        response.addCookie(jwtCookie);
+        ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", loginResponse.getToken())
+                .httpOnly(true)        // ✅ safer
+                .secure(false)         // ✅ keep false for localhost, true on AWS/HTTPS
+                .path("/")             // ✅ cookie valid for all paths
+                .sameSite("None")      // ✅ required for cross-domain cookies
+                .maxAge(7 * 24 * 60 * 60)
+                .build();
+
+        response.addHeader("Set-Cookie", jwtCookie.toString());
 
         return ResponseEntity.ok("Login Successful");
     }
+
 
     @GetMapping("/auth/user")
     public ResponseEntity<AuthResponse> getUserData(Authentication authentication) {
