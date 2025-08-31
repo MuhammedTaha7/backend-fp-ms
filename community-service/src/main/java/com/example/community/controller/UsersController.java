@@ -17,7 +17,7 @@ import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "false")
 public class UsersController {
 
     @Autowired

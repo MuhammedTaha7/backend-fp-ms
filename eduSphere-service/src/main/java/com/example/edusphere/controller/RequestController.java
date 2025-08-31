@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/requests")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "false")
 public class RequestController {
 
     private final RequestService requestService;

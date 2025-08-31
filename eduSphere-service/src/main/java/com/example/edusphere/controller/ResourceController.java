@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/resources")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "false")
 public class ResourceController {
 
     private final ResourceService resourceService;
