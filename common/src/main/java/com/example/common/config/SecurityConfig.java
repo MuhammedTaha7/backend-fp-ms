@@ -39,6 +39,14 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/register", "/api/login").permitAll()
 
+                        // 🔧 FIX: Allow all authenticated users to manage friends and community resources
+                        .requestMatchers("/api/community/**").authenticated()
+                        .requestMatchers("/api/friends/**").authenticated()
+                        .requestMatchers("/api/jobs/**").authenticated()
+                        .requestMatchers("/api/cv/**").authenticated()
+                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/api/chat/**").authenticated()
+
                         // 🔧 FIX 2: Extension auth endpoints (public)
                         .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
 
