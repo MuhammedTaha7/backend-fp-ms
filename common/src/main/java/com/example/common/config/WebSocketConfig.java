@@ -22,5 +22,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("http://localhost:3000")
                 .withSockJS();
     }
-
 }
