@@ -24,7 +24,7 @@ public class UsersController {
     private UsersService usersService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping("/profile/{userId}")
     public ResponseEntity<UserDto> getUserProfile(@PathVariable String userId) {
