@@ -202,6 +202,31 @@ public class EduSphereClient {
     }
 
     /**
+     * Get announcements for a user
+     */
+    public List<Map<String, Object>> getAnnouncementsForUser(String userId) {
+        try {
+            String url = EDUSPHERE_SERVICE_URL + "/announcements";
+
+            ResponseEntity<List> response = makeAuthenticatedGetRequest(
+                    url, userId, new ParameterizedTypeReference<List>() {}
+            );
+
+            List<Map<String, Object>> announcements = new ArrayList<>();
+            if (response.getBody() != null) {
+                List<Object> rawAnnouncements = response.getBody();
+                announcements = rawAnnouncements.stream()
+                        .map(this::convertAnnouncementToMap)
+                        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            }
+            return announcements;
+        } catch (Exception e) {
+            System.err.println("❌ Error getting announcements: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
      * Get meeting by ID - using existing meeting endpoint
      */
     public Map<String, Object> getMeetingById(String meetingId, String email) {
@@ -326,6 +351,33 @@ public class EduSphereClient {
         }
 
         return meetingMap;
+    }
+
+    private Map<String, Object> convertAnnouncementToMap(Object announcementObj) {
+        Map<String, Object> announcementMap = new HashMap<>();
+        try {
+            if (announcementObj instanceof Map) {
+                return (Map<String, Object>) announcementObj;
+            }
+            announcementMap.put("id", getFieldValue(announcementObj, "id"));
+            announcementMap.put("title", getFieldValue(announcementObj, "title"));
+            announcementMap.put("content", getFieldValue(announcementObj, "content"));
+            announcementMap.put("creatorId", getFieldValue(announcementObj, "creatorId"));
+            announcementMap.put("creatorName", getFieldValue(announcementObj, "creatorName"));
+            announcementMap.put("priority", getFieldValue(announcementObj, "priority"));
+            announcementMap.put("status", getFieldValue(announcementObj, "status"));
+            announcementMap.put("createdAt", getFieldValue(announcementObj, "createdAt"));
+            announcementMap.put("expiryDate", getFieldValue(announcementObj, "expiryDate"));
+            announcementMap.put("scheduledDate", getFieldValue(announcementObj, "scheduledDate"));
+            announcementMap.put("targetAudienceType", getFieldValue(announcementObj, "targetAudienceType"));
+            announcementMap.put("targetDepartment", getFieldValue(announcementObj, "targetDepartment"));
+            announcementMap.put("targetCourseId", getFieldValue(announcementObj, "targetCourseId"));
+            announcementMap.put("targetAcademicYear", getFieldValue(announcementObj, "targetAcademicYear"));
+            announcementMap.put("targetUserId", getFieldValue(announcementObj, "targetUserId"));
+        } catch (Exception e) {
+            System.err.println("Error converting announcement to map: " + e.getMessage());
+        }
+        return announcementMap;
     }
 
     // Helper method to get field value using reflection

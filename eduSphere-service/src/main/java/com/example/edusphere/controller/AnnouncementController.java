@@ -1,3 +1,4 @@
+// AnnouncementController.java
 package com.example.edusphere.controller;
 
 import com.example.edusphere.dto.request.AnnouncementRequest;
@@ -8,12 +9,15 @@ import com.example.common.entity.UserEntity;
 import com.example.edusphere.service.AnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/announcements")
@@ -65,24 +69,36 @@ public class AnnouncementController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_LECTURER')")
-    public ResponseEntity<AnnouncementResponse> createAnnouncement(@RequestBody AnnouncementRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Map<String, Object>> createAnnouncement(@RequestBody AnnouncementRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         UserEntity currentUser = (UserEntity) userDetails;
         AnnouncementResponse createdAnnouncement = announcementService.createAnnouncement(request, currentUser.getId(), currentUser.getName());
-        return ResponseEntity.ok(createdAnnouncement);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Announcement created successfully");
+        response.put("announcement", createdAnnouncement);
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_LECTURER')")
-    public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable String id, @RequestBody AnnouncementRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Map<String, Object>> updateAnnouncement(@PathVariable String id, @RequestBody AnnouncementRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         UserEntity currentUser = (UserEntity) userDetails;
         AnnouncementResponse updatedAnnouncement = announcementService.updateAnnouncement(id, request, currentUser.getId(), currentUser.getRole());
-        return ResponseEntity.ok(updatedAnnouncement);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Announcement updated successfully");
+        response.put("announcement", updatedAnnouncement);
+
+        return ResponseEntity.ok(response);
     }
 
     // 🆕 NEW: Endpoint for duplicating and re-sending an announcement
     @PostMapping("/{id}/duplicate")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_LECTURER')")
-    public ResponseEntity<AnnouncementResponse> duplicateAnnouncement(
+    public ResponseEntity<Map<String, Object>> duplicateAnnouncement(
             @PathVariable String id,
             @RequestBody AnnouncementRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -90,7 +106,13 @@ public class AnnouncementController {
         UserEntity currentUser = (UserEntity) userDetails;
         // Pass currentUser.getRole() to the service method
         AnnouncementResponse newAnnouncement = announcementService.duplicateAnnouncement(id, request, currentUser.getId(), currentUser.getName(), currentUser.getRole());
-        return ResponseEntity.ok(newAnnouncement);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Announcement duplicated and sent successfully");
+        response.put("announcement", newAnnouncement);
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

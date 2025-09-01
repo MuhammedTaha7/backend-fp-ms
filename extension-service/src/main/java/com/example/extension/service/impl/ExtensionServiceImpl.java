@@ -1,4 +1,3 @@
-// ExtensionServiceImpl.java
 package com.example.extension.service.impl;
 
 import com.example.extension.client.EduSphereClient;
@@ -78,13 +77,23 @@ public class ExtensionServiceImpl implements ExtensionService {
             items.addAll(meetingItems);
             System.out.println("🎥 Added " + meetingItems.size() + " meeting items");
 
+            // Get announcements by calling the edusphere-service API
+            System.out.println("📢 Fetching announcements for user: " + userId);
+            List<Map<String, Object>> allAnnouncements = eduSphereClient.getAnnouncementsForUser(userId);
+            System.out.println("✅ Found " + allAnnouncements.size() + " announcements");
+
+            List<ExtensionItemResponse> announcementItems = allAnnouncements.stream()
+                    .map(this::convertAnnouncementToExtensionItem)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            items.addAll(announcementItems);
+            System.out.println("📢 Added " + announcementItems.size() + " announcement items");
+
             // Sort all items by priority and due date
             items = items.stream()
                     .sorted(this::compareItemsByPriority)
                     .collect(Collectors.toList());
-
-            // Add mock announcements
-            items.addAll(generateMockAnnouncements(userCourses));
 
             // Calculate statistics
             ExtensionStatsResponse stats = calculateStats(items, userId, userRole);
@@ -167,10 +176,11 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public List<ExtensionItemResponse> getAnnouncements(String userId, String userRole, int limit) {
         try {
-            List<Map<String, Object>> userCourses = eduSphereClient.getUserCourses(userId, userRole);
+            List<Map<String, Object>> allAnnouncements = eduSphereClient.getAnnouncementsForUser(userId);
 
-            List<ExtensionItemResponse> announcements = generateMockAnnouncements(userCourses)
-                    .stream()
+            List<ExtensionItemResponse> announcements = allAnnouncements.stream()
+                    .map(this::convertAnnouncementToExtensionItem)
+                    .filter(Objects::nonNull)
                     .limit(limit)
                     .collect(Collectors.toList());
 
@@ -369,6 +379,46 @@ public class ExtensionServiceImpl implements ExtensionService {
         }
     }
 
+    private ExtensionItemResponse convertAnnouncementToExtensionItem(Map<String, Object> announcement) {
+        try {
+            ExtensionItemResponse item = new ExtensionItemResponse();
+
+            item.setId((String) announcement.get("id"));
+            item.setName((String) announcement.get("title"));
+            item.setDescription((String) announcement.get("content"));
+            item.setType("announcement");
+
+            // Check scheduled and expiry dates to determine due date
+            if (announcement.get("scheduledDate") != null) {
+                item.setDueDate(convertToDateString(announcement.get("scheduledDate")));
+            } else if (announcement.get("expiryDate") != null) {
+                item.setDueDate(convertToDateString(announcement.get("expiryDate")));
+            } else {
+                item.setDueDate(LocalDate.now().toString());
+            }
+
+            // Set the course name if available, otherwise a general name
+            String targetCourseId = (String) announcement.get("targetCourseId");
+            item.setCourse(targetCourseId != null ? eduSphereClient.getCourseName(targetCourseId) : "General Announcement");
+
+            String status = (String) announcement.getOrDefault("status", "pending");
+            item.setStatus(status);
+
+            // Calculate priority based on announcement priority field
+            String priority = (String) announcement.getOrDefault("priority", "safe");
+            item.setPriority(priority);
+
+            item.setCategory("announcement");
+            item.setAnnouncementType((String) announcement.get("targetAudienceType"));
+            item.setIsImportant("high".equals(priority) || "urgent".equals(priority) || "active".equals(status));
+
+            return item;
+        } catch (Exception e) {
+            System.err.println("❌ Error converting announcement to extension item: " + e.getMessage());
+            return null;
+        }
+    }
+
     // Helper method to convert various date formats to LocalDate string
     private String convertToDateString(Object dateObj) {
         if (dateObj == null) {
@@ -410,44 +460,6 @@ public class ExtensionServiceImpl implements ExtensionService {
         }
 
         return "safe";
-    }
-
-    private List<ExtensionItemResponse> generateMockAnnouncements(List<Map<String, Object>> courses) {
-        List<ExtensionItemResponse> announcements = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-
-        // Generate a couple of mock announcements
-        if (!courses.isEmpty()) {
-            ExtensionItemResponse careerFair = new ExtensionItemResponse();
-            careerFair.setId("ann_" + UUID.randomUUID().toString().substring(0, 8));
-            careerFair.setName("Campus Career Fair");
-            careerFair.setDescription("Annual career fair with 50+ companies recruiting students");
-            careerFair.setType("announcement");
-            careerFair.setDueDate(today.plusDays(10).toString());
-            careerFair.setStatus("pending");
-            careerFair.setPriority("warning");
-            careerFair.setCourse("Career Services");
-            careerFair.setAnnouncementType("event");
-            careerFair.setLocation("Main Campus Hall");
-            careerFair.setIsImportant(true);
-            announcements.add(careerFair);
-
-            ExtensionItemResponse libraryMaint = new ExtensionItemResponse();
-            libraryMaint.setId("ann_" + UUID.randomUUID().toString().substring(0, 8));
-            libraryMaint.setName("Library System Maintenance");
-            libraryMaint.setDescription("Digital library will be offline for system updates");
-            libraryMaint.setType("announcement");
-            libraryMaint.setDueDate(today.plusDays(5).toString());
-            libraryMaint.setStatus("pending");
-            libraryMaint.setPriority("safe");
-            libraryMaint.setCourse("Library");
-            libraryMaint.setAnnouncementType("maintenance");
-            libraryMaint.setLocation("Digital Library");
-            libraryMaint.setIsImportant(false);
-            announcements.add(libraryMaint);
-        }
-
-        return new ArrayList<>();
     }
 
     private ExtensionStatsResponse calculateStats(List<ExtensionItemResponse> items, String userId, String userRole) {
