@@ -16,6 +16,7 @@ import com.example.common.entity.UserEntity;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @Service
 public class EduSphereClient {
@@ -75,89 +76,147 @@ public class EduSphereClient {
         }
     }
 
+    /**
+     * Get user courses - using existing endpoints based on user role
+     */
     public List<Map<String, Object>> getUserCourses(String userId, String userRole) {
-        String url = UriComponentsBuilder.fromHttpUrl(EDUSPHERE_SERVICE_URL + "/courses/user-courses")
-                .queryParam("userId", userId)
-                .queryParam("userRole", userRole)
-                .toUriString();
-
         try {
-            ResponseEntity<List<Map<String, Object>>> response = makeAuthenticatedGetRequest(
-                    url, userId, new ParameterizedTypeReference<List<Map<String, Object>>>() {}
-            );
-            return response.getBody() != null ? response.getBody() : new ArrayList<>();
+            List<Map<String, Object>> courses = new ArrayList<>();
+
+            if ("1200".equals(userRole)) {
+                // Lecturer - use the lecturer courses endpoint
+                String url = EDUSPHERE_SERVICE_URL + "/courses/lecturer";
+                ResponseEntity<List> response = makeAuthenticatedGetRequest(
+                        url, userId, new ParameterizedTypeReference<List>() {}
+                );
+
+                if (response.getBody() != null) {
+                    List<Object> lecturerCourses = response.getBody();
+                    courses = lecturerCourses.stream()
+                            .map(course -> convertCourseToMap(course))
+                            .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                }
+            } else if ("1300".equals(userRole)) {
+                // Student - use the student courses endpoint
+                String url = EDUSPHERE_SERVICE_URL + "/courses/student";
+                ResponseEntity<List> response = makeAuthenticatedGetRequest(
+                        url, userId, new ParameterizedTypeReference<List>() {}
+                );
+
+                if (response.getBody() != null) {
+                    List<Object> studentCourses = response.getBody();
+                    courses = studentCourses.stream()
+                            .map(course -> convertCourseToMap(course))
+                            .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+                }
+            }
+            // Admin role would need a different endpoint if available
+
+            return courses;
         } catch (Exception e) {
             System.err.println("❌ Error getting user courses: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
+    /**
+     * Get course name - this would need to be implemented in EduSphere or use course lookup
+     */
     public String getCourseName(String courseId) {
-        String url = EDUSPHERE_SERVICE_URL + "/courses/name/" + courseId;
         try {
-            // For course name, we'll use a simplified approach since we don't have userId context here
-            HttpHeaders headers = new HttpHeaders();
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-            return response.getBody();
+            // Since there's no specific endpoint for course name, we'll return a placeholder
+            // In a real implementation, you'd either add this endpoint to EduSphere or
+            // cache course names from the getUserCourses call
+            return "Course " + courseId;
         } catch (Exception e) {
             System.err.println("❌ Error getting course name for " + courseId + ": " + e.getMessage());
             return "Unknown Course";
         }
     }
 
+    /**
+     * Get tasks by course IDs - using existing task endpoints
+     */
     public List<Map<String, Object>> getTasksByCourseIds(List<String> courseIds) {
         if (courseIds.isEmpty()) {
             return new ArrayList<>();
         }
 
-        String url = UriComponentsBuilder.fromHttpUrl(EDUSPHERE_SERVICE_URL + "/tasks/by-courses")
-                .queryParam("courseIds", String.join(",", courseIds))
-                .toUriString();
-
         try {
-            // We'll use the first course's context for authentication - this is a limitation
-            // In a real system, you'd pass the requesting user's ID through the chain
+            List<Map<String, Object>> allTasks = new ArrayList<>();
+
+            // The existing endpoint is /api/tasks/by-courses which expects courseIds parameter
+            String url = UriComponentsBuilder.fromHttpUrl(EDUSPHERE_SERVICE_URL + "/tasks/by-courses")
+                    .queryParam("courseIds", courseIds)
+                    .toUriString();
+
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<?> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+            ResponseEntity<List> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List>() {}
             );
-            return response.getBody() != null ? response.getBody() : new ArrayList<>();
+
+            if (response.getBody() != null) {
+                List<Object> tasks = response.getBody();
+                allTasks = tasks.stream()
+                        .map(task -> convertTaskToMap(task))
+                        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            }
+
+            return allTasks;
         } catch (Exception e) {
             System.err.println("❌ Error getting tasks by course IDs: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
+    /**
+     * Get meetings by course IDs - using existing meeting endpoints
+     */
     public List<Map<String, Object>> getMeetingsByCourseIds(List<String> courseIds) {
         if (courseIds.isEmpty()) {
             return new ArrayList<>();
         }
 
-        String url = UriComponentsBuilder.fromHttpUrl(EDUSPHERE_SERVICE_URL + "/meetings/by-courses")
-                .queryParam("courseIds", String.join(",", courseIds))
-                .toUriString();
-
         try {
+            List<Map<String, Object>> allMeetings = new ArrayList<>();
+
+            // We need to call the user meetings endpoint for each course
+            // Since there's no direct "by-courses" endpoint for meetings, we'll use the user meetings endpoint
+            String url = EDUSPHERE_SERVICE_URL + "/meetings/user";
+
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<?> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+            ResponseEntity<List> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List>() {}
             );
-            return response.getBody() != null ? response.getBody() : new ArrayList<>();
+
+            if (response.getBody() != null) {
+                List<Object> meetings = response.getBody();
+                // Filter meetings by course IDs
+                allMeetings = meetings.stream()
+                        .map(meeting -> convertMeetingToMap(meeting))
+                        .filter(meetingMap -> {
+                            String courseId = (String) meetingMap.get("courseId");
+                            return courseId != null && courseIds.contains(courseId);
+                        })
+                        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            }
+
+            return allMeetings;
         } catch (Exception e) {
             System.err.println("❌ Error getting meetings by course IDs: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
+    /**
+     * Get meeting by ID - using existing meeting endpoint
+     */
     public Map<String, Object> getMeetingById(String meetingId, String email) {
-        String url = UriComponentsBuilder.fromHttpUrl(EDUSPHERE_SERVICE_URL + "/meetings/" + meetingId)
-                .queryParam("email", email)
-                .toUriString();
+        String url = EDUSPHERE_SERVICE_URL + "/meetings/" + meetingId;
 
         try {
             // Try to find user by email to get proper authentication
@@ -168,7 +227,7 @@ public class EduSphereClient {
                 ResponseEntity<Map> response = makeAuthenticatedGetRequest(
                         url, userId, new ParameterizedTypeReference<Map>() {}
                 );
-                return response.getBody();
+                return response.getBody() != null ? response.getBody() : new HashMap<>();
             } else {
                 // Fallback without authentication
                 return restTemplate.getForObject(url, Map.class);
@@ -179,21 +238,116 @@ public class EduSphereClient {
         }
     }
 
+    /**
+     * Check if user can access course - simplified logic
+     */
     public boolean canUserAccessCourse(String userId, String userRole, String courseId) {
-        String url = UriComponentsBuilder.fromHttpUrl(EDUSPHERE_SERVICE_URL + "/courses/can-access")
-                .queryParam("userId", userId)
-                .queryParam("userRole", userRole)
-                .queryParam("courseId", courseId)
-                .toUriString();
-
         try {
-            ResponseEntity<Boolean> response = makeAuthenticatedGetRequest(
-                    url, userId, new ParameterizedTypeReference<Boolean>() {}
-            );
-            return response.getBody() != null && response.getBody();
+            // Get user courses and check if courseId is in the list
+            List<Map<String, Object>> userCourses = getUserCourses(userId, userRole);
+            return userCourses.stream()
+                    .anyMatch(course -> courseId.equals(course.get("id")));
         } catch (Exception e) {
             System.err.println("❌ Error checking course access: " + e.getMessage());
             return false;
+        }
+    }
+
+    // Helper methods to convert objects to Map format
+    private Map<String, Object> convertCourseToMap(Object courseObj) {
+        Map<String, Object> courseMap = new HashMap<>();
+
+        try {
+            if (courseObj instanceof Map) {
+                return (Map<String, Object>) courseObj;
+            }
+
+            // If it's a Course entity, extract fields using reflection or known structure
+            // This is a simplified conversion - adjust based on your Course entity structure
+            courseMap.put("id", getFieldValue(courseObj, "id"));
+            courseMap.put("name", getFieldValue(courseObj, "name"));
+            courseMap.put("description", getFieldValue(courseObj, "description"));
+            courseMap.put("createdBy", getFieldValue(courseObj, "createdBy"));
+            courseMap.put("semester", getFieldValue(courseObj, "semester"));
+            courseMap.put("year", getFieldValue(courseObj, "year"));
+            courseMap.put("credits", getFieldValue(courseObj, "credits"));
+
+        } catch (Exception e) {
+            System.err.println("Error converting course to map: " + e.getMessage());
+        }
+
+        return courseMap;
+    }
+
+    private Map<String, Object> convertTaskToMap(Object taskObj) {
+        Map<String, Object> taskMap = new HashMap<>();
+
+        try {
+            if (taskObj instanceof Map) {
+                return (Map<String, Object>) taskObj;
+            }
+
+            // Convert Task entity to map
+            taskMap.put("id", getFieldValue(taskObj, "id"));
+            taskMap.put("title", getFieldValue(taskObj, "title"));
+            taskMap.put("description", getFieldValue(taskObj, "description"));
+            taskMap.put("courseId", getFieldValue(taskObj, "courseId"));
+            taskMap.put("dueDate", getFieldValue(taskObj, "dueDate"));
+            taskMap.put("maxPoints", getFieldValue(taskObj, "maxPoints"));
+            taskMap.put("category", getFieldValue(taskObj, "category"));
+            taskMap.put("status", getFieldValue(taskObj, "status"));
+            taskMap.put("published", getFieldValue(taskObj, "published"));
+            taskMap.put("visibleToStudents", getFieldValue(taskObj, "visibleToStudents"));
+            taskMap.put("fileUrl", getFieldValue(taskObj, "fileUrl"));
+            taskMap.put("fileName", getFieldValue(taskObj, "fileName"));
+
+        } catch (Exception e) {
+            System.err.println("Error converting task to map: " + e.getMessage());
+        }
+
+        return taskMap;
+    }
+
+    private Map<String, Object> convertMeetingToMap(Object meetingObj) {
+        Map<String, Object> meetingMap = new HashMap<>();
+
+        try {
+            if (meetingObj instanceof Map) {
+                return (Map<String, Object>) meetingObj;
+            }
+
+            // Convert Meeting entity to map
+            meetingMap.put("id", getFieldValue(meetingObj, "id"));
+            meetingMap.put("title", getFieldValue(meetingObj, "title"));
+            meetingMap.put("description", getFieldValue(meetingObj, "description"));
+            meetingMap.put("courseId", getFieldValue(meetingObj, "courseId"));
+            meetingMap.put("datetime", getFieldValue(meetingObj, "datetime"));
+            meetingMap.put("scheduledAt", getFieldValue(meetingObj, "scheduledAt"));
+            meetingMap.put("status", getFieldValue(meetingObj, "status"));
+            meetingMap.put("type", getFieldValue(meetingObj, "type"));
+            meetingMap.put("location", getFieldValue(meetingObj, "location"));
+            meetingMap.put("invitationLink", getFieldValue(meetingObj, "invitationLink"));
+            meetingMap.put("roomId", getFieldValue(meetingObj, "roomId"));
+            meetingMap.put("createdBy", getFieldValue(meetingObj, "createdBy"));
+            meetingMap.put("lecturerId", getFieldValue(meetingObj, "lecturerId"));
+            meetingMap.put("participants", new ArrayList<>()); // Default empty list
+
+        } catch (Exception e) {
+            System.err.println("Error converting meeting to map: " + e.getMessage());
+        }
+
+        return meetingMap;
+    }
+
+    // Helper method to get field value using reflection
+    private Object getFieldValue(Object obj, String fieldName) {
+        try {
+            java.lang.reflect.Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(obj);
+        } catch (Exception e) {
+            // Field not found or not accessible, return null
+            return null;
         }
     }
 }

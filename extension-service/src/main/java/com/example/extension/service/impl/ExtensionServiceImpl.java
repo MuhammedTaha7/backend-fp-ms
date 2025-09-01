@@ -6,20 +6,12 @@ import com.example.extension.dto.response.ExtensionItemResponse;
 import com.example.extension.dto.response.ExtensionStatsResponse;
 import com.example.extension.service.ExtensionService;
 
-// These imports are no longer needed
-// import com.example.edusphere.entity.Course;
-// import com.example.edusphere.entity.Task;
-// import com.example.edusphere.entity.TaskSubmission;
-// import com.example.edusphere.entity.Meeting;
-// import com.example.edusphere.repository.CourseRepository;
-// import com.example.edusphere.repository.TaskRepository;
-// import com.example.edusphere.repository.TaskSubmissionRepository;
-// import com.example.edusphere.repository.MeetingRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,11 +20,6 @@ import java.util.stream.Collectors;
 public class ExtensionServiceImpl implements ExtensionService {
 
     private final EduSphereClient eduSphereClient;
-    // We no longer inject the repositories directly
-    // private final TaskRepository taskRepository;
-    // private final CourseRepository courseRepository;
-    // private final TaskSubmissionRepository taskSubmissionRepository;
-    // private final MeetingRepository meetingRepository;
 
     @Autowired
     public ExtensionServiceImpl(EduSphereClient eduSphereClient) {
@@ -41,55 +28,68 @@ public class ExtensionServiceImpl implements ExtensionService {
 
     @Override
     public ExtensionDashboardResponse getDashboardData(String userId, String userRole) {
-
         try {
+            System.out.println("📊 Getting dashboard data for user: " + userId + ", role: " + userRole);
+
             // Get user's courses by calling the edusphere-service API
             List<Map<String, Object>> userCourses = eduSphereClient.getUserCourses(userId, userRole);
+            System.out.println("📚 Found " + userCourses.size() + " courses for user");
+
             List<String> courseIds = userCourses.stream()
                     .map(course -> (String) course.get("id"))
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-
             if (courseIds.isEmpty()) {
+                System.out.println("⚠️ No course IDs found, returning empty dashboard");
                 return new ExtensionDashboardResponse(new ArrayList<>(), new ExtensionStatsResponse());
             }
 
             List<ExtensionItemResponse> items = new ArrayList<>();
 
             // Get all tasks from user's courses by calling the edusphere-service API
+            System.out.println("🔍 Fetching tasks for courses: " + courseIds);
             List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds);
+            System.out.println("✅ Found " + allTasks.size() + " tasks");
 
-            // Convert tasks to extension items
+            // Convert tasks to extension items with proper filtering
             List<ExtensionItemResponse> taskItems = allTasks.stream()
+                    .filter(task -> canUserSeeTask(task, userId, userRole))
                     .map(this::convertTaskToExtensionItem)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             items.addAll(taskItems);
+            System.out.println("📝 Added " + taskItems.size() + " task items");
 
             // Get all meetings from user's courses by calling the edusphere-service API
+            System.out.println("🔍 Fetching meetings for courses: " + courseIds);
             List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds);
+            System.out.println("✅ Found " + allMeetings.size() + " meetings");
 
-            // Convert meetings to extension items
+            // Convert meetings to extension items with proper filtering
             List<ExtensionItemResponse> meetingItems = allMeetings.stream()
+                    .filter(meeting -> canUserSeeMeeting(meeting, userId, userRole))
                     .map(this::convertMeetingToExtensionItem)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             items.addAll(meetingItems);
+            System.out.println("🎥 Added " + meetingItems.size() + " meeting items");
 
             // Sort all items by priority and due date
             items = items.stream()
                     .sorted(this::compareItemsByPriority)
                     .collect(Collectors.toList());
 
-            // Add mock announcements (this doesn't require API calls to edusphere-service)
+            // Add mock announcements
             items.addAll(generateMockAnnouncements(userCourses));
 
             // Calculate statistics
             ExtensionStatsResponse stats = calculateStats(items, userId, userRole);
 
-            ExtensionDashboardResponse response = new ExtensionDashboardResponse(items, stats);
-
-            return response;
+            System.out.println("📊 Dashboard data prepared with " + items.size() + " total items");
+            return new ExtensionDashboardResponse(items, stats);
 
         } catch (Exception e) {
             System.err.println("❌ Error getting dashboard data: " + e.getMessage());
@@ -98,9 +98,8 @@ public class ExtensionServiceImpl implements ExtensionService {
         }
     }
 
-    // New method to handle getting meeting details from the EduSphereClient
+    @Override
     public Map<String, Object> getMeetingDetails(String meetingId, String email) {
-        // You'll need to define this endpoint in EduSphereController.java
         return eduSphereClient.getMeetingById(meetingId, email);
     }
 
@@ -112,6 +111,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             List<Map<String, Object>> userCourses = eduSphereClient.getUserCourses(userId, userRole);
             List<String> courseIds = userCourses.stream()
                     .map(course -> (String) course.get("id"))
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
             if (courseIds.isEmpty()) {
@@ -123,9 +123,11 @@ public class ExtensionServiceImpl implements ExtensionService {
             // Get tasks from all courses via API client
             List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds);
 
-            // Convert tasks to extension items
+            // Convert tasks to extension items with filtering
             List<ExtensionItemResponse> taskItems = allTasks.stream()
+                    .filter(task -> canUserSeeTask(task, userId, userRole))
                     .map(this::convertTaskToExtensionItem)
+                    .filter(Objects::nonNull)
                     .filter(item -> "task".equals(item.getType()))
                     .collect(Collectors.toList());
 
@@ -133,12 +135,12 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             // Get meetings from all courses if type allows
             if (type == null || "all".equals(type) || "meeting".equals(type)) {
-                // Get meetings via API client
                 List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds);
 
-                // Convert meetings to extension items
                 List<ExtensionItemResponse> meetingItems = allMeetings.stream()
+                        .filter(meeting -> canUserSeeMeeting(meeting, userId, userRole))
                         .map(this::convertMeetingToExtensionItem)
+                        .filter(Objects::nonNull)
                         .filter(item -> "meeting".equals(item.getType()))
                         .collect(Collectors.toList());
 
@@ -164,11 +166,8 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public List<ExtensionItemResponse> getAnnouncements(String userId, String userRole, int limit) {
         try {
-
-            // Get user's courses via API client
             List<Map<String, Object>> userCourses = eduSphereClient.getUserCourses(userId, userRole);
 
-            // Generate mock announcements (implement real announcements later)
             List<ExtensionItemResponse> announcements = generateMockAnnouncements(userCourses)
                     .stream()
                     .limit(limit)
@@ -185,11 +184,8 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public ExtensionStatsResponse getUserStats(String userId, String userRole) {
         try {
-
-            // Get dashboard data to calculate stats
             ExtensionDashboardResponse dashboardData = getDashboardData(userId, userRole);
             return dashboardData.getStats();
-
         } catch (Exception e) {
             System.err.println("❌ Error getting stats: " + e.getMessage());
             throw new RuntimeException("Failed to get stats: " + e.getMessage());
@@ -199,8 +195,6 @@ public class ExtensionServiceImpl implements ExtensionService {
     @Override
     public List<ExtensionItemResponse> getUrgentItems(String userId, String userRole) {
         try {
-
-            // Get all items and filter for urgent ones
             ExtensionDashboardResponse dashboardData = getDashboardData(userId, userRole);
             List<ExtensionItemResponse> urgentItems = dashboardData.getItems().stream()
                     .filter(item -> "urgent".equals(item.getPriority()))
@@ -208,7 +202,6 @@ public class ExtensionServiceImpl implements ExtensionService {
                     .collect(Collectors.toList());
 
             return urgentItems;
-
         } catch (Exception e) {
             System.err.println("❌ Error getting urgent items: " + e.getMessage());
             throw new RuntimeException("Failed to get urgent items: " + e.getMessage());
@@ -217,145 +210,190 @@ public class ExtensionServiceImpl implements ExtensionService {
 
     @Override
     public boolean canUserAccessCourse(String userId, String userRole, String courseId) {
-        // This logic is now handled by the edusphere-service API.
-        // The extension service should not contain this logic.
         return eduSphereClient.canUserAccessCourse(userId, userRole, courseId);
     }
 
-    // Helper methods that now handle Maps instead of Entities
-    private List<Map<String, Object>> getUserCourses(String userId, String userRole) {
-        try {
-            // We'll call the client to get the courses, rather than using a repository directly.
-            // This method is now a client call, so we rename it to avoid confusion.
-            return eduSphereClient.getUserCourses(userId, userRole);
-        } catch (Exception e) {
-            System.err.println("❌ Error getting user courses: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
+    // Enhanced task visibility logic
     private boolean canUserSeeTask(Map<String, Object> task, String userId, String userRole) {
-        // Admin can see all tasks
-        if ("1100".equals(userRole)) return true;
+        try {
+            // Admin can see all tasks
+            if ("1100".equals(userRole)) return true;
 
-        // Lecturer can see tasks in their courses
-        if ("1200".equals(userRole)) {
-            String courseId = (String) task.get("courseId");
-            return eduSphereClient.canUserAccessCourse(userId, userRole, courseId);
+            // Lecturer can see tasks in their courses
+            if ("1200".equals(userRole)) {
+                String courseId = (String) task.get("courseId");
+                return courseId != null && eduSphereClient.canUserAccessCourse(userId, userRole, courseId);
+            }
+
+            // Students can only see published, visible tasks
+            if ("1300".equals(userRole)) {
+                String courseId = (String) task.get("courseId");
+                Boolean visibleToStudents = (Boolean) task.get("visibleToStudents");
+                Boolean isPublished = (Boolean) task.get("published");
+
+                return courseId != null &&
+                        Boolean.TRUE.equals(visibleToStudents) &&
+                        Boolean.TRUE.equals(isPublished) &&
+                        eduSphereClient.canUserAccessCourse(userId, userRole, courseId);
+            }
+
+            return false;
+        } catch (Exception e) {
+            System.err.println("❌ Error checking task visibility: " + e.getMessage());
+            return false;
         }
-
-        // Students can only see published, visible tasks
-        if ("1300".equals(userRole)) {
-            String courseId = (String) task.get("courseId");
-            boolean visibleToStudents = (boolean) task.getOrDefault("visibleToStudents", false);
-            boolean isPublished = (boolean) task.getOrDefault("published", false);
-            return visibleToStudents && isPublished && eduSphereClient.canUserAccessCourse(userId, userRole, courseId);
-        }
-
-        return false;
     }
 
+    // Enhanced meeting visibility logic
     private boolean canUserSeeMeeting(Map<String, Object> meeting, String userId, String userRole) {
-        // Admin can see all meetings
-        if ("1100".equals(userRole)) return true;
+        try {
+            // Admin can see all meetings
+            if ("1100".equals(userRole)) return true;
 
-        // Lecturer can see meetings in their courses or meetings they created
-        if ("1200".equals(userRole)) {
-            String courseId = (String) meeting.get("courseId");
-            String createdBy = (String) meeting.get("createdBy");
-            String lecturerId = (String) meeting.get("lecturerId");
-            return eduSphereClient.canUserAccessCourse(userId, userRole, courseId) ||
-                    userId.equals(createdBy) ||
-                    userId.equals(lecturerId);
+            // Lecturer can see meetings in their courses or meetings they created
+            if ("1200".equals(userRole)) {
+                String courseId = (String) meeting.get("courseId");
+                String createdBy = (String) meeting.get("createdBy");
+                String lecturerId = (String) meeting.get("lecturerId");
+
+                return (courseId != null && eduSphereClient.canUserAccessCourse(userId, userRole, courseId)) ||
+                        userId.equals(createdBy) ||
+                        userId.equals(lecturerId);
+            }
+
+            // Students can see meetings in courses they're enrolled in
+            if ("1300".equals(userRole)) {
+                String courseId = (String) meeting.get("courseId");
+                @SuppressWarnings("unchecked")
+                List<String> participants = (List<String>) meeting.get("participants");
+
+                return (courseId != null && eduSphereClient.canUserAccessCourse(userId, userRole, courseId)) ||
+                        (participants != null && participants.contains(userId));
+            }
+
+            return false;
+        } catch (Exception e) {
+            System.err.println("❌ Error checking meeting visibility: " + e.getMessage());
+            return false;
         }
-
-        // Students can see meetings in courses they're enrolled in or meetings they're participating in
-        if ("1300".equals(userRole)) {
-            String courseId = (String) meeting.get("courseId");
-            List<String> participants = (List<String>) meeting.get("participants");
-            return eduSphereClient.canUserAccessCourse(userId, userRole, courseId) ||
-                    (participants != null && participants.contains(userId));
-        }
-
-        return false;
     }
 
+    // Enhanced conversion methods with better error handling
     private ExtensionItemResponse convertTaskToExtensionItem(Map<String, Object> task) {
-        ExtensionItemResponse item = new ExtensionItemResponse();
+        try {
+            ExtensionItemResponse item = new ExtensionItemResponse();
 
-        item.setId((String) task.get("id"));
-        item.setName((String) task.get("title"));
-        item.setDescription((String) task.get("description"));
-        item.setType("task");
-        item.setDueDate((String) task.get("dueDate"));
-        item.setCourse(eduSphereClient.getCourseName((String) task.get("courseId")));
+            item.setId((String) task.get("id"));
+            item.setName((String) task.get("title"));
+            item.setDescription((String) task.get("description"));
+            item.setType("task");
 
-        // The rest of the logic remains the same, but it's now using a Map
-        String status = (String) task.getOrDefault("status", "pending");
-        item.setStatus(status);
+            // Handle date conversion properly
+            String dueDateStr = convertToDateString(task.get("dueDate"));
+            item.setDueDate(dueDateStr);
 
-        String priority = calculatePriority(LocalDate.parse(item.getDueDate()), status);
-        item.setPriority(priority);
+            String courseId = (String) task.get("courseId");
+            item.setCourse(eduSphereClient.getCourseName(courseId));
 
-        item.setCategory((String) task.get("category"));
-        item.setMaxPoints((Integer) task.get("maxPoints"));
-        item.setFileUrl((String) task.get("fileUrl"));
-        item.setFileName((String) task.get("fileName"));
+            // Determine status
+            String status = (String) task.getOrDefault("status", "pending");
+            item.setStatus(status);
 
-        // For students, check submission status via API call
-        // This is a complex logic that would require a dedicated API endpoint in edusphere-service
-        // For now, we'll simplify this or add a new method to the EduSphereClient
-        // For demonstration purposes, this part of the logic needs to be re-evaluated
-        // as it requires a specific API endpoint to be defined.
+            // Calculate priority
+            LocalDate dueDate = LocalDate.parse(dueDateStr);
+            String priority = calculatePriority(dueDate, status);
+            item.setPriority(priority);
 
-        return item;
+            item.setCategory((String) task.get("category"));
+            Object maxPointsObj = task.get("maxPoints");
+            if (maxPointsObj instanceof Number) {
+                item.setMaxPoints(((Number) maxPointsObj).intValue());
+            }
+            item.setFileUrl((String) task.get("fileUrl"));
+            item.setFileName((String) task.get("fileName"));
+
+            return item;
+        } catch (Exception e) {
+            System.err.println("❌ Error converting task to extension item: " + e.getMessage());
+            return null;
+        }
     }
 
     private ExtensionItemResponse convertMeetingToExtensionItem(Map<String, Object> meeting) {
-        ExtensionItemResponse item = new ExtensionItemResponse();
+        try {
+            ExtensionItemResponse item = new ExtensionItemResponse();
 
-        item.setId((String) meeting.get("id"));
-        item.setName((String) meeting.get("title"));
-        item.setDescription((String) meeting.get("description"));
-        item.setType("meeting");
+            item.setId((String) meeting.get("id"));
+            item.setName((String) meeting.get("title"));
+            item.setDescription((String) meeting.get("description"));
+            item.setType("meeting");
 
-        String datetime = (String) meeting.get("datetime");
-        String scheduledAt = (String) meeting.get("scheduledAt");
+            // Handle datetime conversion
+            String datetime = (String) meeting.get("datetime");
+            String scheduledAt = (String) meeting.get("scheduledAt");
+            String dueDateStr;
 
-        if (datetime != null) {
-            item.setDueDate(LocalDate.parse(datetime.split("T")[0]).toString());
-        } else if (scheduledAt != null) {
-            item.setDueDate(LocalDate.parse(scheduledAt.split("T")[0]).toString());
-        } else {
-            item.setDueDate(LocalDate.now().toString());
+            if (datetime != null) {
+                dueDateStr = convertToDateString(datetime);
+            } else if (scheduledAt != null) {
+                dueDateStr = convertToDateString(scheduledAt);
+            } else {
+                dueDateStr = LocalDate.now().toString();
+            }
+
+            item.setDueDate(dueDateStr);
+
+            String courseId = (String) meeting.get("courseId");
+            item.setCourse(eduSphereClient.getCourseName(courseId));
+
+            String status = (String) meeting.getOrDefault("status", "pending");
+            item.setStatus(status);
+
+            LocalDate meetingDate = LocalDate.parse(dueDateStr);
+            String priority = calculatePriority(meetingDate, status);
+            item.setPriority(priority);
+
+            item.setCategory("meeting");
+            item.setAnnouncementType((String) meeting.get("type"));
+            item.setLocation((String) meeting.getOrDefault("location", "Online Meeting"));
+            item.setIsImportant("active".equals(status));
+
+            // Use invitationLink for joining meetings
+            item.setFileUrl((String) meeting.get("invitationLink"));
+
+            return item;
+        } catch (Exception e) {
+            System.err.println("❌ Error converting meeting to extension item: " + e.getMessage());
+            return null;
         }
-
-        item.setCourse(eduSphereClient.getCourseName((String) meeting.get("courseId")));
-
-        String status = (String) meeting.getOrDefault("status", "pending");
-        item.setStatus(status);
-
-        LocalDate meetingDate = datetime != null ?
-                LocalDate.parse(datetime.split("T")[0]) :
-                (scheduledAt != null ? LocalDate.parse(scheduledAt.split("T")[0]) : LocalDate.now());
-
-        String priority = calculatePriority(meetingDate, status);
-        item.setPriority(priority);
-
-        item.setCategory("meeting");
-        item.setAnnouncementType((String) meeting.get("type"));
-        item.setLocation("Online Meeting");
-        item.setIsImportant("active".equals(status));
-
-        item.setFileUrl((String) meeting.get("invitationLink"));
-
-        return item;
     }
 
-    // The rest of the helper methods (determineTaskStatus, etc.) remain largely the same,
-    // but they will now use the Map<String, Object> instead of the specific entity objects.
-    // The canUserAccessCourse and getCourseName methods are now handled by the client.
-    // I've removed the repository calls from these methods and replaced them with client calls.
+    // Helper method to convert various date formats to LocalDate string
+    private String convertToDateString(Object dateObj) {
+        if (dateObj == null) {
+            return LocalDate.now().toString();
+        }
+
+        String dateStr = dateObj.toString();
+
+        try {
+            // Handle LocalDateTime format (2024-01-15T10:30:00)
+            if (dateStr.contains("T")) {
+                return LocalDateTime.parse(dateStr).toLocalDate().toString();
+            }
+            // Handle LocalDate format (2024-01-15)
+            else if (dateStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                return LocalDate.parse(dateStr).toString();
+            }
+            // Handle other formats - try common patterns
+            else {
+                return LocalDate.now().toString();
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing date: " + dateStr + ", using current date");
+            return LocalDate.now().toString();
+        }
+    }
 
     private String calculatePriority(LocalDate dueDate, String status) {
         if ("overdue".equals(status)) {
@@ -375,10 +413,10 @@ public class ExtensionServiceImpl implements ExtensionService {
 
     private List<ExtensionItemResponse> generateMockAnnouncements(List<Map<String, Object>> courses) {
         List<ExtensionItemResponse> announcements = new ArrayList<>();
-
         LocalDate today = LocalDate.now();
 
-        for (Map<String, Object> course : courses.subList(0, Math.min(3, courses.size()))) {
+        // Generate a couple of mock announcements
+        if (!courses.isEmpty()) {
             ExtensionItemResponse careerFair = new ExtensionItemResponse();
             careerFair.setId("ann_" + UUID.randomUUID().toString().substring(0, 8));
             careerFair.setName("Campus Career Fair");
@@ -406,8 +444,6 @@ public class ExtensionServiceImpl implements ExtensionService {
             libraryMaint.setLocation("Digital Library");
             libraryMaint.setIsImportant(false);
             announcements.add(libraryMaint);
-
-            break;
         }
 
         return announcements;
