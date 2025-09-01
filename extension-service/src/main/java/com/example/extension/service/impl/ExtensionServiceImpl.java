@@ -447,7 +447,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             announcements.add(libraryMaint);
         }
 
-        return announcements;
+        return new ArrayList<>();
     }
 
     private ExtensionStatsResponse calculateStats(List<ExtensionItemResponse> items, String userId, String userRole) {
