@@ -203,25 +203,31 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return List.of();
     }
 
+    /**
+     * Maps an Announcement entity to an AnnouncementResponse DTO using explicit setters.
+     * This is more robust against changes in field order and better handles potential null values.
+     * @param announcement The Announcement entity to map.
+     * @return A new AnnouncementResponse DTO.
+     */
     private AnnouncementResponse mapToResponse(Announcement announcement) {
-        return new AnnouncementResponse(
-                announcement.getId(),
-                announcement.getTitle(),
-                announcement.getContent(),
-                announcement.getCreatorId(),
-                announcement.getCreatorName(),
-                announcement.getPriority(),
-                announcement.getStatus(),
-                announcement.getCreatedAt(),
-                announcement.getUpdatedAt(),
-                announcement.getExpiryDate(),
-                announcement.getScheduledDate(),
-                announcement.getTargetAudienceType(),
-                announcement.getTargetDepartment(),
-                announcement.getTargetCourseId(),
-                announcement.getTargetAcademicYear(),
-                announcement.getTargetUserId()
-        );
+        AnnouncementResponse response = new AnnouncementResponse();
+        response.setId(announcement.getId());
+        response.setTitle(announcement.getTitle());
+        response.setContent(announcement.getContent());
+        response.setCreatorId(announcement.getCreatorId());
+        response.setCreatorName(announcement.getCreatorName());
+        response.setPriority(announcement.getPriority());
+        response.setStatus(announcement.getStatus());
+        response.setCreatedAt(announcement.getCreatedAt());
+        response.setUpdatedAt(announcement.getUpdatedAt());
+        response.setExpiryDate(announcement.getExpiryDate());
+        response.setScheduledDate(announcement.getScheduledDate());
+        response.setTargetAudienceType(announcement.getTargetAudienceType());
+        response.setTargetDepartment(announcement.getTargetDepartment());
+        response.setTargetCourseId(announcement.getTargetCourseId());
+        response.setTargetAcademicYear(announcement.getTargetAcademicYear());
+        response.setTargetUserId(announcement.getTargetUserId());
+        return response;
     }
 
     private CourseDto mapToCourseDto(Course course) {
