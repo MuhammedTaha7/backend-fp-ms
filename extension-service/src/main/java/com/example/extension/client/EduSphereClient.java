@@ -17,7 +17,7 @@ public class EduSphereClient {
 
     private final RestTemplate restTemplate;
     // You should use a configuration property for this URL
-    private final String EDUSPHERE_SERVICE_URL = "http://localhost:8080/api";
+    private final String EDUSPHERE_SERVICE_URL = "http://13.61.114.153:8082/api";
 
     @Autowired
     public EduSphereClient(RestTemplate restTemplate) {
