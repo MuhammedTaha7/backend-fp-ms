@@ -1,3 +1,4 @@
+// EduSphereClient.java
 package com.example.extension.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +94,7 @@ public class EduSphereClient {
                 if (response.getBody() != null) {
                     List<Object> lecturerCourses = response.getBody();
                     courses = lecturerCourses.stream()
-                            .map(course -> convertCourseToMap(course))
+                            .map(this::convertCourseToMap)
                             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
                 }
             } else if ("1300".equals(userRole)) {
@@ -106,7 +107,7 @@ public class EduSphereClient {
                 if (response.getBody() != null) {
                     List<Object> studentCourses = response.getBody();
                     courses = studentCourses.stream()
-                            .map(course -> convertCourseToMap(course))
+                            .map(this::convertCourseToMap)
                             .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
                 }
             }
@@ -137,7 +138,7 @@ public class EduSphereClient {
     /**
      * Get tasks by course IDs - using existing task endpoints
      */
-    public List<Map<String, Object>> getTasksByCourseIds(List<String> courseIds) {
+    public List<Map<String, Object>> getTasksByCourseIds(List<String> courseIds, String userId) {
         if (courseIds.isEmpty()) {
             return new ArrayList<>();
         }
@@ -150,17 +151,14 @@ public class EduSphereClient {
                     .queryParam("courseIds", courseIds)
                     .toUriString();
 
-            HttpHeaders headers = new HttpHeaders();
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<List> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List>() {}
+            ResponseEntity<List> response = makeAuthenticatedGetRequest(
+                    url, userId, new ParameterizedTypeReference<List>() {}
             );
 
             if (response.getBody() != null) {
                 List<Object> tasks = response.getBody();
                 allTasks = tasks.stream()
-                        .map(task -> convertTaskToMap(task))
+                        .map(this::convertTaskToMap)
                         .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
             }
 
@@ -174,7 +172,7 @@ public class EduSphereClient {
     /**
      * Get meetings by course IDs - using existing meeting endpoints
      */
-    public List<Map<String, Object>> getMeetingsByCourseIds(List<String> courseIds) {
+    public List<Map<String, Object>> getMeetingsByCourseIds(List<String> courseIds, String userId) {
         if (courseIds.isEmpty()) {
             return new ArrayList<>();
         }
@@ -182,26 +180,17 @@ public class EduSphereClient {
         try {
             List<Map<String, Object>> allMeetings = new ArrayList<>();
 
-            // We need to call the user meetings endpoint for each course
-            // Since there's no direct "by-courses" endpoint for meetings, we'll use the user meetings endpoint
+            // Use the /meetings/user endpoint, which is authenticated
             String url = EDUSPHERE_SERVICE_URL + "/meetings/user";
 
-            HttpHeaders headers = new HttpHeaders();
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<List> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List>() {}
+            ResponseEntity<List> response = makeAuthenticatedGetRequest(
+                    url, userId, new ParameterizedTypeReference<List>() {}
             );
 
             if (response.getBody() != null) {
                 List<Object> meetings = response.getBody();
-                // Filter meetings by course IDs
                 allMeetings = meetings.stream()
-                        .map(meeting -> convertMeetingToMap(meeting))
-                        .filter(meetingMap -> {
-                            String courseId = (String) meetingMap.get("courseId");
-                            return courseId != null && courseIds.contains(courseId);
-                        })
+                        .map(this::convertMeetingToMap)
                         .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
             }
 

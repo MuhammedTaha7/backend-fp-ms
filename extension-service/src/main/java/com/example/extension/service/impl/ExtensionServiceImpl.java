@@ -1,3 +1,4 @@
+// ExtensionServiceImpl.java
 package com.example.extension.service.impl;
 
 import com.example.extension.client.EduSphereClient;
@@ -49,7 +50,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             // Get all tasks from user's courses by calling the edusphere-service API
             System.out.println("🔍 Fetching tasks for courses: " + courseIds);
-            List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds);
+            List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds, userId);
             System.out.println("✅ Found " + allTasks.size() + " tasks");
 
             // Convert tasks to extension items with proper filtering
@@ -64,7 +65,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             // Get all meetings from user's courses by calling the edusphere-service API
             System.out.println("🔍 Fetching meetings for courses: " + courseIds);
-            List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds);
+            List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds, userId);
             System.out.println("✅ Found " + allMeetings.size() + " meetings");
 
             // Convert meetings to extension items with proper filtering
@@ -121,7 +122,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             List<ExtensionItemResponse> items = new ArrayList<>();
 
             // Get tasks from all courses via API client
-            List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds);
+            List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds, userId);
 
             // Convert tasks to extension items with filtering
             List<ExtensionItemResponse> taskItems = allTasks.stream()
@@ -135,7 +136,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             // Get meetings from all courses if type allows
             if (type == null || "all".equals(type) || "meeting".equals(type)) {
-                List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds);
+                List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds, userId);
 
                 List<ExtensionItemResponse> meetingItems = allMeetings.stream()
                         .filter(meeting -> canUserSeeMeeting(meeting, userId, userRole))
