@@ -102,6 +102,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcement.setTargetAcademicYear(announcementRequest.getTargetAcademicYear());
         announcement.setTargetUserId(announcementRequest.getTargetUserId());
 
+        // Explicitly set timestamps to ensure they're not null
+        LocalDateTime now = LocalDateTime.now();
+        announcement.setCreatedAt(now);
+        announcement.setUpdatedAt(now);
+
         Announcement savedAnnouncement = announcementRepository.save(announcement);
         return mapToResponse(savedAnnouncement);
     }
@@ -157,8 +162,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         newAnnouncement.setCreatorId(creatorId);
         newAnnouncement.setCreatorName(creatorName);
-        newAnnouncement.setCreatedAt(LocalDateTime.now());
-        newAnnouncement.setUpdatedAt(LocalDateTime.now());
+
+        // Explicitly set timestamps
+        LocalDateTime now = LocalDateTime.now();
+        newAnnouncement.setCreatedAt(now);
+        newAnnouncement.setUpdatedAt(now);
 
         Announcement savedAnnouncement = announcementRepository.save(newAnnouncement);
         return mapToResponse(savedAnnouncement);
@@ -218,10 +226,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         response.setCreatorName(announcement.getCreatorName());
         response.setPriority(announcement.getPriority());
         response.setStatus(announcement.getStatus());
+
+        // Handle potential null timestamps gracefully
         response.setCreatedAt(announcement.getCreatedAt());
         response.setUpdatedAt(announcement.getUpdatedAt());
         response.setExpiryDate(announcement.getExpiryDate());
         response.setScheduledDate(announcement.getScheduledDate());
+
         response.setTargetAudienceType(announcement.getTargetAudienceType());
         response.setTargetDepartment(announcement.getTargetDepartment());
         response.setTargetCourseId(announcement.getTargetCourseId());
