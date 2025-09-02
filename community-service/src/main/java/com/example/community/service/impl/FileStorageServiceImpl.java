@@ -17,25 +17,23 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
-    @Value("${app.base.url:http://localhost:8080}")
-    private String baseUrl;
+//    @Value("${app.base.url:http://localhost:8080}")
+//    private String baseUrl;
 
     @Override
     public String storeFile(MultipartFile file, String folder) {
         try {
-            // Create upload directory if it doesn't exist
             Path uploadPath = Paths.get(uploadDir, folder);
             Files.createDirectories(uploadPath);
 
-            // Generate unique filename
             String fileName = generateFileName(file.getOriginalFilename());
             Path filePath = uploadPath.resolve(fileName);
 
-            // Copy file to upload directory
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Return URL
-            return baseUrl + "/uploads/" + folder + "/" + fileName;
+            // Change this line to return only the relative path.
+            // It should not include the baseUrl.
+            return "/uploads/" + folder + "/" + fileName;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }
