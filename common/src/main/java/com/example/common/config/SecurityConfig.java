@@ -50,7 +50,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/register", "/api/login").permitAll()
                         .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
                         .requestMatchers("/api/extension/**").permitAll()
+
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws/**/*").permitAll()  // Allow sub-endpoints for SockJS
+                        .requestMatchers("/api/transport/**").permitAll()  // If you ever use custom
                         .requestMatchers("/api/chat/test").permitAll() // For testing
 
                         // Authenticated Endpoints (for all services)
