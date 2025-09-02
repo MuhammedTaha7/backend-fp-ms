@@ -45,8 +45,6 @@ public class ChatController {
             return;
         }
 
-        System.out.println("📩 Community message from " + message.getSenderId() + " to " + message.getReceiverId());
-
         LocalDateTime now = LocalDateTime.now();
         ChatMessageEntity entity = new ChatMessageEntity(
                 null,
