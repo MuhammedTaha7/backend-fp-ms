@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/register", "/api/login").permitAll()
                         .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
                         .requestMatchers("/api/extension/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
 
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/chat/test").permitAll() // For testing
