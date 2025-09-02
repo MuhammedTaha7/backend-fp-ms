@@ -16,6 +16,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.security.core.userdetails.UserDetailsService; // ⬅️ Add this import
 
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserService userService;
+    private UserDetailsService userDetailsService; // ⬅️ Change the type here
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
@@ -38,8 +39,8 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         if (token != null && jwtUtil.isTokenValidSafe(token)) {
             String username = jwtUtil.extractUsername(token);
             if (username != null) {
-                // Get the UserDetails object (from your UserService or UserDetailsService)
-                var userDetails = userService.loadUserByUsername(username);
+                // Get the UserDetails object from UserDetailsService
+                var userDetails = userDetailsService.loadUserByUsername(username); // ⬅️ This method is now available
 
                 // Create and set the authentication object
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
