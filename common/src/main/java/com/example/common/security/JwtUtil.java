@@ -20,7 +20,7 @@ public class JwtUtil {
     private static final String SECRET_STRING = "dGhpc2lzYXNlY3JldGtleWZvcm15c3ByaW5nYm9vdGFwcGxpY2F0aW9uZm9yZWR1c3BoZXJlMjAyNA==";
     private static final Key SECRET_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_STRING));
 
-    // ✅ Generate JWT Token with username, email, and role
+    // Generate JWT Token with username, email, and role
     public String generateToken(String username, String email, String role) {
         return Jwts.builder()
                 .setSubject(username)
@@ -32,7 +32,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ NEW: Generate JWT Token for Extension (simplified - only username needed)
+    // Generate JWT Token for Extension (simplified - only username needed)
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -43,7 +43,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ NEW: Generate JWT Token for Extension with extended expiry
+    // Generate JWT Token for Extension with extended expiry
     public String generateExtensionToken(String username, String email, String role) {
         return Jwts.builder()
                 .setSubject(username)
@@ -56,27 +56,27 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ Extract Username (Stored in `sub`)
+    // Extract Username (Stored in `sub`)
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // ✅ Extract Email (Stored in `email` claim)
+    // Extract Email (Stored in `email` claim)
     public String extractEmail(String token) {
         return extractClaim(token, claims -> claims.get("email", String.class));
     }
 
-    // ✅ Extract Role (Stored in `role` claim)
+    // Extract Role (Stored in `role` claim)
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
-    // ✅ NEW: Extract Source (to identify extension tokens)
+    // Extract Source (to identify extension tokens)
     public String extractSource(String token) {
         return extractClaim(token, claims -> claims.get("source", String.class));
     }
 
-    // ✅ NEW: Check if token is from extension
+    // Check if token is from extension
     public boolean isExtensionToken(String token) {
         try {
             String source = extractSource(token);
@@ -86,13 +86,13 @@ public class JwtUtil {
         }
     }
 
-    // ✅ Validate Token
+    //  Validate Token
     public boolean isTokenValid(String token, String username) {
         final String extractedUsername = extractUsername(token);
         return extractedUsername.equals(username) && !isTokenExpired(token);
     }
 
-    // ✅ NEW: Validate Token (overloaded method without username parameter)
+    //   Validate Token (overloaded method without username parameter)
     public boolean validateToken(String token, String username) {
         try {
             final String extractedUsername = extractUsername(token);
@@ -102,7 +102,7 @@ public class JwtUtil {
         }
     }
 
-    // ✅ NEW: Validate Extension Token
+    //   Validate Extension Token
     public boolean isExtensionTokenValid(String token, String username) {
         try {
             if (!isExtensionToken(token)) {
@@ -115,7 +115,7 @@ public class JwtUtil {
         }
     }
 
-    // ✅ Check if Token is Expired
+    //  Check if Token is Expired
     public boolean isTokenExpired(String token) {
         try {
             return extractClaim(token, Claims::getExpiration).before(new Date());
@@ -124,17 +124,17 @@ public class JwtUtil {
         }
     }
 
-    // ✅ NEW: Get token expiration date
+    //   Get token expiration date
     public Date getTokenExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // ✅ NEW: Get token issued date
+    //   Get token issued date
     public Date getTokenIssuedAt(String token) {
         return extractClaim(token, Claims::getIssuedAt);
     }
 
-    // ✅ NEW: Get remaining token validity time in milliseconds
+    //   Get remaining token validity time in milliseconds
     public long getTokenRemainingTime(String token) {
         try {
             Date expiration = getTokenExpiration(token);
@@ -144,13 +144,13 @@ public class JwtUtil {
         }
     }
 
-    // ✅ Extract Specific Claim
+    //  Extract Specific Claim
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // ✅ Extract All Claims Securely
+    //  Extract All Claims Securely
     private Claims extractAllClaims(String token) {
         try {
             return Jwts.parserBuilder()
@@ -163,7 +163,7 @@ public class JwtUtil {
         }
     }
 
-    // ✅ NEW: Safe token validation without throwing exceptions
+    //   Safe token validation without throwing exceptions
     public boolean isTokenValidSafe(String token) {
         try {
             extractAllClaims(token);
@@ -173,7 +173,7 @@ public class JwtUtil {
         }
     }
 
-    // ✅ NEW: Extract all token information safely
+    //   Extract all token information safely
     public TokenInfo extractTokenInfo(String token) {
         try {
             String username = extractUsername(token);
@@ -191,7 +191,7 @@ public class JwtUtil {
         }
     }
 
-    // ✅ NEW: Token information container class
+    //   Token information container class
     public static class TokenInfo {
         private final String username;
         private final String email;

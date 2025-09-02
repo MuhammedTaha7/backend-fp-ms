@@ -29,7 +29,7 @@ public interface TaskSubmissionRepository extends MongoRepository<TaskSubmission
     List<TaskSubmission> findByTaskIdAndIsLateTrue(String taskId);
     List<TaskSubmission> findByCourseIdAndSubmittedAtBetween(String courseId, LocalDateTime start, LocalDateTime end);
 
-    // ✅ ADD THIS NEW METHOD
+    //  ADD THIS NEW METHOD
     /**
      * Find submissions that don't have a courseId set
      * This is needed to fix existing submissions in the database

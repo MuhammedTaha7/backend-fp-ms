@@ -18,7 +18,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
                 "com.example.edusphere.repository"
         }
 )
-@EnableMongoAuditing  // Add this annotation
+@EnableMongoAuditing annotation
 public class EduSphereApplication {
     public static void main(String[] args) {
         SpringApplication.run(EduSphereApplication.class, args);

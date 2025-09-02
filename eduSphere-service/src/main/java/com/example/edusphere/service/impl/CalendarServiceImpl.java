@@ -47,7 +47,7 @@ public class CalendarServiceImpl implements CalendarService {
     public List<CalendarEventDto> getCalendarEventsForUser(LocalDate requestedDate, CalendarFilterDto filters) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // ✅ Correct way: cast to your UserEntity
+        //  Correct way: cast to your UserEntity
         UserEntity user = (UserEntity) authentication.getPrincipal();
         String userId = user.getId();
 
@@ -160,7 +160,7 @@ public class CalendarServiceImpl implements CalendarService {
         return instances.stream();
     }
 
-    // ✅ THIS METHOD IS NOW FIXED
+    //  THIS METHOD IS NOW FIXED
     private CalendarEventDto mapEventToDto(Event rule, LocalDate specificDate) {
         String instanceId = rule.getId() + "_" + specificDate.toString();
 

@@ -51,7 +51,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             Task task = taskRepository.findById(submission.getTaskId())
                     .orElseThrow(() -> new RuntimeException("Task not found: " + submission.getTaskId()));
 
-            // ✅ AUTO-POPULATE COURSE ID FROM TASK - THIS IS THE KEY FIX
+            //  AUTO-POPULATE COURSE ID FROM TASK - THIS IS THE KEY FIX
             submission.setCourseId(task.getCourseId());
 
             // Validate student exists
@@ -99,7 +99,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return savedSubmission;
 
         } catch (Exception e) {
-            System.err.println("❌ Error creating task submission: " + e.getMessage());
+            System.err.println("Error creating task submission: " + e.getMessage());
             throw new RuntimeException("Failed to create submission: " + e.getMessage());
         }
     }
@@ -129,7 +129,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 existing.setStatus(submission.getStatus());
             }
 
-            // ✅ ENSURE COURSE ID IS ALWAYS SET
+            //  ENSURE COURSE ID IS ALWAYS SET
             if (existing.getCourseId() == null) {
                 Optional<Task> taskOpt = taskRepository.findById(existing.getTaskId());
                 if (taskOpt.isPresent()) {
@@ -146,7 +146,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return savedSubmission;
 
         } catch (Exception e) {
-            System.err.println("❌ Error updating task submission: " + e.getMessage());
+            System.err.println("Error updating task submission: " + e.getMessage());
             throw new RuntimeException("Failed to update submission: " + e.getMessage());
         }
     }
@@ -171,7 +171,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             recalculateTaskStatistics(taskId);
 
         } catch (Exception e) {
-            System.err.println("❌ Error deleting task submission: " + e.getMessage());
+            System.err.println("Error deleting task submission: " + e.getMessage());
             throw new RuntimeException("Failed to delete submission: " + e.getMessage());
         }
     }
@@ -181,7 +181,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             Optional<TaskSubmission> submission = taskSubmissionRepository.findById(submissionId);
 
-            // ✅ FIX MISSING COURSE ID FOR EXISTING SUBMISSIONS
+            //  FIX MISSING COURSE ID FOR EXISTING SUBMISSIONS
             if (submission.isPresent() && submission.get().getCourseId() == null) {
                 TaskSubmission sub = submission.get();
                 Optional<Task> taskOpt = taskRepository.findById(sub.getTaskId());
@@ -193,7 +193,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return submission;
         } catch (Exception e) {
-            System.err.println("❌ Error finding submission by ID: " + e.getMessage());
+            System.err.println("Error finding submission by ID: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -204,7 +204,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             List<TaskSubmission> submissions = taskSubmissionRepository.findByTaskIdOrderBySubmittedAtDesc(taskId);
             return fixMissingCourseIds(submissions);
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions by task ID: " + e.getMessage());
+            System.err.println("Error finding submissions by task ID: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -214,7 +214,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             List<TaskSubmission> submissions = taskSubmissionRepository.findByCourseIdOrderBySubmittedAtDesc(courseId);
 
-            // ✅ ALSO CHECK FOR SUBMISSIONS WITH MISSING COURSE ID
+            //  ALSO CHECK FOR SUBMISSIONS WITH MISSING COURSE ID
             List<TaskSubmission> submissionsWithMissingCourseId = taskSubmissionRepository.findByCourseIdIsNull();
             List<TaskSubmission> fixedSubmissions = new ArrayList<>();
 
@@ -233,7 +233,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                     .collect(Collectors.toList());
             return submissions;
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions by course ID: " + e.getMessage());
+            System.err.println("Error finding submissions by course ID: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -244,13 +244,13 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             List<TaskSubmission> submissions = taskSubmissionRepository.findByStudentIdOrderBySubmittedAtDesc(studentId);
             return fixMissingCourseIds(submissions);
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions by student ID: " + e.getMessage());
+            System.err.println("Error finding submissions by student ID: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
     /**
-     * ✅ NEW METHOD: Fix missing course IDs for existing submissions
+     *  NEW METHOD: Fix missing course IDs for existing submissions
      */
     private List<TaskSubmission> fixMissingCourseIds(List<TaskSubmission> submissions) {
         List<TaskSubmission> fixed = new ArrayList<>();
@@ -283,7 +283,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.findByTaskIdOrderBySubmittedAtDesc(taskId, pageable);
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions page by task ID: " + e.getMessage());
+            System.err.println("Error finding submissions page by task ID: " + e.getMessage());
             return Page.empty();
         }
     }
@@ -305,7 +305,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return submission;
         } catch (Exception e) {
-            System.err.println("❌ Error finding submission by task and student: " + e.getMessage());
+            System.err.println("Error finding submission by task and student: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -330,7 +330,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return submissions;
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions by student and course: " + e.getMessage());
+            System.err.println("Error finding submissions by student and course: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -354,7 +354,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return savedSubmission;
 
         } catch (Exception e) {
-            System.err.println("❌ Error updating submission grade: " + e.getMessage());
+            System.err.println("Error updating submission grade: " + e.getMessage());
             throw new RuntimeException("Failed to update grade: " + e.getMessage());
         }
     }
@@ -371,13 +371,13 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return submission;
 
         } catch (Exception e) {
-            System.err.println("❌ Error updating submission grade with sync: " + e.getMessage());
+            System.err.println("Error updating submission grade with sync: " + e.getMessage());
             throw new RuntimeException("Failed to update and sync grade: " + e.getMessage());
         }
     }
 
     /**
-     * NEW: Check if student can update their own submission
+     *  Check if student can update their own submission
      */
     public boolean canStudentUpdateSubmission(String submissionId, String studentId) {
         try {
@@ -423,13 +423,13 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return true;
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking if student can update submission: " + e.getMessage());
+            System.err.println("Error checking if student can update submission: " + e.getMessage());
             return false;
         }
     }
 
     /**
-     * NEW: Check if student can delete their own submission
+     *  Check if student can delete their own submission
      */
     public boolean canStudentDeleteSubmission(String submissionId, String studentId) {
         try {
@@ -472,7 +472,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return true;
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking if student can delete submission: " + e.getMessage());
+            System.err.println("Error checking if student can delete submission: " + e.getMessage());
             return false;
         }
     }
@@ -486,7 +486,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             // Find the task to get course information
             Optional<Task> taskOpt = taskRepository.findById(submission.getTaskId());
             if (taskOpt.isEmpty()) {
-                System.err.println("❌ Task not found for submission: " + submission.getTaskId());
+                System.err.println("Task not found for submission: " + submission.getTaskId());
                 return;
             }
 
@@ -502,7 +502,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                 // Try to auto-create grade column
                 GradeColumn autoCreatedColumn = autoCreateGradeColumnForTask(task);
                 if (autoCreatedColumn == null) {
-                    System.err.println("❌ Failed to auto-create grade column");
+                    System.err.println("Failed to auto-create grade column");
                     return;
                 }
                 gradeColumnOpt = Optional.of(autoCreatedColumn);
@@ -517,7 +517,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             gradeService.updateStudentGrade(submission.getStudentId(), gradeColumn.getId(), gradePercentage);
 
         } catch (Exception e) {
-            System.err.println("❌ Error syncing grade to grade column: " + e.getMessage());
+            System.err.println("Error syncing grade to grade column: " + e.getMessage());
             e.printStackTrace();
             // Don't throw exception - submission grade should still be saved
         }
@@ -548,7 +548,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error removing grade from column: " + e.getMessage());
+            System.err.println("Error removing grade from column: " + e.getMessage());
         }
     }
 
@@ -599,7 +599,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return savedColumn;
 
         } catch (Exception e) {
-            System.err.println("❌ Error auto-creating grade column: " + e.getMessage());
+            System.err.println("Error auto-creating grade column: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -648,7 +648,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.findUngraduatedSubmissionsByTask(taskId);
         } catch (Exception e) {
-            System.err.println("❌ Error finding ungraduated submissions: " + e.getMessage());
+            System.err.println("Error finding ungraduated submissions: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -658,7 +658,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.findSubmissionsNeedingAttention(courseId);
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions needing grading: " + e.getMessage());
+            System.err.println("Error finding submissions needing grading: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -668,7 +668,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.countByTaskId(taskId);
         } catch (Exception e) {
-            System.err.println("❌ Error counting submissions by task: " + e.getMessage());
+            System.err.println("Error counting submissions by task: " + e.getMessage());
             return 0;
         }
     }
@@ -678,7 +678,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.findByStudentIdOrderBySubmittedAtDesc(studentId).size();
         } catch (Exception e) {
-            System.err.println("❌ Error counting submissions by student: " + e.getMessage());
+            System.err.println("Error counting submissions by student: " + e.getMessage());
             return 0;
         }
     }
@@ -688,7 +688,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.countGradedSubmissionsByTask(taskId);
         } catch (Exception e) {
-            System.err.println("❌ Error counting graded submissions: " + e.getMessage());
+            System.err.println("Error counting graded submissions: " + e.getMessage());
             return 0;
         }
     }
@@ -709,7 +709,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return sum / gradedSubmissions.size();
         } catch (Exception e) {
-            System.err.println("❌ Error calculating average grade: " + e.getMessage());
+            System.err.println("Error calculating average grade: " + e.getMessage());
             return 0.0;
         }
     }
@@ -724,7 +724,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return taskSubmissionRepository.save(submission);
         } catch (Exception e) {
-            System.err.println("❌ Error adding file to submission: " + e.getMessage());
+            System.err.println("Error adding file to submission: " + e.getMessage());
             throw new RuntimeException("Failed to add file: " + e.getMessage());
         }
     }
@@ -739,7 +739,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return taskSubmissionRepository.save(submission);
         } catch (Exception e) {
-            System.err.println("❌ Error removing file from submission: " + e.getMessage());
+            System.err.println("Error removing file from submission: " + e.getMessage());
             throw new RuntimeException("Failed to remove file: " + e.getMessage());
         }
     }
@@ -757,7 +757,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return updatedSubmissions;
 
         } catch (Exception e) {
-            System.err.println("❌ Error in batch grading: " + e.getMessage());
+            System.err.println("Error in batch grading: " + e.getMessage());
             throw new RuntimeException("Failed to batch grade submissions: " + e.getMessage());
         }
     }
@@ -773,14 +773,14 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
                     TaskSubmission updated = updateSubmissionGradeWithSync(submissionId, grade, feedback);
                     updatedSubmissions.add(updated);
                 } catch (Exception e) {
-                    System.err.println("❌ Error grading submission " + submissionId + ": " + e.getMessage());
+                    System.err.println("Error grading submission " + submissionId + ": " + e.getMessage());
                     // Continue with other submissions
                 }
             }
             return updatedSubmissions;
 
         } catch (Exception e) {
-            System.err.println("❌ Error in batch grading with sync: " + e.getMessage());
+            System.err.println("Error in batch grading with sync: " + e.getMessage());
             throw new RuntimeException("Failed to batch grade submissions with sync: " + e.getMessage());
         }
     }
@@ -791,7 +791,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             Optional<Task> taskOpt = taskRepository.findById(taskId);
             if (taskOpt.isEmpty()) {
-                System.err.println("❌ Task not found for statistics update: " + taskId);
+                System.err.println("Task not found for statistics update: " + taskId);
                 return;
             }
 
@@ -814,7 +814,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             taskRepository.save(task);
 
         } catch (Exception e) {
-            System.err.println("❌ Error recalculating task statistics: " + e.getMessage());
+            System.err.println("Error recalculating task statistics: " + e.getMessage());
         }
     }
 
@@ -823,7 +823,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.findByTaskIdAndIsLateTrue(taskId);
         } catch (Exception e) {
-            System.err.println("❌ Error finding late submissions: " + e.getMessage());
+            System.err.println("Error finding late submissions: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -833,7 +833,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.findByCourseIdAndSubmittedAtBetween(courseId, start, end);
         } catch (Exception e) {
-            System.err.println("❌ Error finding submissions by date range: " + e.getMessage());
+            System.err.println("Error finding submissions by date range: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -845,7 +845,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
             return taskSubmissionRepository.findByCourseIdAndSubmittedAtBetween(
                     courseId, sinceDate, LocalDateTime.now());
         } catch (Exception e) {
-            System.err.println("❌ Error finding recent submissions: " + e.getMessage());
+            System.err.println("Error finding recent submissions: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -892,7 +892,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
 
             return true;
         } catch (Exception e) {
-            System.err.println("❌ Error checking if student can submit: " + e.getMessage());
+            System.err.println("Error checking if student can submit: " + e.getMessage());
             return false;
         }
     }
@@ -902,7 +902,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return taskSubmissionRepository.existsByTaskIdAndStudentId(taskId, studentId);
         } catch (Exception e) {
-            System.err.println("❌ Error checking if student has submitted: " + e.getMessage());
+            System.err.println("Error checking if student has submitted: " + e.getMessage());
             return false;
         }
     }
@@ -912,7 +912,7 @@ public class TaskSubmissionServiceImpl implements TaskSubmissionService {
         try {
             return (int) taskSubmissionRepository.countByTaskIdAndStudentId(taskId, studentId);
         } catch (Exception e) {
-            System.err.println("❌ Error getting submission attempt count: " + e.getMessage());
+            System.err.println("Error getting submission attempt count: " + e.getMessage());
             return 0;
         }
     }

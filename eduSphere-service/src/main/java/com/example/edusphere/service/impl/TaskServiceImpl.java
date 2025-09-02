@@ -93,7 +93,7 @@ public class TaskServiceImpl implements TaskService {
             return savedColumn;
 
         } catch (Exception e) {
-            System.err.println("❌ Error auto-creating grade column: " + e.getMessage());
+            System.err.println("Error auto-creating grade column: " + e.getMessage());
             e.printStackTrace();
             // Don't throw error - task creation should still succeed
             return null;
@@ -181,10 +181,10 @@ public class TaskServiceImpl implements TaskService {
             return convertToResponse(savedTask);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error creating task: " + e.getMessage());
+            System.err.println("Error creating task: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error creating task: " + e.getMessage());
+            System.err.println("Unexpected error creating task: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to create task: " + e.getMessage());
         }
@@ -311,10 +311,10 @@ public class TaskServiceImpl implements TaskService {
             return convertToResponse(savedTask);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error updating task: " + e.getMessage());
+            System.err.println("Error updating task: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error updating task: " + e.getMessage());
+            System.err.println("Unexpected error updating task: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to update task: " + e.getMessage());
         }
@@ -349,10 +349,10 @@ public class TaskServiceImpl implements TaskService {
             taskRepository.deleteById(taskId);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error deleting task: " + e.getMessage());
+            System.err.println("Error deleting task: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error deleting task: " + e.getMessage());
+            System.err.println("Unexpected error deleting task: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to delete task: " + e.getMessage());
         }
@@ -364,7 +364,7 @@ public class TaskServiceImpl implements TaskService {
             return taskRepository.findById(taskId)
                     .map(this::convertToResponse);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching task: " + e.getMessage());
+            System.err.println("Error fetching task: " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -383,7 +383,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks by course: " + e.getMessage());
+            System.err.println("Error fetching tasks by course: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -394,7 +394,7 @@ public class TaskServiceImpl implements TaskService {
             Page<Task> tasksPage = taskRepository.findByCourseIdOrderByDueDateAsc(courseId, pageable);
             return tasksPage.map(this::convertToResponse);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks page: " + e.getMessage());
+            System.err.println("Error fetching tasks page: " + e.getMessage());
             return Page.empty();
         }
     }
@@ -407,7 +407,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks by status: " + e.getMessage());
+            System.err.println("Error fetching tasks by status: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -421,7 +421,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching overdue tasks: " + e.getMessage());
+            System.err.println("Error fetching overdue tasks: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -436,7 +436,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching upcoming tasks: " + e.getMessage());
+            System.err.println("Error fetching upcoming tasks: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -449,7 +449,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error searching tasks: " + e.getMessage());
+            System.err.println("Error searching tasks: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -486,7 +486,7 @@ public class TaskServiceImpl implements TaskService {
             return taskResponses;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks for student: " + e.getMessage());
+            System.err.println("Error fetching tasks for student: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -529,7 +529,7 @@ public class TaskServiceImpl implements TaskService {
             return overdueTasks;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching overdue tasks for student: " + e.getMessage());
+            System.err.println("Error fetching overdue tasks for student: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -570,7 +570,7 @@ public class TaskServiceImpl implements TaskService {
             return upcomingTasks;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching upcoming tasks for student: " + e.getMessage());
+            System.err.println("Error fetching upcoming tasks for student: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -614,7 +614,7 @@ public class TaskServiceImpl implements TaskService {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error enhancing task response for student: " + e.getMessage());
+            System.err.println("Error enhancing task response for student: " + e.getMessage());
         }
     }
 
@@ -645,7 +645,7 @@ public class TaskServiceImpl implements TaskService {
             return true;
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking if student can submit: " + e.getMessage());
+            System.err.println("Error checking if student can submit: " + e.getMessage());
             return false;
         }
     }
@@ -677,7 +677,7 @@ public class TaskServiceImpl implements TaskService {
             });
 
         } catch (Exception e) {
-            System.err.println("❌ Error enhancing task response: " + e.getMessage());
+            System.err.println("Error enhancing task response: " + e.getMessage());
         }
 
         return response;
@@ -720,7 +720,7 @@ public class TaskServiceImpl implements TaskService {
 
             return false;
         } catch (Exception e) {
-            System.err.println("❌ Error checking task access: " + e.getMessage());
+            System.err.println("Error checking task access: " + e.getMessage());
             return false;
         }
     }
@@ -747,7 +747,7 @@ public class TaskServiceImpl implements TaskService {
             // Students cannot modify tasks
             return false;
         } catch (Exception e) {
-            System.err.println("❌ Error checking task modification rights: " + e.getMessage());
+            System.err.println("Error checking task modification rights: " + e.getMessage());
             return false;
         }
     }
@@ -849,10 +849,10 @@ public class TaskServiceImpl implements TaskService {
             return response;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error fetching task details: " + e.getMessage());
+            System.err.println("Error fetching task details: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error fetching task details: " + e.getMessage());
+            System.err.println("Unexpected error fetching task details: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch task details: " + e.getMessage());
         }
@@ -969,7 +969,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks by instructor: " + e.getMessage());
+            System.err.println("Error fetching tasks by instructor: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -983,7 +983,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching available tasks for students: " + e.getMessage());
+            System.err.println("Error fetching available tasks for students: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -996,7 +996,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks by category: " + e.getMessage());
+            System.err.println("Error fetching tasks by category: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -1009,7 +1009,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks by priority: " + e.getMessage());
+            System.err.println("Error fetching tasks by priority: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -1022,7 +1022,7 @@ public class TaskServiceImpl implements TaskService {
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("❌ Error fetching tasks needing grading: " + e.getMessage());
+            System.err.println("Error fetching tasks needing grading: " + e.getMessage());
             return new ArrayList<>();
         }
     }

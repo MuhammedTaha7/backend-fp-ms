@@ -30,7 +30,7 @@ public class GradeServiceImpl implements GradeService {
             List<GradeColumn> columns = gradeColumnRepository.findByCourseIdAndIsActiveTrue(courseId);
             return columns;
         } catch (Exception e) {
-            System.err.println("❌ Error fetching grade columns: " + e.getMessage());
+            System.err.println("Error fetching grade columns: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -143,7 +143,7 @@ public class GradeServiceImpl implements GradeService {
             List<StudentGrade> grades = studentGradeRepository.findByCourseId(courseId);
             return grades;
         } catch (Exception e) {
-            System.err.println("❌ Error fetching grades: " + e.getMessage());
+            System.err.println("Error fetching grades: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -192,7 +192,7 @@ public class GradeServiceImpl implements GradeService {
             return savedGrade;
 
         } catch (Exception e) {
-            System.err.println("❌ Error updating student grade: " + e.getMessage());
+            System.err.println("Error updating student grade: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to update student grade: " + e.getMessage());
         }
@@ -268,7 +268,7 @@ public class GradeServiceImpl implements GradeService {
             return finalGrade;
 
         } catch (Exception e) {
-            System.err.println("❌ Error calculating final grade from record: " + e.getMessage());
+            System.err.println("Error calculating final grade from record: " + e.getMessage());
             e.printStackTrace();
             return 0.0;
         }
@@ -368,7 +368,7 @@ public class GradeServiceImpl implements GradeService {
             return calculateFinalGradeFromRecord(studentGrade, courseId);
 
         } catch (Exception e) {
-            System.err.println("❌ Error calculating final grade: " + e.getMessage());
+            System.err.println("Error calculating final grade: " + e.getMessage());
             e.printStackTrace();
             return 0.0;
         }
@@ -451,12 +451,12 @@ public class GradeServiceImpl implements GradeService {
                         updatedCount++;
                     }
                 } catch (Exception e) {
-                    System.err.println("❌ Error updating grades for student " + studentId + ": " + e.getMessage());
+                    System.err.println("Error updating grades for student " + studentId + ": " + e.getMessage());
                 }
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error during bulk recalculation: " + e.getMessage());
+            System.err.println("Error during bulk recalculation: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -480,7 +480,7 @@ public class GradeServiceImpl implements GradeService {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error fixing all grades: " + e.getMessage());
+            System.err.println("Error fixing all grades: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fix all grades: " + e.getMessage());
         }
@@ -550,7 +550,7 @@ public class GradeServiceImpl implements GradeService {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error during cleanup: " + e.getMessage());
+            System.err.println("Error during cleanup: " + e.getMessage());
             e.printStackTrace();
         }
     }

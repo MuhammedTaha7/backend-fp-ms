@@ -3,7 +3,7 @@ package com.example.community.controller;
 import com.example.community.dto.UserDto;
 import com.example.community.service.FriendsService;
 import com.example.community.service.StoriesService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;
 import com.example.community.dto.StoryDto;
 import com.example.community.dto.response.StoriesFeedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class StoriesController {
     private FriendsService friendsService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping("/feed")
     public ResponseEntity<StoriesFeedResponse> getStoriesFeed(

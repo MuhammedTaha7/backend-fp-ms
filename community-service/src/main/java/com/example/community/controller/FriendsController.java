@@ -2,7 +2,7 @@ package com.example.community.controller;
 
 import com.example.community.dto.*;
 import com.example.community.service.FriendsService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,7 +19,7 @@ public class FriendsController {
     private FriendsService friendsService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getFriends(Authentication authentication) {

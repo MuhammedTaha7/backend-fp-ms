@@ -12,7 +12,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessageEntity
             String senderId1, String receiverId1, String senderId2, String receiverId2
     );
 
-    // NEW: Context-aware method for specific chat context
+    //  Context-aware method for specific chat context
     @Query("{ '$and': [ " +
             "  { '$or': [ " +
             "    { 'senderId': ?0, 'receiverId': ?1 }, " +
@@ -24,7 +24,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessageEntity
             String userId1, String userId2, String context
     );
 
-    // NEW: Get all messages for a user in a specific context
+    //  Get all messages for a user in a specific context
     @Query("{ '$and': [ " +
             "  { '$or': [ " +
             "    { 'senderId': ?0 }, " +
@@ -34,7 +34,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessageEntity
             "] }")
     List<ChatMessageEntity> findAllByUserIdAndContext(String userId, String context);
 
-    // NEW: Get unread messages for a user in a specific context
+    //  Get unread messages for a user in a specific context
     @Query("{ '$and': [ " +
             "  { 'receiverId': ?0 }, " +
             "  { 'read': false }, " +
@@ -42,7 +42,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessageEntity
             "] }")
     List<ChatMessageEntity> findUnreadMessagesByUserIdAndContext(String userId, String context);
 
-    // NEW: Count unread messages for a user in a specific context
+    //  Count unread messages for a user in a specific context
     @Query(value = "{ '$and': [ " +
             "  { 'receiverId': ?0 }, " +
             "  { 'read': false }, " +
@@ -51,7 +51,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessageEntity
             count = true)
     long countUnreadMessagesByUserIdAndContext(String userId, String context);
 
-    // NEW: Get recent conversations for a user in a specific context
+    //  Get recent conversations for a user in a specific context
     @Query(value = "{ '$and': [ " +
             "  { '$or': [ " +
             "    { 'senderId': ?0 }, " +
@@ -62,7 +62,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessageEntity
             sort = "{ 'timestamp': -1 }")
     List<ChatMessageEntity> findRecentMessagesByUserIdAndContext(String userId, String context);
 
-    // NEW: Mark messages as read between two users in a specific context
+    //  Mark messages as read between two users in a specific context
     @Query("{ '$and': [ " +
             "  { 'senderId': ?1, 'receiverId': ?0 }, " +
             "  { 'context': ?2 } " +

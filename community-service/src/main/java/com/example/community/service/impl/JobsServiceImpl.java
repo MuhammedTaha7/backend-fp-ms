@@ -42,7 +42,7 @@ public class JobsServiceImpl implements JobsService {
     private CVService cvService;
 
     @Autowired
-    private MailService mailService; // ADD THIS AUTOWIRED
+    private MailService mailService;
 
     // ============================================================================
     // JOB MANAGEMENT METHODS

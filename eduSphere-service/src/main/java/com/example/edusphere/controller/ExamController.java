@@ -149,7 +149,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: GET /api/exams/{examId}/for-grading : Get exam with questions for grading context
+     *  GET /api/exams/{examId}/for-grading : Get exam with questions for grading context
      */
     @GetMapping("/exams/{examId}/for-grading")
     @PreAuthorize("hasRole('LECTURER')")
@@ -198,7 +198,7 @@ public class ExamController {
 
     /**
      * POST /api/exams : Create a new exam
-     * NEW: Now automatically creates a corresponding grade column
+     *  Now automatically creates a corresponding grade column
      */
     @PostMapping("/exams")
     public ResponseEntity<?> createExam(@Valid @RequestBody ExamCreateRequest request, Authentication auth) {
@@ -226,7 +226,7 @@ public class ExamController {
 
     /**
      * PUT /api/exams/{examId} : Update exam
-     * NEW: Updates corresponding grade column when exam title or points change
+     *  Updates corresponding grade column when exam title or points change
      */
     @PutMapping("/exams/{examId}")
     @PreAuthorize("hasRole('LECTURER')")
@@ -257,7 +257,7 @@ public class ExamController {
 
     /**
      * DELETE /api/exams/{examId} : Delete exam
-     * NEW: Also deletes corresponding grade column
+     *  Also deletes corresponding grade column
      */
     @DeleteMapping("/exams/{examId}")
     @PreAuthorize("hasRole('LECTURER')")
@@ -289,7 +289,7 @@ public class ExamController {
 
     /**
      * POST /api/exams/{examId}/publish : Publish exam
-     * NEW: Updates grade column max points when published
+     *  Updates grade column max points when published
      */
     @PostMapping("/exams/{examId}/publish")
     @PreAuthorize("hasRole('LECTURER')")
@@ -378,7 +378,7 @@ public class ExamController {
 
     /**
      * POST /api/exams/{examId}/questions : Add question to exam
-     * NEW: Updates grade column max points when questions are added
+     *  Updates grade column max points when questions are added
      */
     @PostMapping("/exams/{examId}/questions")
     @PreAuthorize("hasRole('LECTURER')")
@@ -409,7 +409,7 @@ public class ExamController {
 
     /**
      * PUT /api/exams/{examId}/questions/{questionId} : Update question
-     * NEW: Updates grade column max points when question points change
+     *  Updates grade column max points when question points change
      */
     @PutMapping("/exams/{examId}/questions/{questionId}")
     @PreAuthorize("hasRole('LECTURER')")
@@ -441,7 +441,7 @@ public class ExamController {
 
     /**
      * DELETE /api/exams/{examId}/questions/{questionId} : Delete question
-     * NEW: Updates grade column max points when questions are deleted
+     *  Updates grade column max points when questions are deleted
      */
     @DeleteMapping("/exams/{examId}/questions/{questionId}")
     @PreAuthorize("hasRole('LECTURER')")
@@ -627,7 +627,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: GET /api/exam-responses/{responseId}/detailed : Get detailed response for grading
+     *  GET /api/exam-responses/{responseId}/detailed : Get detailed response for grading
      */
     @GetMapping("/exam-responses/{responseId}/detailed")
     @PreAuthorize("hasRole('LECTURER')")
@@ -711,7 +711,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: GET /api/exams/{examId}/responses/student/{studentId} : Get exam response history for student
+     *  GET /api/exams/{examId}/responses/student/{studentId} : Get exam response history for student
      */
     @GetMapping("/exams/{examId}/responses/student/{studentId}")
     @PreAuthorize("hasRole('LECTURER') or (hasRole('STUDENT') and #studentId == authentication.name)")
@@ -890,7 +890,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: PUT /api/exam-responses/{responseId}/question-score : Update individual question score
+     *  PUT /api/exam-responses/{responseId}/question-score : Update individual question score
      */
     @PutMapping("/exam-responses/{responseId}/question-score")
     @PreAuthorize("hasRole('LECTURER')")
@@ -972,7 +972,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: PUT /api/exam-responses/{responseId}/flag : Flag response for review
+     *  PUT /api/exam-responses/{responseId}/flag : Flag response for review
      */
     @PutMapping("/exam-responses/{responseId}/flag")
     @PreAuthorize("hasRole('LECTURER')")
@@ -1004,7 +1004,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: PUT /api/exam-responses/{responseId}/unflag : Unflag response
+     *  PUT /api/exam-responses/{responseId}/unflag : Unflag response
      */
     @PutMapping("/exam-responses/{responseId}/unflag")
     @PreAuthorize("hasRole('LECTURER')")
@@ -1031,7 +1031,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: POST /api/exam-responses/batch-grade : Batch grade multiple responses
+     *  POST /api/exam-responses/batch-grade : Batch grade multiple responses
      */
     @PostMapping("/exam-responses/batch-grade")
     @PreAuthorize("hasRole('LECTURER')")
@@ -1092,7 +1092,7 @@ public class ExamController {
     }
 
     /**
-     * NEW: GET /api/exams/{examId}/grading-stats : Get grading statistics for an exam
+     *  GET /api/exams/{examId}/grading-stats : Get grading statistics for an exam
      */
     @GetMapping("/exams/{examId}/grading-stats")
     @PreAuthorize("hasRole('LECTURER')")
@@ -1192,7 +1192,7 @@ public class ExamController {
     // ===================================
 
     /**
-     * NEW: POST /api/exam-responses/export-detailed : Export detailed exam responses
+     *  POST /api/exam-responses/export-detailed : Export detailed exam responses
      */
     @PostMapping("/exam-responses/export-detailed")
     @PreAuthorize("hasRole('LECTURER')")

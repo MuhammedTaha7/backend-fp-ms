@@ -47,7 +47,7 @@ public class ExamServiceImpl implements ExamService {
             List<Exam> exams = examRepository.findByCourseIdOrderByCreatedAtDesc(courseId);
             return exams;
         } catch (Exception e) {
-            System.err.println("❌ Error fetching exams: " + e.getMessage());
+            System.err.println("Error fetching exams: " + e.getMessage());
             throw new RuntimeException("Failed to fetch exams: " + e.getMessage());
         }
     }
@@ -102,7 +102,7 @@ public class ExamServiceImpl implements ExamService {
             return savedExam;
 
         } catch (Exception e) {
-            System.err.println("❌ Error creating exam: " + e.getMessage());
+            System.err.println("Error creating exam: " + e.getMessage());
             throw new RuntimeException("Failed to create exam: " + e.getMessage(), e);
         }
     }
@@ -152,7 +152,7 @@ public class ExamServiceImpl implements ExamService {
         }
     }
 
-    // NEW: Calculate suggested percentage based on task type
+    //  Calculate suggested percentage based on task type
     private int calculateSuggestedPercentage(String taskType) {
         if (taskType == null) return 10;
 
@@ -231,7 +231,7 @@ public class ExamServiceImpl implements ExamService {
             return updatedExam;
 
         } catch (Exception e) {
-            System.err.println("❌ Error updating exam: " + e.getMessage());
+            System.err.println("Error updating exam: " + e.getMessage());
             throw new RuntimeException("Failed to update exam: " + e.getMessage(), e);
         }
     }
@@ -290,7 +290,7 @@ public class ExamServiceImpl implements ExamService {
             examRepository.deleteById(examId);
 
         } catch (Exception e) {
-            System.err.println("❌ Error deleting exam: " + e.getMessage());
+            System.err.println("Error deleting exam: " + e.getMessage());
             throw new RuntimeException("Failed to delete exam: " + e.getMessage(), e);
         }
     }
@@ -643,7 +643,7 @@ public class ExamServiceImpl implements ExamService {
             try {
                 responses = examResponseRepository.findByExamIdOrderBySubmittedAtDesc(examId);
             } catch (Exception e) {
-                System.err.println("❌ Method 1 failed: " + e.getMessage());
+                System.err.println("Method 1 failed: " + e.getMessage());
                 responses = new ArrayList<>();
             }
 
@@ -652,7 +652,7 @@ public class ExamServiceImpl implements ExamService {
                 try {
                     responses = examResponseRepository.findByExamId(examId);
                 } catch (Exception e) {
-                    System.err.println("❌ Method 2 failed: " + e.getMessage());
+                    System.err.println("Method 2 failed: " + e.getMessage());
                     responses = new ArrayList<>();
                 }
             }
@@ -678,7 +678,7 @@ public class ExamServiceImpl implements ExamService {
                     }
 
                 } catch (Exception e) {
-                    System.err.println("❌ Method 3 failed: " + e.getMessage());
+                    System.err.println("Method 3 failed: " + e.getMessage());
                     responses = new ArrayList<>();
                 }
             }
@@ -695,7 +695,7 @@ public class ExamServiceImpl implements ExamService {
             return responses;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching exam responses: " + e.getMessage());
+            System.err.println("Error fetching exam responses: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -711,7 +711,7 @@ public class ExamServiceImpl implements ExamService {
             for (ExamResponse response : allResponses) {
             }
         } catch (Exception e) {
-            System.err.println("❌ Debug method failed: " + e.getMessage());
+            System.err.println("Debug method failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -727,7 +727,7 @@ public class ExamServiceImpl implements ExamService {
         return examResponseRepository.findByStudentIdAndCourseId(studentId, courseId);
     }
 
-    // NEW: Get responses for a specific student and exam (response history)
+    //  Get responses for a specific student and exam (response history)
     @Override
     public List<ExamResponse> getStudentExamResponses(String examId, String studentId) {
         return examResponseRepository.findByExamIdAndStudentIdOrderByAttemptNumberDesc(examId, studentId);
@@ -950,7 +950,7 @@ public class ExamServiceImpl implements ExamService {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error grading question " + question.getId() + ": " + e.getMessage());
+            System.err.println("Error grading question " + question.getId() + ": " + e.getMessage());
             e.printStackTrace();
             return 0;
         }
@@ -1028,7 +1028,7 @@ public class ExamServiceImpl implements ExamService {
         return pointsToAward;
     }
 
-    // NEW: Update individual question score
+    //  Update individual question score
     @Override
     public ExamResponse updateQuestionScore(String responseId, String questionId, Integer score, String feedback, String instructorId) {
 
@@ -1098,7 +1098,7 @@ public class ExamServiceImpl implements ExamService {
         return updatedResponse;
     }
 
-    // NEW: Flag response for review
+    //  Flag response for review
     @Override
     public ExamResponse flagResponseForReview(String responseId, String reason, String priority, String instructorId) {
 
@@ -1114,7 +1114,7 @@ public class ExamServiceImpl implements ExamService {
         return flaggedResponse;
     }
 
-    // NEW: Unflag response
+    //  Unflag response
     @Override
     public ExamResponse unflagResponse(String responseId, String instructorId) {
 
@@ -1132,7 +1132,7 @@ public class ExamServiceImpl implements ExamService {
         return unflaggedResponse;
     }
 
-    // NEW: Batch grade multiple responses
+    //  Batch grade multiple responses
     @Override
     public List<ExamResponse> batchGradeResponses(List<String> responseIds, String instructorFeedback, Boolean flagForReview, String instructorId) {
 
@@ -1159,14 +1159,14 @@ public class ExamServiceImpl implements ExamService {
                 batchGradedResponses.add(savedResponse);
 
             } catch (Exception e) {
-                System.err.println("❌ Error batch grading response " + responseId + ": " + e.getMessage());
+                System.err.println("Error batch grading response " + responseId + ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
         return batchGradedResponses;
     }
 
-    // NEW: Get grading statistics for an exam
+    //  Get grading statistics for an exam
     @Override
     public Map<String, Object> getExamGradingStats(String examId) {
 
@@ -1271,7 +1271,7 @@ public class ExamServiceImpl implements ExamService {
             gradeService.updateStudentGrade(examResponse.getStudentId(), gradeColumn.getId(), gradePercentage);
 
         } catch (Exception e) {
-            System.err.println("❌ Error syncing exam grade to grade column: " + e.getMessage());
+            System.err.println("Error syncing exam grade to grade column: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to sync exam grade to grade column: " + e.getMessage());
         }
@@ -1302,7 +1302,7 @@ public class ExamServiceImpl implements ExamService {
                 successCount++;
 
             } catch (Exception e) {
-                System.err.println("❌ Failed to auto-grade response " + response.getId() + ": " + e.getMessage());
+                System.err.println("Failed to auto-grade response " + response.getId() + ": " + e.getMessage());
                 e.printStackTrace();
                 failCount++;
 
@@ -1312,7 +1312,7 @@ public class ExamServiceImpl implements ExamService {
                     response.setInstructorFeedback("Auto-grading failed: " + e.getMessage());
                     examResponseRepository.save(response);
                 } catch (Exception saveError) {
-                    System.err.println("❌ Failed to save error status: " + saveError.getMessage());
+                    System.err.println("Failed to save error status: " + saveError.getMessage());
                 }
             }
         }
@@ -1447,7 +1447,7 @@ public class ExamServiceImpl implements ExamService {
             return 0;
 
         } catch (Exception e) {
-            System.err.println("❌ Error grading question " + question.getId() + ": " + e.getMessage());
+            System.err.println("Error grading question " + question.getId() + ": " + e.getMessage());
             e.printStackTrace();
             return 0;
         }
@@ -1456,13 +1456,13 @@ public class ExamServiceImpl implements ExamService {
     private int gradeMultipleChoice(ExamQuestion question, String studentAnswer) {
         Integer correctIndex = question.getCorrectAnswerIndex();
         if (correctIndex == null) {
-            System.err.println("❌ No correct answer index set for multiple choice question " + question.getId());
+            System.err.println("No correct answer index set for multiple choice question " + question.getId());
             return 0;
         }
 
         List<String> options = question.getOptions();
         if (options == null || options.isEmpty()) {
-            System.err.println("❌ No options available for multiple choice question " + question.getId());
+            System.err.println("No options available for multiple choice question " + question.getId());
             return 0;
         }
 
@@ -1482,7 +1482,7 @@ public class ExamServiceImpl implements ExamService {
             }
 
             if (studentAnswerIndex == -1) {
-                System.err.println("❌ Student answer '" + studentAnswer + "' not found in options for question " + question.getId());
+                System.err.println("Student answer '" + studentAnswer + "' not found in options for question " + question.getId());
                 return 0;
             }
         }
@@ -1498,7 +1498,7 @@ public class ExamServiceImpl implements ExamService {
     private int gradeTrueFalse(ExamQuestion question, String studentAnswer) {
         String correctAnswer = question.getCorrectAnswer();
         if (correctAnswer == null) {
-            System.err.println("❌ No correct answer set for true/false question " + question.getId());
+            System.err.println("No correct answer set for true/false question " + question.getId());
             return 0;
         }
 

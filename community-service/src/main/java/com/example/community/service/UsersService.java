@@ -12,6 +12,6 @@ public interface UsersService {
     UserDto updateProfile(UpdateProfileRequest request, String userId);
     Map<String, String> uploadAvatar(MultipartFile file, String userId);
     void reportUser(String reportedUserId, ReportRequest request, String reporterId);
-    List<UserDto> searchUsers(String query, String currentUserId); // 🆕 Add currentUserId to the method signature
+    List<UserDto> searchUsers(String query, String currentUserId);
 
 }

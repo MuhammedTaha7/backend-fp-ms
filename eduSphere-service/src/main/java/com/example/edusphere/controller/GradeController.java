@@ -40,7 +40,7 @@ public class GradeController {
 
             return ResponseEntity.ok(columns);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching grade columns: " + e.getMessage());
+            System.err.println("Error fetching grade columns: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch grade columns: " + e.getMessage()));
@@ -72,7 +72,7 @@ public class GradeController {
             }
 
             if (!errors.isEmpty()) {
-                System.err.println("❌ Validation errors: " + errors);
+                System.err.println("Validation errors: " + errors);
                 return ResponseEntity.badRequest().body(Map.of("errors", errors));
             }
 
@@ -81,10 +81,10 @@ public class GradeController {
             return new ResponseEntity<>(created, HttpStatus.CREATED);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -105,10 +105,10 @@ public class GradeController {
 
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -127,11 +127,11 @@ public class GradeController {
 
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -152,7 +152,7 @@ public class GradeController {
 
             return ResponseEntity.ok(grades);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching course grades: " + e.getMessage());
+            System.err.println("Error fetching course grades: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch grades: " + e.getMessage()));
@@ -187,13 +187,13 @@ public class GradeController {
                         try {
                             grade = Double.parseDouble(gradeStr.trim());
                         } catch (NumberFormatException e) {
-                            System.err.println("❌ Number format error: " + e.getMessage());
+                            System.err.println("Number format error: " + e.getMessage());
                             return ResponseEntity.badRequest()
                                     .body(Map.of("error", "Invalid grade format: '" + gradeStr + "'"));
                         }
                     }
                 } else {
-                    System.err.println("❌ Unexpected grade object type: " + gradeObj.getClass());
+                    System.err.println("Unexpected grade object type: " + gradeObj.getClass());
                     return ResponseEntity.badRequest()
                             .body(Map.of("error", "Unsupported grade type: " + gradeObj.getClass().getSimpleName()));
                 }
@@ -202,14 +202,14 @@ public class GradeController {
 
             // Validate grade range (allow null for removing grades)
             if (grade != null && (grade < 0 || grade > 100)) {
-                System.err.println("❌ Grade out of range: " + grade);
+                System.err.println("Grade out of range: " + grade);
                 return ResponseEntity.badRequest()
                         .body(Map.of("error", "Grade must be between 0 and 100, got: " + grade));
             }
 
             // Validate that the grade column exists
             if (!gradeServiceImpl.columnExists(columnId)) {
-                System.err.println("❌ Grade column does not exist: " + columnId);
+                System.err.println("Grade column does not exist: " + columnId);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Grade column not found: " + columnId));
             }
@@ -220,12 +220,12 @@ public class GradeController {
             return ResponseEntity.ok(updated);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error updating grade: " + e.getMessage());
+            System.err.println("Runtime error updating grade: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Grade update failed: " + e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error updating grade: " + e.getMessage());
+            System.err.println("Unexpected error updating grade: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -254,7 +254,7 @@ public class GradeController {
             );
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            System.err.println("❌ Error calculating final grade: " + e.getMessage());
+            System.err.println("Error calculating final grade: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to calculate final grade: " + e.getMessage()));
@@ -277,7 +277,7 @@ public class GradeController {
                     "timestamp", LocalDateTime.now().toString()
             ));
         } catch (Exception e) {
-            System.err.println("❌ Error recalculating final grades: " + e.getMessage());
+            System.err.println("Error recalculating final grades: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to recalculate grades: " + e.getMessage()));
@@ -302,7 +302,7 @@ public class GradeController {
                     "timestamp", LocalDateTime.now().toString()
             ));
         } catch (Exception e) {
-            System.err.println("❌ Error fixing grades: " + e.getMessage());
+            System.err.println("Error fixing grades: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fix grades: " + e.getMessage()));
@@ -325,7 +325,7 @@ public class GradeController {
                     "timestamp", LocalDateTime.now().toString()
             ));
         } catch (Exception e) {
-            System.err.println("❌ Error recalculating course grades: " + e.getMessage());
+            System.err.println("Error recalculating course grades: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to recalculate course grades: " + e.getMessage()));
@@ -398,7 +398,7 @@ public class GradeController {
 
             return ResponseEntity.ok(debug);
         } catch (Exception e) {
-            System.err.println("❌ Error debugging student grades: " + e.getMessage());
+            System.err.println("Error debugging student grades: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Debug failed: " + e.getMessage()));
@@ -465,7 +465,7 @@ public class GradeController {
 
             return ResponseEntity.ok(validation);
         } catch (Exception e) {
-            System.err.println("❌ Error validating course: " + e.getMessage());
+            System.err.println("Error validating course: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Validation failed: " + e.getMessage()));
@@ -488,7 +488,7 @@ public class GradeController {
                     "timestamp", LocalDateTime.now().toString()
             ));
         } catch (Exception e) {
-            System.err.println("❌ Error cleaning up orphaned grades: " + e.getMessage());
+            System.err.println("Error cleaning up orphaned grades: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Cleanup failed: " + e.getMessage()));

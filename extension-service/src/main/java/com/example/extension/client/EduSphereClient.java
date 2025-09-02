@@ -69,10 +69,10 @@ public class EduSphereClient {
 
             return restTemplate.exchange(url, HttpMethod.GET, entity, responseType);
         } catch (HttpClientErrorException e) {
-            System.err.println("❌ HTTP Error calling " + url + ": " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            System.err.println("HTTP Error calling " + url + ": " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Error calling " + url + ": " + e.getMessage());
+            System.err.println("Error calling " + url + ": " + e.getMessage());
             throw e;
         }
     }
@@ -115,7 +115,7 @@ public class EduSphereClient {
 
             return courses;
         } catch (Exception e) {
-            System.err.println("❌ Error getting user courses: " + e.getMessage());
+            System.err.println("Error getting user courses: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -130,7 +130,7 @@ public class EduSphereClient {
             // cache course names from the getUserCourses call
             return "Course " + courseId;
         } catch (Exception e) {
-            System.err.println("❌ Error getting course name for " + courseId + ": " + e.getMessage());
+            System.err.println("Error getting course name for " + courseId + ": " + e.getMessage());
             return "Unknown Course";
         }
     }
@@ -164,7 +164,7 @@ public class EduSphereClient {
 
             return allTasks;
         } catch (Exception e) {
-            System.err.println("❌ Error getting tasks by course IDs: " + e.getMessage());
+            System.err.println("Error getting tasks by course IDs: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -196,7 +196,7 @@ public class EduSphereClient {
 
             return allMeetings;
         } catch (Exception e) {
-            System.err.println("❌ Error getting meetings by course IDs: " + e.getMessage());
+            System.err.println("Error getting meetings by course IDs: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -221,7 +221,7 @@ public class EduSphereClient {
             }
             return announcements;
         } catch (Exception e) {
-            System.err.println("❌ Error getting announcements: " + e.getMessage());
+            System.err.println("Error getting announcements: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -247,7 +247,7 @@ public class EduSphereClient {
                 return restTemplate.getForObject(url, Map.class);
             }
         } catch (Exception e) {
-            System.err.println("❌ Error getting meeting by ID: " + e.getMessage());
+            System.err.println("Error getting meeting by ID: " + e.getMessage());
             return Map.of("error", "Meeting not found");
         }
     }
@@ -262,7 +262,7 @@ public class EduSphereClient {
             return userCourses.stream()
                     .anyMatch(course -> courseId.equals(course.get("id")));
         } catch (Exception e) {
-            System.err.println("❌ Error checking course access: " + e.getMessage());
+            System.err.println("Error checking course access: " + e.getMessage());
             return false;
         }
     }

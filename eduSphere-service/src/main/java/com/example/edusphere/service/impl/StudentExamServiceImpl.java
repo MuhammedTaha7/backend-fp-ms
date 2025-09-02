@@ -57,7 +57,7 @@ public class StudentExamServiceImpl implements StudentExamService {
             return availableExams;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching available exams: " + e.getMessage());
+            System.err.println("Error fetching available exams: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch available exams: " + e.getMessage());
         }
@@ -109,10 +109,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return examDetails;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch exam details: " + e.getMessage());
         }
@@ -176,10 +176,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return attemptData;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to start exam attempt: " + e.getMessage());
         }
@@ -220,10 +220,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return savedResponse;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to save exam progress: " + e.getMessage());
         }
@@ -310,10 +310,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return submitResult;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to submit exam: " + e.getMessage());
         }
@@ -378,10 +378,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return resumeData;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to resume exam attempt: " + e.getMessage());
         }
@@ -452,10 +452,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return eligibility;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to check exam eligibility: " + e.getMessage());
         }
@@ -474,7 +474,7 @@ public class StudentExamServiceImpl implements StudentExamService {
             return attemptHistory;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching attempt history: " + e.getMessage());
+            System.err.println("Error fetching attempt history: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch attempt history: " + e.getMessage());
         }
@@ -543,10 +543,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return results;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch exam results: " + e.getMessage());
         }
@@ -683,10 +683,10 @@ public class StudentExamServiceImpl implements StudentExamService {
             return detailedResults;
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error: " + e.getMessage());
+            System.err.println("Runtime error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch detailed exam results: " + e.getMessage());
         }
@@ -755,7 +755,7 @@ public class StudentExamServiceImpl implements StudentExamService {
             return stats;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching exam stats: " + e.getMessage());
+            System.err.println("Error fetching exam stats: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch exam statistics: " + e.getMessage());
         }
@@ -790,7 +790,7 @@ public class StudentExamServiceImpl implements StudentExamService {
             return result;
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking active attempt: " + e.getMessage());
+            System.err.println("Error checking active attempt: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to check active attempt: " + e.getMessage());
         }
@@ -849,7 +849,7 @@ public class StudentExamServiceImpl implements StudentExamService {
             return summary;
 
         } catch (Exception e) {
-            System.err.println("❌ Error fetching dashboard summary: " + e.getMessage());
+            System.err.println("Error fetching dashboard summary: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to fetch dashboard summary: " + e.getMessage());
         }

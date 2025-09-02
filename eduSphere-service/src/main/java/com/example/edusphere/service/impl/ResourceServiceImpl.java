@@ -62,13 +62,13 @@ public class ResourceServiceImpl implements ResourceService {
             resource.setUrl(metadata.getUrl());
             resource.setTags(metadata.getTags());
 
-            // ✅ Use the actual stored filename (UUID)
+            //  Use the actual stored filename (UUID)
             resource.setFileName(fileResponse.getName()); // UUID-based filename
             resource.setSize(Long.parseLong(fileResponse.getSize()));
             resource.setMimeType(fileResponse.getType());
             resource.setFilePath("edusphere/files/" + fileResponse.getName()); // relative path
 
-            // ✅ Set real values from FileResponse
+            //  Set real values from FileResponse
             resource.setFilePath("uploads/edusphere/file/" + fileResponse.getName()); // or use uploadDir from @Value
             resource.setMimeType(fileResponse.getType());
             resource.setSize(Long.parseLong(fileResponse.getSize()));

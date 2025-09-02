@@ -56,7 +56,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public List<UserDto> searchUsers(String query, String currentUserId) { // 🆕 Updated method signature
+    public List<UserDto> searchUsers(String query, String currentUserId) {
         List<UserEntity> foundUsers = userRepository.findByNameContainingIgnoreCase(query);
 
         List<UserDto> userDtos = foundUsers.stream()

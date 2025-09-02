@@ -27,15 +27,15 @@ public class GradeColumn {
     private Boolean isActive = true;
     private Integer displayOrder; // For ordering columns
 
-    // NEW: Link to assignment if auto-created
+    //  Link to assignment if auto-created
     @Field("linked_assignment_id")
     private String linkedAssignmentId;
 
-    // NEW: Auto-created flag
+    //  Auto-created flag
     @Field("auto_created")
     private Boolean autoCreated = false;
 
-    // NEW: Source information
+    //  Source information
     @Field("created_by")
     private String createdBy; // "manual" or "auto" or instructor ID
 

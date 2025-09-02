@@ -21,8 +21,6 @@ public class MessageController {
     @Autowired
     private MessageService messageService;
 
-    // --- Endpoints for all authenticated users (Student, Lecturer, Admin) ---
-
     @GetMapping("/received")
     public ResponseEntity<List<MessageResponse>> getReceivedMessages(@AuthenticationPrincipal UserDetails userDetails) {
         UserEntity currentUser = (UserEntity) userDetails;
@@ -57,8 +55,6 @@ public class MessageController {
         MessageResponse repliedMessage = messageService.replyToMessage(id, replyRequest, currentUser.getId());
         return ResponseEntity.ok(repliedMessage);
     }
-
-    // --- Admin-only endpoint ---
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

@@ -571,8 +571,6 @@ public class TaskSubmissionController {
         // TODO: Implement actual file storage logic here
         return simulatedUrl;
     }
-    // Add this method to your TaskSubmissionController.java
-// Insert this method after the existing deleteSubmission method
 
     /**
      * GET /api/tasksubmissions/{submissionId}/can-delete : Check if student can delete submission
@@ -612,7 +610,7 @@ public class TaskSubmissionController {
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking delete permission: " + e.getMessage());
+            System.err.println("Error checking delete permission: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));

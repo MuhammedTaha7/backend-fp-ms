@@ -1,7 +1,7 @@
 package com.example.community.controller;
 
 import com.example.community.service.GroupsService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;
 import com.example.community.dto.*;
 import com.example.community.dto.request.*;
 import jakarta.validation.Valid;
@@ -21,7 +21,7 @@ public class GroupsController {
     private GroupsService groupsService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<List<GroupDto>> getAllGroups(

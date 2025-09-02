@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageResponse {
-
     private String id;
     private String subject;
     private String content;
@@ -25,5 +24,4 @@ public class MessageResponse {
     private LocalDateTime createdAt;
     private String replyContent;
     private LocalDateTime repliedAt;
-
 }

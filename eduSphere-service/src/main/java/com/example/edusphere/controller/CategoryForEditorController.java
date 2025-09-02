@@ -22,7 +22,6 @@ public class CategoryForEditorController {
 
     /**
      * POST /api/categories : Create a new file category.
-     * The courseId must be set in the request body.
      */
     @PostMapping
     public ResponseEntity<FileCategory> createCategory(

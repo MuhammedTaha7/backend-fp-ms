@@ -95,7 +95,7 @@ public class AnnouncementController {
         return ResponseEntity.ok(response);
     }
 
-    // 🆕 NEW: Endpoint for duplicating and re-sending an announcement
+    // Endpoint for duplicating and re-sending an announcement
     @PostMapping("/{id}/duplicate")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_LECTURER')")
     public ResponseEntity<Map<String, Object>> duplicateAnnouncement(

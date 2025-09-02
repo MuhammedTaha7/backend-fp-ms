@@ -2,7 +2,7 @@ package com.example.community.controller;
 
 import com.example.community.service.PostsService;
 import com.example.community.service.FriendsService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;
 import com.example.community.dto.PostDto;
 import com.example.community.dto.CommentDto;
 import com.example.community.dto.UserDto;
@@ -28,7 +28,7 @@ public class PostsController {
     private FriendsService friendsService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping("/feed")
     public ResponseEntity<List<PostDto>> getFeed(Authentication authentication) {

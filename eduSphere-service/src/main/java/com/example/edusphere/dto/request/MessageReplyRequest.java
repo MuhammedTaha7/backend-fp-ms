@@ -10,7 +10,5 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageReplyRequest {
-
     private String replyContent;
-
 }

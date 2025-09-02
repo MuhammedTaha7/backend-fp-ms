@@ -2,7 +2,7 @@ package com.example.community.controller;
 
 import com.example.community.entity.Notification;
 import com.example.community.service.NotificationService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;
 import com.example.community.dto.NotificationDto;
 import com.example.community.dto.request.SendNotificationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class NotificationController {
     private NotificationService notificationService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<List<NotificationDto>> getNotifications(Authentication authentication) {

@@ -78,54 +78,54 @@ public interface ExamResponseRepository extends MongoRepository<ExamResponse, St
     List<ExamResponse> findUngradedByCourse(String courseId);
 
     /**
-     * NEW: Find responses that need grading (submitted but not graded)
+     *  Find responses that need grading (submitted but not graded)
      */
     @Query("{ 'examId': ?0, 'status': 'SUBMITTED', 'graded': { $ne: true } }")
     List<ExamResponse> findNeedingGrading(String examId);
 
     /**
-     * NEW: Find flagged responses for an exam
+     *  Find flagged responses for an exam
      */
     @Query("{ 'examId': ?0, 'flaggedForReview': true }")
     List<ExamResponse> findFlaggedResponses(String examId);
 
     /**
-     * NEW: Find auto-graded responses for an exam
+     *  Find auto-graded responses for an exam
      */
     @Query("{ 'examId': ?0, 'autoGraded': true }")
     List<ExamResponse> findAutoGradedResponses(String examId);
 
     /**
-     * NEW: Find manually graded responses for an exam
+     *  Find manually graded responses for an exam
      */
     @Query("{ 'examId': ?0, 'graded': true, 'autoGraded': { $ne: true } }")
     List<ExamResponse> findManuallyGradedResponses(String examId);
 
     /**
-     * NEW: Find responses graded by a specific instructor
+     *  Find responses graded by a specific instructor
      */
     List<ExamResponse> findByExamIdAndGradedBy(String examId, String gradedBy);
 
     /**
-     * NEW: Find all submitted responses for an exam (submitted, graded, partially graded)
+     *  Find all submitted responses for an exam (submitted, graded, partially graded)
      */
     @Query("{ 'examId': ?0, 'status': { $in: ['SUBMITTED', 'GRADED', 'PARTIALLY_GRADED'] } }")
     List<ExamResponse> findSubmittedResponses(String examId);
 
     /**
-     * NEW: Find responses that passed for an exam
+     *  Find responses that passed for an exam
      */
     @Query("{ 'examId': ?0, 'passed': true }")
     List<ExamResponse> findPassedResponses(String examId);
 
     /**
-     * NEW: Find responses submitted after a certain date
+     *  Find responses submitted after a certain date
      */
     @Query("{ 'examId': ?0, 'submittedAt': { $gte: ?1 } }")
     List<ExamResponse> findByExamIdAndSubmittedAtAfter(String examId, LocalDateTime date);
 
     /**
-     * NEW: Find responses within a grade range
+     *  Find responses within a grade range
      */
     @Query("{ 'examId': ?0, 'percentage': { $gte: ?1, $lte: ?2 } }")
     List<ExamResponse> findByExamIdAndPercentageBetween(String examId, Double minPercentage, Double maxPercentage);
@@ -162,25 +162,25 @@ public interface ExamResponseRepository extends MongoRepository<ExamResponse, St
     long countPassedByExam(String examId);
 
     /**
-     * NEW: Count flagged responses for an exam
+     *  Count flagged responses for an exam
      */
     @Query(value = "{ 'examId': ?0, 'flaggedForReview': true }", count = true)
     long countFlaggedByExamId(String examId);
 
     /**
-     * NEW: Count auto-graded responses for an exam
+     *  Count auto-graded responses for an exam
      */
     @Query(value = "{ 'examId': ?0, 'autoGraded': true }", count = true)
     long countAutoGradedByExamId(String examId);
 
     /**
-     * NEW: Count manually graded responses for an exam
+     *  Count manually graded responses for an exam
      */
     @Query(value = "{ 'examId': ?0, 'graded': true, 'autoGraded': { $ne: true } }", count = true)
     long countManuallyGradedByExamId(String examId);
 
     /**
-     * NEW: Count responses needing grading for an exam
+     *  Count responses needing grading for an exam
      */
     @Query(value = "{ 'examId': ?0, 'status': 'SUBMITTED', 'graded': { $ne: true } }", count = true)
     long countNeedingGradingByExamId(String examId);
@@ -204,66 +204,66 @@ public interface ExamResponseRepository extends MongoRepository<ExamResponse, St
     // ===================================
 
     /**
-     * NEW: Find responses by multiple statuses
+     *  Find responses by multiple statuses
      */
     @Query("{ 'examId': ?0, 'status': { $in: ?1 } }")
     List<ExamResponse> findByExamIdAndStatusIn(String examId, List<String> statuses);
 
     /**
-     * NEW: Find responses submitted within a date range
+     *  Find responses submitted within a date range
      */
     @Query("{ 'examId': ?0, 'submittedAt': { $gte: ?1, $lte: ?2 } }")
     List<ExamResponse> findByExamIdAndSubmittedAtBetween(String examId, LocalDateTime startDate, LocalDateTime endDate);
 
     /**
-     * NEW: Find responses by course and status
+     *  Find responses by course and status
      */
     List<ExamResponse> findByCourseIdAndStatus(String courseId, String status);
 
     /**
-     * NEW: Find latest response for each student in an exam
+     *  Find latest response for each student in an exam
      */
     @Query("{ 'examId': ?0 }")
     List<ExamResponse> findLatestResponsePerStudentByExamId(String examId);
 
     /**
-     * NEW: Find responses with specific grading criteria
+     *  Find responses with specific grading criteria
      */
     @Query("{ 'examId': ?0, 'graded': ?1, 'autoGraded': ?2 }")
     List<ExamResponse> findByExamIdAndGradedAndAutoGraded(String examId, Boolean graded, Boolean autoGraded);
 
     /**
-     * NEW: Find overdue responses (submitted after exam end time)
+     *  Find overdue responses (submitted after exam end time)
      */
     @Query("{ 'examId': ?0, 'lateSubmission': true }")
     List<ExamResponse> findLateSubmissionsByExamId(String examId);
 
     /**
-     * NEW: Count late submissions for an exam
+     *  Count late submissions for an exam
      */
     @Query(value = "{ 'examId': ?0, 'lateSubmission': true }", count = true)
     long countLateSubmissionsByExamId(String examId);
 
     /**
-     * NEW: Find responses that need manual grading (essay questions, etc.)
+     *  Find responses that need manual grading (essay questions, etc.)
      */
     @Query("{ 'examId': ?0, 'status': { $in: ['SUBMITTED', 'PARTIALLY_GRADED'] }, $or: [ { 'graded': { $ne: true } }, { 'flaggedForReview': true } ] }")
     List<ExamResponse> findNeedingManualGrading(String examId);
 
     /**
-     * NEW: Find responses by course within date range
+     *  Find responses by course within date range
      */
     @Query("{ 'courseId': ?0, 'submittedAt': { $gte: ?1, $lte: ?2 } }")
     List<ExamResponse> findByCourseIdAndSubmittedAtBetween(String courseId, LocalDateTime startDate, LocalDateTime endDate);
 
     /**
-     * NEW: Find top scoring responses for an exam
+     *  Find top scoring responses for an exam
      */
     @Query(value = "{ 'examId': ?0, 'graded': true }", sort = "{ 'percentage': -1 }")
     List<ExamResponse> findTopScoringResponsesByExamId(String examId);
 
     /**
-     * NEW: Find bottom scoring responses for an exam
+     *  Find bottom scoring responses for an exam
      */
     @Query(value = "{ 'examId': ?0, 'graded': true }", sort = "{ 'percentage': 1 }")
     List<ExamResponse> findBottomScoringResponsesByExamId(String examId);

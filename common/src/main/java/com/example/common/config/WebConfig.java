@@ -13,10 +13,5 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:uploads/")
                 .setCachePeriod(3600); // Cache for 1 hour
-
-        // Alternative: if you want to serve from a specific path
-        // registry.addResourceHandler("/uploads/**")
-        //         .addResourceLocations("file:C:/path/to/your/uploads/")
-        //         .setCachePeriod(3600);
     }
 }

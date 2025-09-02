@@ -128,7 +128,7 @@ public class Exam {
     // ===============================
 
     /**
-     * ✅ FIXED: Made this method public so it can be called from the service layer
+     *  FIXED: Made this method public so it can be called from the service layer
      * Recalculates total points based on current questions
      */
     public void recalculateTotalPoints() {
@@ -145,7 +145,7 @@ public class Exam {
     }
 
     /**
-     * ✅ COMPLETELY FIXED: Always ensures calculation is up to date
+     *  COMPLETELY FIXED: Always ensures calculation is up to date
      * This getter always returns the correct current total
      */
     public Integer getTotalPoints() {
@@ -170,7 +170,7 @@ public class Exam {
     }
 
     /**
-     * ✅ NEW: Force recalculation and return updated total
+     *   Force recalculation and return updated total
      */
     public Integer getUpdatedTotalPoints() {
         recalculateTotalPoints();
@@ -182,11 +182,11 @@ public class Exam {
     // ===============================
 
     /**
-     * ✅ ENHANCED: Comprehensive validation before publishing
+     *  ENHANCED: Comprehensive validation before publishing
      */
     public boolean canBePublished() {
         if (questions == null || questions.isEmpty()) {
-            System.err.println("❌ Cannot publish exam: No questions added");
+            System.err.println("Cannot publish exam: No questions added");
             return false;
         }
 
@@ -195,7 +195,7 @@ public class Exam {
                 .allMatch(q -> q.getPoints() != null && q.getPoints() > 0);
 
         if (!allQuestionsValid) {
-            System.err.println("❌ Cannot publish exam: Some questions have invalid points");
+            System.err.println("Cannot publish exam: Some questions have invalid points");
             questions.stream()
                     .filter(q -> q.getPoints() == null || q.getPoints() <= 0)
                     .forEach(q -> System.err.println("  - Question " + q.getId() + ": " + q.getPoints() + " points"));
@@ -204,7 +204,7 @@ public class Exam {
 
         // Check if there are auto-gradable questions or if manual grading is set up
         if (!hasAutoGradableQuestions() && !hasValidManualGradingSetup()) {
-            System.err.println("❌ Cannot publish exam: No auto-gradable questions and manual grading not configured");
+            System.err.println("Cannot publish exam: No auto-gradable questions and manual grading not configured");
             return false;
         }
 
@@ -215,7 +215,7 @@ public class Exam {
     }
 
     /**
-     * ✅ NEW: Check if manual grading setup is valid
+     *   Check if manual grading setup is valid
      */
     private boolean hasValidManualGradingSetup() {
         // If there are essay questions, manual grading is implied
@@ -227,14 +227,14 @@ public class Exam {
     // ===============================
 
     /**
-     * ✅ ENHANCED: Get question count with validation
+     *  ENHANCED: Get question count with validation
      */
     public int getQuestionCount() {
         return questions != null ? questions.size() : 0;
     }
 
     /**
-     * ✅ ENHANCED: Check if exam has auto-gradable questions
+     *  ENHANCED: Check if exam has auto-gradable questions
      */
     public boolean hasAutoGradableQuestions() {
         if (questions == null || questions.isEmpty()) {
@@ -246,7 +246,7 @@ public class Exam {
     }
 
     /**
-     * ✅ ENHANCED: Check if exam requires manual grading
+     *  ENHANCED: Check if exam requires manual grading
      */
     public boolean requiresManualGrading() {
         if (questions == null || questions.isEmpty()) {
@@ -258,7 +258,7 @@ public class Exam {
     }
 
     /**
-     * ✅ ENHANCED: Get detailed breakdown of question types and points
+     *  ENHANCED: Get detailed breakdown of question types and points
      */
     public String getQuestionTypeBreakdown() {
         if (questions == null || questions.isEmpty()) {
@@ -293,7 +293,7 @@ public class Exam {
     }
 
     /**
-     * ✅ NEW: Get auto-grading statistics
+     *   Get auto-grading statistics
      */
     public String getAutoGradingStats() {
         if (questions == null || questions.isEmpty()) {
@@ -323,28 +323,28 @@ public class Exam {
     // ===============================
 
     /**
-     * ✅ NEW: Validate exam data integrity
+     *   Validate exam data integrity
      */
     public boolean isDataIntegrityValid() {
         try {
             // Check basic fields
             if (title == null || title.trim().isEmpty()) {
-                System.err.println("❌ Exam validation failed: Title is required");
+                System.err.println("Exam validation failed: Title is required");
                 return false;
             }
 
             if (courseId == null || instructorId == null) {
-                System.err.println("❌ Exam validation failed: Course ID and Instructor ID are required");
+                System.err.println("Exam validation failed: Course ID and Instructor ID are required");
                 return false;
             }
 
             if (startTime == null || endTime == null) {
-                System.err.println("❌ Exam validation failed: Start and end times are required");
+                System.err.println("Exam validation failed: Start and end times are required");
                 return false;
             }
 
             if (endTime.isBefore(startTime)) {
-                System.err.println("❌ Exam validation failed: End time must be after start time");
+                System.err.println("Exam validation failed: End time must be after start time");
                 return false;
             }
 
@@ -353,7 +353,7 @@ public class Exam {
                 for (int i = 0; i < questions.size(); i++) {
                     ExamQuestion question = questions.get(i);
                     if (question.getPoints() == null || question.getPoints() <= 0) {
-                        System.err.println("❌ Exam validation failed: Question " + (i + 1) + " has invalid points");
+                        System.err.println("Exam validation failed: Question " + (i + 1) + " has invalid points");
                         return false;
                     }
                 }
@@ -369,13 +369,13 @@ public class Exam {
             return true;
 
         } catch (Exception e) {
-            System.err.println("❌ Exam validation failed with exception: " + e.getMessage());
+            System.err.println("Exam validation failed with exception: " + e.getMessage());
             return false;
         }
     }
 
     /**
-     * ✅ NEW: Get comprehensive exam summary
+     *   Get comprehensive exam summary
      */
     public String getExamSummary() {
         StringBuilder summary = new StringBuilder();

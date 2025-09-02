@@ -50,7 +50,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             // Get all tasks from user's courses by calling the edusphere-service API
             System.out.println("🔍 Fetching tasks for courses: " + courseIds);
             List<Map<String, Object>> allTasks = eduSphereClient.getTasksByCourseIds(courseIds, userId);
-            System.out.println("✅ Found " + allTasks.size() + " tasks");
+            System.out.println(" Found " + allTasks.size() + " tasks");
 
             // Convert tasks to extension items with proper filtering
             List<ExtensionItemResponse> taskItems = allTasks.stream()
@@ -65,7 +65,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             // Get all meetings from user's courses by calling the edusphere-service API
             System.out.println("🔍 Fetching meetings for courses: " + courseIds);
             List<Map<String, Object>> allMeetings = eduSphereClient.getMeetingsByCourseIds(courseIds, userId);
-            System.out.println("✅ Found " + allMeetings.size() + " meetings");
+            System.out.println(" Found " + allMeetings.size() + " meetings");
 
             // Convert meetings to extension items with proper filtering
             List<ExtensionItemResponse> meetingItems = allMeetings.stream()
@@ -80,7 +80,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             // Get announcements by calling the edusphere-service API
             System.out.println("📢 Fetching announcements for user: " + userId);
             List<Map<String, Object>> allAnnouncements = eduSphereClient.getAnnouncementsForUser(userId);
-            System.out.println("✅ Found " + allAnnouncements.size() + " announcements");
+            System.out.println(" Found " + allAnnouncements.size() + " announcements");
 
             List<ExtensionItemResponse> announcementItems = allAnnouncements.stream()
                     .map(this::convertAnnouncementToExtensionItem)
@@ -102,7 +102,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             return new ExtensionDashboardResponse(items, stats);
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting dashboard data: " + e.getMessage());
+            System.err.println("Error getting dashboard data: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to get dashboard data: " + e.getMessage());
         }
@@ -168,7 +168,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             return filteredItems;
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting tasks: " + e.getMessage());
+            System.err.println("Error getting tasks: " + e.getMessage());
             throw new RuntimeException("Failed to get tasks: " + e.getMessage());
         }
     }
@@ -187,7 +187,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             return announcements;
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting announcements: " + e.getMessage());
+            System.err.println("Error getting announcements: " + e.getMessage());
             throw new RuntimeException("Failed to get announcements: " + e.getMessage());
         }
     }
@@ -198,7 +198,7 @@ public class ExtensionServiceImpl implements ExtensionService {
             ExtensionDashboardResponse dashboardData = getDashboardData(userId, userRole);
             return dashboardData.getStats();
         } catch (Exception e) {
-            System.err.println("❌ Error getting stats: " + e.getMessage());
+            System.err.println("Error getting stats: " + e.getMessage());
             throw new RuntimeException("Failed to get stats: " + e.getMessage());
         }
     }
@@ -214,7 +214,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             return urgentItems;
         } catch (Exception e) {
-            System.err.println("❌ Error getting urgent items: " + e.getMessage());
+            System.err.println("Error getting urgent items: " + e.getMessage());
             throw new RuntimeException("Failed to get urgent items: " + e.getMessage());
         }
     }
@@ -250,7 +250,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             return false;
         } catch (Exception e) {
-            System.err.println("❌ Error checking task visibility: " + e.getMessage());
+            System.err.println("Error checking task visibility: " + e.getMessage());
             return false;
         }
     }
@@ -284,7 +284,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             return false;
         } catch (Exception e) {
-            System.err.println("❌ Error checking meeting visibility: " + e.getMessage());
+            System.err.println("Error checking meeting visibility: " + e.getMessage());
             return false;
         }
     }
@@ -325,7 +325,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             return item;
         } catch (Exception e) {
-            System.err.println("❌ Error converting task to extension item: " + e.getMessage());
+            System.err.println("Error converting task to extension item: " + e.getMessage());
             return null;
         }
     }
@@ -374,7 +374,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             return item;
         } catch (Exception e) {
-            System.err.println("❌ Error converting meeting to extension item: " + e.getMessage());
+            System.err.println("Error converting meeting to extension item: " + e.getMessage());
             return null;
         }
     }
@@ -414,7 +414,7 @@ public class ExtensionServiceImpl implements ExtensionService {
 
             return item;
         } catch (Exception e) {
-            System.err.println("❌ Error converting announcement to extension item: " + e.getMessage());
+            System.err.println("Error converting announcement to extension item: " + e.getMessage());
             return null;
         }
     }

@@ -1,7 +1,7 @@
 package com.example.community.controller;
 
 import com.example.community.service.CVService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;import
 import com.example.community.dto.CVDto;
 import com.example.community.dto.request.SaveCVRequest;
 import com.example.community.dto.request.AIExtractRequest;
@@ -24,7 +24,7 @@ public class CVController {
     private CVService cvService;
 
     @Autowired
-    private UserService userService; // Add this
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<CVDto> getCV(Authentication authentication) {

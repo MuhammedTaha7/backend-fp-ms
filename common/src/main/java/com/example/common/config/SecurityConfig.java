@@ -33,13 +33,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 🔧 FIX 1: Allow OPTIONS requests for preflight (MUST BE FIRST)
+
+                        .requestMatchers("/ws/**").permitAll()
+
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Public endpoints
                         .requestMatchers("/api/register", "/api/login").permitAll()
 
-                        // 🔧 FIX: Allow all authenticated users to manage friends and community resources
                         .requestMatchers("/api/community/**").authenticated()
                         .requestMatchers("/api/friends/**").authenticated()
                         .requestMatchers("/api/jobs/**").authenticated()
@@ -47,10 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/api/chat/**").authenticated()
 
-                        // 🔧 FIX 2: Extension auth endpoints (public)
                         .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
 
-                        // 🔧 FIX 3: Extension endpoints (public) - REMOVE DUPLICATE AUTHENTICATED RULE
                         .requestMatchers("/api/extension/**").permitAll()
 
                         .requestMatchers("/api/auth/user").authenticated()
@@ -124,7 +122,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🔧 CRITICAL FIX: Use List.of() and avoid duplicate origin entries
         configuration.setAllowedOriginPatterns(List.of(
                 "chrome-extension://*",
                 "moz-extension://*",
@@ -132,7 +129,6 @@ public class SecurityConfig {
                 "http://13.49.225.86:*"
         ));
 
-        // Allow all headers and methods
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
 

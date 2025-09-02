@@ -127,7 +127,7 @@ public interface ExamService {
     List<ExamResponse> getStudentResponses(String studentId, String courseId);
 
     /**
-     * NEW: Get responses for a specific student and exam (response history)
+     *  Get responses for a specific student and exam (response history)
      */
     List<ExamResponse> getStudentExamResponses(String examId, String studentId);
 
@@ -151,27 +151,27 @@ public interface ExamService {
     List<ExamResponse> autoGradeAllResponses(String examId);
 
     /**
-     * NEW: Update individual question score
+     *  Update individual question score
      */
     ExamResponse updateQuestionScore(String responseId, String questionId, Integer score, String feedback, String instructorId);
 
     /**
-     * NEW: Flag response for review
+     *  Flag response for review
      */
     ExamResponse flagResponseForReview(String responseId, String reason, String priority, String instructorId);
 
     /**
-     * NEW: Unflag response
+     *  Unflag response
      */
     ExamResponse unflagResponse(String responseId, String instructorId);
 
     /**
-     * NEW: Batch grade multiple responses
+     *  Batch grade multiple responses
      */
     List<ExamResponse> batchGradeResponses(List<String> responseIds, String instructorFeedback, Boolean flagForReview, String instructorId);
 
     /**
-     * NEW: Get grading statistics for an exam
+     *  Get grading statistics for an exam
      */
     Map<String, Object> getExamGradingStats(String examId);
 

@@ -39,10 +39,10 @@ public class AuthController {
 //        LoginResponse loginResponse = userService.authenticateUser(loginRequest);
 //
 //        ResponseCookie jwtCookie = ResponseCookie.from("jwtToken", loginResponse.getToken())
-//                .httpOnly(true)        // ✅ safer
-//                .secure(false)         // ✅ keep false for localhost, true on AWS/HTTPS
-//                .path("/")             // ✅ cookie valid for all paths
-//                .sameSite("None")      // ✅ required for cross-domain cookies
+//                .httpOnly(true)        //  safer
+//                .secure(false)         //  keep false for localhost, true on AWS/HTTPS
+//                .path("/")             //  cookie valid for all paths
+//                .sameSite("None")      //  required for cross-domain cookies
 //                .maxAge(7 * 24 * 60 * 60)
 //                .build();
 //
@@ -55,7 +55,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = userService.authenticateUser(loginRequest);
 
-        // ✅ Instead of setting a cookie, return the token in the response body
+        //  Instead of setting a cookie, return the token in the response body
         return ResponseEntity.ok(loginResponse);
     }
 
@@ -86,7 +86,7 @@ public class AuthController {
     }
 
     /**
-     * NEW: Extension authentication endpoint - authenticate by email only
+     *  Extension authentication endpoint - authenticate by email only
      * POST /api/auth/extension : Authenticate extension user by email
      */
     @PostMapping("/auth/extension")
@@ -125,11 +125,11 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Extension auth error: " + e.getMessage());
+            System.err.println("Extension auth error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected extension auth error: " + e.getMessage());
+            System.err.println("Unexpected extension auth error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -181,7 +181,7 @@ public class AuthController {
             ));
 
         } catch (Exception e) {
-            System.err.println("❌ Token verification error: " + e.getMessage());
+            System.err.println("Token verification error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Token verification failed"));
         }
@@ -189,7 +189,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletResponse response) {
-        // ✅ Remove JWT cookie
+        //  Remove JWT cookie
         Cookie jwtCookie = new Cookie("jwtToken", null);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setSecure(false); // Allow localhost

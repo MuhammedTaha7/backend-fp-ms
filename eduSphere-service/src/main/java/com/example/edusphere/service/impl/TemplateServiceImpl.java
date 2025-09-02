@@ -96,7 +96,6 @@ public class TemplateServiceImpl implements TemplateService {
         templateRepository.deleteById(templateId);
     }
 
-    // 🆕 UPDATED: This method now uses recipientIds from the request
     @Override
     public void useTemplate(String templateId, UseTemplateRequest useTemplateRequest, String creatorId, String creatorName) {
         Template template = templateRepository.findById(templateId)

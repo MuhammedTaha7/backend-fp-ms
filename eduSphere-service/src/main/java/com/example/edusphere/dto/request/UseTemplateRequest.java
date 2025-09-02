@@ -15,7 +15,6 @@ public class UseTemplateRequest {
 
     private List<VariableValue> variableValues;
 
-    // 🆕 NEW: Add a list of recipient IDs
     private List<String> recipientIds;
 
     @Getter

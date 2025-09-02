@@ -43,7 +43,7 @@ public class ProfileAnalyticsController {
         }
     }
 
-    // ✅ Add grades endpoints that your frontend is expecting
+    //  Add grades endpoints that your frontend is expecting
     @GetMapping("/grades/by-student/{studentId}")
     @PreAuthorize("hasRole('ADMIN') or #studentId.equals(authentication.name)")
     public ResponseEntity<List<StudentGrade>> getStudentGrades(@PathVariable String studentId) {
@@ -72,7 +72,7 @@ public class ProfileAnalyticsController {
         }
     }
 
-    // ✅ Optional: Add detailed grades endpoints with course information
+    //  Optional: Add detailed grades endpoints with course information
     @GetMapping("/grades/by-student/{studentId}/detailed")
     @PreAuthorize("hasRole('ADMIN') or #studentId.equals(authentication.name)")
     public ResponseEntity<List<ProfileServiceImpl.StudentGradeWithCourseInfo>> getStudentGradesDetailed(@PathVariable String studentId) {

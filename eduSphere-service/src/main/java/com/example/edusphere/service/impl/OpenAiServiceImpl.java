@@ -391,7 +391,7 @@ public class OpenAiServiceImpl implements OpenAiService {
             🎥 meetings: id, title, description, scheduledAt, status, courseCode
             📢 announcements: id, title, content, creatorName, priority, createdAt
             📤 submissions: id, courseId, assignmentId, studentId, grade, submittedAt
-            ✅ tasks: id, title, description, courseId, dueDate, instructorId
+             tasks: id, title, description, courseId, dueDate, instructorId
             💬 messages: id, subject, content, senderId, recipientId, createdAt
             📅 events: id, title, description, startDate, location, courseId
             🏢 departments: id, name, totalAcademicYears

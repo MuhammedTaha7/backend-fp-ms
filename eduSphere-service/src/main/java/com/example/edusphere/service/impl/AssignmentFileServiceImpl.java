@@ -120,10 +120,10 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return convertToResponse(savedFile);
 
         } catch (IOException e) {
-            System.err.println("❌ IO error uploading assignment file: " + e.getMessage());
+            System.err.println("IO error uploading assignment file: " + e.getMessage());
             throw new RuntimeException("Failed to store assignment file: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error uploading assignment file: " + e.getMessage());
+            System.err.println("Unexpected error uploading assignment file: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Failed to upload assignment file: " + e.getMessage());
         }
@@ -142,7 +142,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return convertToResponse(assignmentFile);
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting assignment file info: " + e.getMessage());
+            System.err.println("Error getting assignment file info: " + e.getMessage());
             throw new RuntimeException("Failed to get assignment file information: " + e.getMessage());
         }
     }
@@ -170,10 +170,10 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             }
 
         } catch (MalformedURLException e) {
-            System.err.println("❌ Malformed URL for assignment file: " + e.getMessage());
+            System.err.println("Malformed URL for assignment file: " + e.getMessage());
             throw new RuntimeException("Failed to load assignment file: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("❌ Error loading assignment file resource: " + e.getMessage());
+            System.err.println("Error loading assignment file resource: " + e.getMessage());
             throw new RuntimeException("Failed to load assignment file: " + e.getMessage());
         }
     }
@@ -208,7 +208,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             removeFileFromAssignment(assignmentFile.getAssignmentId(), fileId);
 
         } catch (Exception e) {
-            System.err.println("❌ Error deleting assignment file: " + e.getMessage());
+            System.err.println("Error deleting assignment file: " + e.getMessage());
             throw new RuntimeException("Failed to delete assignment file: " + e.getMessage());
         }
     }
@@ -241,7 +241,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return responses;
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting files by assignment: " + e.getMessage());
+            System.err.println("Error getting files by assignment: " + e.getMessage());
             throw new RuntimeException("Failed to get assignment files: " + e.getMessage());
         }
     }
@@ -277,7 +277,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return responses;
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting files by course: " + e.getMessage());
+            System.err.println("Error getting files by course: " + e.getMessage());
             throw new RuntimeException("Failed to get course files: " + e.getMessage());
         }
     }
@@ -309,7 +309,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting files by uploader: " + e.getMessage());
+            System.err.println("Error getting files by uploader: " + e.getMessage());
             throw new RuntimeException("Failed to get files by uploader: " + e.getMessage());
         }
     }
@@ -341,7 +341,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return false;
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking file access: " + e.getMessage());
+            System.err.println("Error checking file access: " + e.getMessage());
             return false;
         }
     }
@@ -367,7 +367,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return false;
 
         } catch (Exception e) {
-            System.err.println("❌ Error checking file deletion permission: " + e.getMessage());
+            System.err.println("Error checking file deletion permission: " + e.getMessage());
             return false;
         }
     }
@@ -398,7 +398,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return convertToResponse(updatedFile);
 
         } catch (Exception e) {
-            System.err.println("❌ Error updating assignment file metadata: " + e.getMessage());
+            System.err.println("Error updating assignment file metadata: " + e.getMessage());
             throw new RuntimeException("Failed to update assignment file metadata: " + e.getMessage());
         }
     }
@@ -481,7 +481,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return stats;
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting assignment file stats: " + e.getMessage());
+            System.err.println("Error getting assignment file stats: " + e.getMessage());
             throw new RuntimeException("Failed to get assignment file statistics: " + e.getMessage());
         }
     }
@@ -504,7 +504,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return new CourseFileStats(courseId, files.size(), totalSize, totalDownloads, totalViews, totalAssignmentsWithFiles);
 
         } catch (Exception e) {
-            System.err.println("❌ Error getting course file stats: " + e.getMessage());
+            System.err.println("Error getting course file stats: " + e.getMessage());
             throw new RuntimeException("Failed to get course file statistics: " + e.getMessage());
         }
     }
@@ -522,7 +522,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Error deleting all files for assignment: " + e.getMessage());
+            System.err.println("Error deleting all files for assignment: " + e.getMessage());
             throw new RuntimeException("Failed to delete all files for assignment: " + e.getMessage());
         }
     }
@@ -550,7 +550,7 @@ public class AssignmentFileServiceImpl implements AssignmentFileService {
             return cleanedCount;
 
         } catch (Exception e) {
-            System.err.println("❌ Error cleaning up orphaned files: " + e.getMessage());
+            System.err.println("Error cleaning up orphaned files: " + e.getMessage());
             return 0;
         }
     }

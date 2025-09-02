@@ -50,7 +50,7 @@ public class StudentExamController {
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ Could not extract user ID from principal: " + e.getMessage());
+            System.err.println("Could not extract user ID from principal: " + e.getMessage());
         }
 
         // Lookup user ID by username using UserService
@@ -59,9 +59,9 @@ public class StudentExamController {
             if (user != null) {
                 return user.getId();
             }
-            System.err.println("❌ User not found for username: " + authName);
+            System.err.println("User not found for username: " + authName);
         } catch (Exception e) {
-            System.err.println("❌ Error resolving username to user ID: " + e.getMessage());
+            System.err.println("Error resolving username to user ID: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -86,7 +86,7 @@ public class StudentExamController {
             List<Map<String, Object>> exams = studentExamService.getAvailableExamsForStudent(studentId, courseId);
             return ResponseEntity.ok(exams);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching available exams: " + e.getMessage());
+            System.err.println("Error fetching available exams: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch available exams: " + e.getMessage()));
@@ -105,11 +105,11 @@ public class StudentExamController {
             Map<String, Object> examDetails = studentExamService.getStudentExamDetails(examId, studentId);
             return ResponseEntity.ok(examDetails);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch exam details: " + e.getMessage()));
@@ -132,11 +132,11 @@ public class StudentExamController {
             Map<String, Object> examAttempt = studentExamService.startExamAttempt(examId, studentId);
             return new ResponseEntity<>(examAttempt, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to start exam: " + e.getMessage()));
@@ -159,11 +159,11 @@ public class StudentExamController {
             ExamResponse response = studentExamService.saveExamProgress(request, studentId);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to save progress: " + e.getMessage()));
@@ -186,11 +186,11 @@ public class StudentExamController {
             Map<String, Object> result = studentExamService.submitExam(request, studentId);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to submit exam: " + e.getMessage()));
@@ -209,11 +209,11 @@ public class StudentExamController {
             Map<String, Object> resumedAttempt = studentExamService.resumeExamAttempt(examId, studentId);
             return ResponseEntity.ok(resumedAttempt);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to resume exam: " + e.getMessage()));
@@ -236,7 +236,7 @@ public class StudentExamController {
             Map<String, Object> eligibility = studentExamService.checkExamEligibility(examId, studentId);
             return ResponseEntity.ok(eligibility);
         } catch (Exception e) {
-            System.err.println("❌ Error checking eligibility: " + e.getMessage());
+            System.err.println("Error checking eligibility: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to check exam eligibility: " + e.getMessage()));
@@ -255,7 +255,7 @@ public class StudentExamController {
             List<Map<String, Object>> attempts = studentExamService.getStudentAttemptHistory(examId, studentId);
             return ResponseEntity.ok(attempts);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching attempt history: " + e.getMessage());
+            System.err.println("Error fetching attempt history: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch attempt history: " + e.getMessage()));
@@ -278,11 +278,11 @@ public class StudentExamController {
             Map<String, Object> results = studentExamService.getStudentExamResults(responseId, studentId);
             return ResponseEntity.ok(results);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch exam results: " + e.getMessage()));
@@ -301,11 +301,11 @@ public class StudentExamController {
             Map<String, Object> detailedResults = studentExamService.getDetailedExamResults(responseId, studentId);
             return ResponseEntity.ok(detailedResults);
         } catch (RuntimeException e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error: " + e.getMessage());
+            System.err.println("Unexpected error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch detailed results: " + e.getMessage()));
@@ -328,7 +328,7 @@ public class StudentExamController {
             Map<String, Object> stats = studentExamService.getStudentExamStats(studentId, courseId);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching exam stats: " + e.getMessage());
+            System.err.println("Error fetching exam stats: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch exam statistics: " + e.getMessage()));
@@ -351,7 +351,7 @@ public class StudentExamController {
             Map<String, Object> activeAttempt = studentExamService.checkActiveAttempt(examId, studentId);
             return ResponseEntity.ok(activeAttempt);
         } catch (Exception e) {
-            System.err.println("❌ Error checking active attempt: " + e.getMessage());
+            System.err.println("Error checking active attempt: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to check active attempt: " + e.getMessage()));
@@ -370,7 +370,7 @@ public class StudentExamController {
             Map<String, Object> summary = studentExamService.getExamDashboardSummary(studentId);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching dashboard summary: " + e.getMessage());
+            System.err.println("Error fetching dashboard summary: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Failed to fetch dashboard summary: " + e.getMessage()));

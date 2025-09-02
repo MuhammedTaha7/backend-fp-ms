@@ -59,10 +59,10 @@ public class AssignmentFileController {
             return new ResponseEntity<>(fileResponse, HttpStatus.CREATED);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error uploading assignment file: " + e.getMessage());
+            System.err.println("Runtime error uploading assignment file: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error uploading assignment file: " + e.getMessage());
+            System.err.println("Unexpected error uploading assignment file: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -106,11 +106,11 @@ public class AssignmentFileController {
                     .body(fileResource);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error downloading assignment file: " + e.getMessage());
+            System.err.println("Runtime error downloading assignment file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error downloading assignment file: " + e.getMessage());
+            System.err.println("Unexpected error downloading assignment file: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -153,11 +153,11 @@ public class AssignmentFileController {
                     .body(fileResource);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error viewing assignment file: " + e.getMessage());
+            System.err.println("Runtime error viewing assignment file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error viewing assignment file: " + e.getMessage());
+            System.err.println("Unexpected error viewing assignment file: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -188,11 +188,11 @@ public class AssignmentFileController {
             return ResponseEntity.ok(fileInfo);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error getting assignment file info: " + e.getMessage());
+            System.err.println("Runtime error getting assignment file info: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting assignment file info: " + e.getMessage());
+            System.err.println("Unexpected error getting assignment file info: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -224,11 +224,11 @@ public class AssignmentFileController {
             return ResponseEntity.ok(Map.of("message", "Assignment file deleted successfully"));
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error deleting assignment file: " + e.getMessage());
+            System.err.println("Runtime error deleting assignment file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error deleting assignment file: " + e.getMessage());
+            System.err.println("Unexpected error deleting assignment file: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -257,10 +257,10 @@ public class AssignmentFileController {
             return ResponseEntity.ok(files);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error getting assignment files: " + e.getMessage());
+            System.err.println("Runtime error getting assignment files: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting assignment files: " + e.getMessage());
+            System.err.println("Unexpected error getting assignment files: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -289,10 +289,10 @@ public class AssignmentFileController {
             return ResponseEntity.ok(files);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error getting course files: " + e.getMessage());
+            System.err.println("Runtime error getting course files: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting course files: " + e.getMessage());
+            System.err.println("Unexpected error getting course files: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -327,10 +327,10 @@ public class AssignmentFileController {
             return ResponseEntity.ok(updatedFile);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error updating assignment file metadata: " + e.getMessage());
+            System.err.println("Runtime error updating assignment file metadata: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error updating assignment file metadata: " + e.getMessage());
+            System.err.println("Unexpected error updating assignment file metadata: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -351,10 +351,10 @@ public class AssignmentFileController {
             return ResponseEntity.ok(stats);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error getting assignment file stats: " + e.getMessage());
+            System.err.println("Runtime error getting assignment file stats: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting assignment file stats: " + e.getMessage());
+            System.err.println("Unexpected error getting assignment file stats: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -375,10 +375,10 @@ public class AssignmentFileController {
             return ResponseEntity.ok(stats);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error getting course file stats: " + e.getMessage());
+            System.err.println("Runtime error getting course file stats: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting course file stats: " + e.getMessage());
+            System.err.println("Unexpected error getting course file stats: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -402,7 +402,7 @@ public class AssignmentFileController {
             ));
 
         } catch (Exception e) {
-            System.err.println("❌ Error cleaning up orphaned files: " + e.getMessage());
+            System.err.println("Error cleaning up orphaned files: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -434,10 +434,10 @@ public class AssignmentFileController {
             return ResponseEntity.ok(files);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Runtime error getting files by uploader: " + e.getMessage());
+            System.err.println("Runtime error getting files by uploader: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting files by uploader: " + e.getMessage());
+            System.err.println("Unexpected error getting files by uploader: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));

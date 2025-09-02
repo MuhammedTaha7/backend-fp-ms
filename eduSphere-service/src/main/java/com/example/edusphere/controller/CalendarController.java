@@ -24,7 +24,7 @@ public class CalendarController {
     @GetMapping("/events")
     public ResponseEntity<List<CalendarEventDto>> getCalendarEvents(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate weekStartDate,
-            // ✅ Add optional parameters for filtering
+            //  Add optional parameters for filtering
             @RequestParam(required = false) String courseId,
             @RequestParam(required = false) String instructorId,
             @RequestParam(required = false) String groupId

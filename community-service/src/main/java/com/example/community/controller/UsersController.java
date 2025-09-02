@@ -1,7 +1,7 @@
 package com.example.community.controller;
 
 import com.example.community.service.UsersService;
-import com.example.common.service.UserService; // Add this import
+import com.example.common.service.UserService;
 import com.example.community.dto.UserDto;
 import com.example.community.dto.request.UpdateProfileRequest;
 import com.example.community.dto.request.ReportRequest;
@@ -49,7 +49,7 @@ public class UsersController {
 
         String username = authentication.getName();
         String currentUserId = userService.getUserByUsername(username).getId();
-        List<UserDto> users = usersService.searchUsers(q, currentUserId); // 🆕 Pass the currentUserId here
+        List<UserDto> users = usersService.searchUsers(q, currentUserId);
         return ResponseEntity.ok(users);
     }
 

@@ -42,7 +42,7 @@ public class PasswordMigration implements CommandLineRunner {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Migration failed: " + e.getMessage());
+            System.err.println("Migration failed: " + e.getMessage());
             e.printStackTrace();
         }
     }

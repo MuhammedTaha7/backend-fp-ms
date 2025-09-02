@@ -65,7 +65,7 @@ public class MessageServiceImpl implements MessageService {
         UserEntity recipient = userRepository.findById(messageRequest.getRecipientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Recipient not found"));
 
-        // --- NEW: Role-based message creation rules ---
+        // ---  Role-based message creation rules ---
         // Admin (1100) cannot send new requests
         if ("1100".equals(sender.getRole())) {
             throw new org.springframework.security.access.AccessDeniedException("Admins cannot create new requests.");
@@ -111,7 +111,7 @@ public class MessageServiceImpl implements MessageService {
         UserEntity replier = userRepository.findById(replierId)
                 .orElseThrow(() -> new ResourceNotFoundException("Replier not found"));
 
-        // --- NEW: Role-based reply rule ---
+        // ---  Role-based reply rule ---
         // Only Admins and Lecturers can reply
         if (!("1100".equals(replier.getRole()) || "1200".equals(replier.getRole()))) {
             throw new org.springframework.security.access.AccessDeniedException("Students are not allowed to reply to messages.");

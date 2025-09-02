@@ -55,7 +55,6 @@ public class ExamCreateRequest {
     @DecimalMax(value = "100.0", message = "Pass percentage must not exceed 100")
     private Double passPercentage = 60.0;
 
-    // Add this field to handle the questions from your JSON
     @Valid
     private List<ExamQuestion> questions = new ArrayList<>();
 }

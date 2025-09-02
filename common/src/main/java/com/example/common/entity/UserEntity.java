@@ -46,8 +46,8 @@ public class UserEntity implements UserDetails {
     private String university;
     private String bio;
     private String website;
-    private String phoneNumber; // 🆕 Added to all users
-    private Map<String, String> socialLinks; // 🆕 Social links for all users
+    private String phoneNumber;
+    private Map<String, String> socialLinks;
 
     // ----------------------
     // Student-Specific Fields

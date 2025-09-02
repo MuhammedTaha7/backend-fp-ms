@@ -49,17 +49,17 @@ public class ExtensionController {
             // Get dashboard data
             ExtensionDashboardResponse dashboardData = extensionService.getDashboardData(user.getId(), user.getRole());
 
-            System.out.println("✅ Dashboard data retrieved successfully with " +
+            System.out.println(" Dashboard data retrieved successfully with " +
                     dashboardData.getItems().size() + " items");
 
             return ResponseEntity.ok(dashboardData);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error getting dashboard data: " + e.getMessage());
+            System.err.println("Error getting dashboard data: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting dashboard data: " + e.getMessage());
+            System.err.println("Unexpected error getting dashboard data: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -86,15 +86,15 @@ public class ExtensionController {
 
             Map<String, Object> meetingDetails = extensionService.getMeetingDetails(id, email);
 
-            System.out.println("✅ Meeting details retrieved successfully");
+            System.out.println(" Meeting details retrieved successfully");
             return ResponseEntity.ok(meetingDetails);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error getting meeting details: " + e.getMessage());
+            System.err.println("Error getting meeting details: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting meeting details: " + e.getMessage());
+            System.err.println("Unexpected error getting meeting details: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -127,7 +127,7 @@ public class ExtensionController {
             // Get filtered tasks
             var tasks = extensionService.getTasks(user.getId(), user.getRole(), status, priority, type, limit);
 
-            System.out.println("✅ Found " + tasks.size() + " tasks");
+            System.out.println(" Found " + tasks.size() + " tasks");
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "tasks", tasks,
@@ -135,11 +135,11 @@ public class ExtensionController {
             ));
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error getting tasks: " + e.getMessage());
+            System.err.println("Error getting tasks: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting tasks: " + e.getMessage());
+            System.err.println("Unexpected error getting tasks: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -168,7 +168,7 @@ public class ExtensionController {
             // Get announcements
             var announcements = extensionService.getAnnouncements(user.getId(), user.getRole(), limit);
 
-            System.out.println("✅ Found " + announcements.size() + " announcements");
+            System.out.println(" Found " + announcements.size() + " announcements");
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "announcements", announcements,
@@ -176,11 +176,11 @@ public class ExtensionController {
             ));
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error getting announcements: " + e.getMessage());
+            System.err.println("Error getting announcements: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting announcements: " + e.getMessage());
+            System.err.println("Unexpected error getting announcements: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -207,15 +207,15 @@ public class ExtensionController {
             // Get stats
             var stats = extensionService.getUserStats(user.getId(), user.getRole());
 
-            System.out.println("✅ Stats retrieved successfully");
+            System.out.println(" Stats retrieved successfully");
             return ResponseEntity.ok(stats);
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error getting stats: " + e.getMessage());
+            System.err.println("Error getting stats: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting stats: " + e.getMessage());
+            System.err.println("Unexpected error getting stats: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
@@ -242,7 +242,7 @@ public class ExtensionController {
             // Get urgent items
             var urgentItems = extensionService.getUrgentItems(user.getId(), user.getRole());
 
-            System.out.println("✅ Found " + urgentItems.size() + " urgent items");
+            System.out.println(" Found " + urgentItems.size() + " urgent items");
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "urgentItems", urgentItems,
@@ -250,11 +250,11 @@ public class ExtensionController {
             ));
 
         } catch (RuntimeException e) {
-            System.err.println("❌ Error getting urgent items: " + e.getMessage());
+            System.err.println("Error getting urgent items: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error getting urgent items: " + e.getMessage());
+            System.err.println("Unexpected error getting urgent items: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
