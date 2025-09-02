@@ -13,7 +13,8 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - community-uploads:/app/uploads
+      - ./uploads/community:/app/uploads
+
     networks:
       - backend-network
     restart: unless-stopped
@@ -33,7 +34,7 @@ services:
     ports:
       - "8082:8082"
     volumes:
-      - edusphere-uploads:/app/uploads
+      - ./uploads/edusphere:/app/uploads
     networks:
       - backend-network
     restart: unless-stopped
@@ -53,7 +54,7 @@ services:
     ports:
       - "8083:8083"
     volumes:
-      - extension-uploads:/app/uploads
+      - ./uploads/extension:/app/uploads
     networks:
       - backend-network
     restart: unless-stopped
@@ -68,7 +69,7 @@ networks:
   backend-network:
     driver: bridge
 
-volumes:
-  community-uploads:
-  edusphere-uploads:
-  extension-uploads:
+#volumes:
+#  community-uploads:
+#  edusphere-uploads:
+#  extension-uploads:
