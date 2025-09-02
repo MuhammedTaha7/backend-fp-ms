@@ -9,15 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.springframework.core.io.PathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.web.servlet.resource.PathResourceResolver;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -36,37 +27,16 @@ public class FileUploadController {
     @Value("${app.upload.dir}")
     private String uploadDir;
 
+    // This field is not used for file URLs, but for invitation links as configured.
     @Value("${app.base.url}")
     private String baseUrl;
 
-
-    private final String uploadRoot = "uploads"; // adjust path as needed
-    @GetMapping("/download/{context}/{type}/{filename}")
-    public ResponseEntity<Resource> downloadFile(
-            @PathVariable String context,
-            @PathVariable String type,
-            @PathVariable String filename) {
-
-        try {
-            Path filePath = Paths.get(uploadRoot, context, type, filename);
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
     @PostMapping("/upload/{context}/{type}")
     public ResponseEntity<Map<String, String>> uploadFile(
             @PathVariable String context, // "community" or "edusphere"
             @PathVariable String type, // "image" or "file"
             @RequestParam("file") MultipartFile file) {
+
         // Validate context
         if (!context.equals("community") && !context.equals("edusphere")) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid context"));
@@ -133,8 +103,8 @@ public class FileUploadController {
             Path filePath = contextPath.resolve(uniqueFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Return the file URL with context and type
-            String fileUrl = baseUrl + "/api/files/" + context + "/" + type + "s/" + uniqueFilename;
+            // Return the RELATIVE path, not a full URL
+            String fileUrl = "/api/files/" + context + "/" + type + "s/" + uniqueFilename;
             Map<String, String> response = new HashMap<>();
             response.put("url", fileUrl);
             response.put("filename", uniqueFilename);
@@ -156,14 +126,16 @@ public class FileUploadController {
         try {
             Path filePath = Paths.get(uploadDir, context, type + "s", filename);
             Resource resource = new UrlResource(filePath.toUri());
+
             if (resource.exists() && resource.isReadable()) {
-                // Try to determine file content type
                 String contentType = Files.probeContentType(filePath);
                 if (contentType == null) {
                     contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
                 }
-                // For files, suggest download; for images, display inline
-                String disposition = type.equals("image") ? "inline" : "attachment";
+
+                // Use "attachment" for files and "inline" for images to allow both download and display
+                String disposition = type.equals("file") ? "attachment" : "inline";
+
                 return ResponseEntity.ok()
                         .contentType(MediaType.parseMediaType(contentType))
                         .header(HttpHeaders.CONTENT_DISPOSITION, disposition + "; filename=\"" + filename + "\"")

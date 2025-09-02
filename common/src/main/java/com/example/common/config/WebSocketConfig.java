@@ -1,4 +1,3 @@
-// common/src/main/java/com/example/common/config/WebSocketConfig.java
 package com.example.common.config;
 
 import com.example.common.security.JwtHandshakeInterceptor;
@@ -29,10 +28,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .addInterceptors(jwtHandshakeInterceptor)
                 .setAllowedOriginPatterns(
                         "http://localhost:*",
-                        "http://13.61.114.153:*"  // ✅ Your Elastic IP
+                        "http://13.61.114.153:*"
                 )
                 .withSockJS();
     }
-
-    // No need for configureClientInboundChannel unless you have custom logic
 }
