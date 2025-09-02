@@ -1,7 +1,7 @@
 package com.example.community.controller;
 
 import com.example.community.service.CVService;
-import com.example.common.service.UserService;import
+import com.example.common.service.UserService;
 import com.example.community.dto.CVDto;
 import com.example.community.dto.request.SaveCVRequest;
 import com.example.community.dto.request.AIExtractRequest;
