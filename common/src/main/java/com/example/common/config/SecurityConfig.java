@@ -45,71 +45,52 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-
-                        .requestMatchers("/ws/**").permitAll()
-
+                        // Public Endpoints (must be defined first)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                         .requestMatchers("/api/register", "/api/login").permitAll()
+                        .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
+                        .requestMatchers("/api/extension/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll() // Allow WebSocket handshakes
 
+                        // Authenticated Endpoints (for all services)
+                        .requestMatchers("/api/chat/**").authenticated()
                         .requestMatchers("/api/community/**").authenticated()
                         .requestMatchers("/api/friends/**").authenticated()
                         .requestMatchers("/api/jobs/**").authenticated()
                         .requestMatchers("/api/cv/**").authenticated()
                         .requestMatchers("/api/notifications/**").authenticated()
-                        .requestMatchers("/api/chat/**").authenticated()
-
-                        .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
-
-                        .requestMatchers("/api/extension/**").permitAll()
-
+                        .requestMatchers("/api/messages/**").authenticated()
+                        .requestMatchers("/api/calendar/**").authenticated()
+                        .requestMatchers("/api/users/profile/**").authenticated()
+                        .requestMatchers("/api/users/search").authenticated()
+                        .requestMatchers("/api/students/**").authenticated()
+                        .requestMatchers("/api/lecturers/**").authenticated()
+                        .requestMatchers("/api/courses/**").authenticated()
+                        .requestMatchers("/api/grades/**").authenticated()
+                        .requestMatchers("/api/resources/**").authenticated()
+                        .requestMatchers("/api/exams/**").authenticated()
                         .requestMatchers("/api/auth/user").authenticated()
+                        .requestMatchers("/api/chat").authenticated() // Ensure this is also covered
 
-                        // REPORT GENERATION - Admin only
+                        // Role-based Endpoints (must be defined last before anyRequest)
                         .requestMatchers("/api/reports/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/chat").authenticated()
-
-                        // Admin-only endpoints for courses
+                        .requestMatchers(HttpMethod.POST, "/api/grades").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.PUT, "/api/grades/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/grades/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
                         .requestMatchers(HttpMethod.POST, "/api/courses").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/courses/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/courses/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/courses/*/enroll").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/courses/*/enrollments").hasAuthority("ROLE_ADMIN")
-
-                        // Admin-only user and department management
                         .requestMatchers(HttpMethod.POST, "/api/users/admin-create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAuthority("ROLE_ADMIN")
-
-                        // Allow all authenticated users to fetch user lists by role
-                        .requestMatchers(HttpMethod.GET, "/api/users/role/**").authenticated()
-
                         .requestMatchers(HttpMethod.GET, "/api/users/by-ids").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/departments/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/profile-analytics/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/exams/**").authenticated()
+                        .requestMatchers("/api/grades/**").authenticated() // This is a general rule, can be more specific
+                        .requestMatchers(HttpMethod.GET, "/api/users/role/**").authenticated() // Redundant, better to have a single broader rule
 
-                        // Profile and search endpoints accessible to all authenticated users
-                        .requestMatchers("/api/users/profile/**").authenticated()
-                        .requestMatchers("/api/users/search").authenticated()
-
-                        // Add these new rules for the specific profile endpoints
-                        .requestMatchers(HttpMethod.GET, "/api/students/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/lecturers/**").authenticated()
-
-                        // Read access to courses
-                        .requestMatchers(HttpMethod.GET, "/api/courses/**").authenticated()
-                        .requestMatchers("/api/messages/**").authenticated()
-                        .requestMatchers("/api/calendar/**").authenticated()
-
-                        .requestMatchers("/api/cv/**").authenticated()
-                        .requestMatchers("/api/resources/**").authenticated()
-
-                        .requestMatchers(HttpMethod.POST, "/api/grades").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
-                        .requestMatchers(HttpMethod.PUT, "/api/grades/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/grades/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
-                        .requestMatchers(HttpMethod.GET, "/api/grades/**").authenticated()
-
-                        // All other requests require authentication
+                        // Fallback - All other requests must be authenticated
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -133,24 +114,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
         configuration.setAllowedOriginPatterns(List.of(
                 "chrome-extension://*",
                 "moz-extension://*",
                 "http://localhost:*",
                 "http://13.49.225.86:*"
         ));
-
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
-
-        // 🔧 IMPORTANT: Set credentials to true for authenticated requests
         configuration.setAllowCredentials(true);
-
-        // 🔧 FIX: Add preflight max age to cache preflight requests (1 hour)
         configuration.setMaxAge(3600L);
-
-        // 🔧 FIX: Expose headers that extensions might need
         configuration.setExposedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
@@ -160,7 +133,6 @@ public class SecurityConfig {
                 "Access-Control-Request-Method",
                 "Access-Control-Request-Headers"
         ));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
