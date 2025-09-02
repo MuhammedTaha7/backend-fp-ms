@@ -51,10 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
                         .requestMatchers("/api/extension/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-
                         .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/api/chat/test").permitAll() // For testing
-
+                        
                         // Authenticated Endpoints (for all services)
                         .requestMatchers("/api/chat/**").authenticated()
                         .requestMatchers("/api/community/**").authenticated()

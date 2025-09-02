@@ -27,9 +27,6 @@ public class FileUploadController {
     @Value("${app.upload.dir}")
     private String uploadDir;
 
-    // This field is not used for file URLs, but for invitation links as configured.
-    @Value("${app.base.url}")
-    private String baseUrl;
 
     @PostMapping("/upload/{context}/{type}")
     public ResponseEntity<Map<String, String>> uploadFile(
