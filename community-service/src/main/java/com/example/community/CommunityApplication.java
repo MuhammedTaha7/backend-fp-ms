@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
                 "com.example.community.repository"
         }
 )
+
 public class CommunityApplication {
   public static void main(String[] args) {
     SpringApplication.run(CommunityApplication.class, args);
