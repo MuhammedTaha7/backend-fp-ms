@@ -1,4 +1,4 @@
-package com.example.edusphere.dto.response;
+package com.example.common.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

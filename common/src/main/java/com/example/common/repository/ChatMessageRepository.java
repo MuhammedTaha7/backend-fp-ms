@@ -1,6 +1,6 @@
-package com.example.edusphere.repository;
+package com.example.common.repository;
 
-import com.example.edusphere.entity.ChatMessageEntity;
+import com.example.common.entity.ChatMessageEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import java.util.List;

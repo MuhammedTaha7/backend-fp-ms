@@ -1,4 +1,4 @@
-package com.example.edusphere.entity;
+package com.example.common.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
