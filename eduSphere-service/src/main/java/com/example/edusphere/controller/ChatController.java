@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -89,9 +91,15 @@ public class ChatController {
         messagingTemplate.convertAndSend(receiverTopic, responseMessage);
     }
 
-    // NEW METHOD: Community chat
     @MessageMapping("/community.sendMessage")
-    public void sendCommunityMessage(@Payload ChatMessage message) {
+    public void sendCommunityMessage(@Payload ChatMessage message, SimpMessageHeaderAccessor headerAccessor) {
+
+        // Log who sent it
+        Object user = headerAccessor.getUser();
+        if (user == null) {
+            System.err.println("⚠️ No authenticated user in STOMP message");
+            return;
+        }
 
         LocalDateTime now = LocalDateTime.now();
         ChatMessageEntity chatMessageEntity = new ChatMessageEntity(
@@ -106,17 +114,14 @@ public class ChatController {
 
         ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
 
-        // Create response message with proper timestamp format
         ChatMessage responseMessage = new ChatMessage(
                 message.getSenderId(),
                 message.getReceiverId(),
                 message.getContent(),
                 "community"
         );
-        // Add timestamp in ISO format for frontend
         responseMessage.setTimestamp(now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
-        // Send ONLY to receiver (not to sender to avoid duplicates)
         String receiverTopic = "/topic/messages/community/" + message.getReceiverId();
         messagingTemplate.convertAndSend(receiverTopic, responseMessage);
     }

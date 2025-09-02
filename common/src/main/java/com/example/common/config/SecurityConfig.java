@@ -50,7 +50,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/register", "/api/login").permitAll()
                         .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
                         .requestMatchers("/api/extension/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll() // Allow WebSocket handshakes
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/chat/test").permitAll() // For testing
 
                         // Authenticated Endpoints (for all services)
                         .requestMatchers("/api/chat/**").authenticated()

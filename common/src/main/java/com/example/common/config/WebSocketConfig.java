@@ -17,17 +17,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue");
-        config.setApplicationDestinationPrefixes("/app");
-        config.setUserDestinationPrefix("/user");
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic", "/queue");
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:3000")
                 .addInterceptors(jwtHandshakeInterceptor)
+                .setAllowedOriginPatterns(
+                        "http://localhost:*",
+                        "http://13.61.114.153:*"  // ✅ Your Elastic IP
+                )
                 .withSockJS();
     }
+
+    // No need for configureClientInboundChannel unless you have custom logic
 }
