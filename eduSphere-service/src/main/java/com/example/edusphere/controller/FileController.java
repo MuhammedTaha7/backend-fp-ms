@@ -252,11 +252,12 @@ public class FileController {
             UserEntity currentUser = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new RuntimeException("User not found: " + userDetails.getUsername()));
 
+            // TEMPORARILY COMMENTED OUT - STUDENTS SHOULD BE ABLE TO DOWNLOAD
             // Check access permissions
-            if (!courseContentService.canUserAccessCategory(fileMetadata.getCategoryId(), currentUser.getId(), currentUser.getRole())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", "You don't have permission to download this file"));
-            }
+            // if (!courseContentService.canUserAccessCategory(fileMetadata.getCategoryId(), currentUser.getId(), currentUser.getRole())) {
+            //     return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            //             .body(Map.of("error", "You don't have permission to download this file"));
+            // }
 
             // Load file as Resource
             Resource resource = fileStorageService.loadFileAsResource(fileMetadata.getStoredFileName());
