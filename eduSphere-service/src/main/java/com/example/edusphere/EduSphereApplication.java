@@ -1,4 +1,3 @@
-// eduSphere-service/src/main/java/com/example/edusphere/EduSphereApplication.java
 package com.example.edusphere;
 
 import org.springframework.boot.SpringApplication;
@@ -18,7 +17,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
                 "com.example.edusphere.repository"
         }
 )
-@EnableMongoAuditing annotation
+@EnableMongoAuditing
 public class EduSphereApplication {
     public static void main(String[] args) {
         SpringApplication.run(EduSphereApplication.class, args);
