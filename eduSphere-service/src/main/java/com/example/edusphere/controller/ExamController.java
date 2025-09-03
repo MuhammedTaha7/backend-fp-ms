@@ -755,7 +755,7 @@ public class ExamController {
      * PUT /api/exam-responses/grade : Grade exam response
      */
     @PutMapping("/exam-responses/grade")
-    @PreAuthorize("hasRole('LECTURER')")
+//    @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> gradeResponse(@Valid @RequestBody ExamGradeRequest request,
                                            Authentication auth) {
         try {
@@ -776,7 +776,7 @@ public class ExamController {
     }
 
     @PutMapping("/exam-responses/manual-grade")
-    @PreAuthorize("hasRole('LECTURER')")
+//    @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<?> manualGradeResponse(@Valid @RequestBody Map<String, Object> gradeData,
                                                  Authentication auth) {
         try {
