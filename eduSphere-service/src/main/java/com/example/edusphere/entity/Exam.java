@@ -97,9 +97,7 @@ public class Exam {
     }
 
     public boolean canStudentTake() {
-        return "PUBLISHED".equals(status) &&
-                visibleToStudents &&
-                isActive();
+        return "PUBLISHED".equals(status);
     }
 
     // ===============================
