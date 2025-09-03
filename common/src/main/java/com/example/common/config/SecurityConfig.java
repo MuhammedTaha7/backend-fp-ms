@@ -68,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/search").authenticated()
                         .requestMatchers("/api/students/**").authenticated()
                         .requestMatchers("/api/lecturers/**").authenticated()
+                        .requestMatchers("/api/schedules/**").authenticated()
                         .requestMatchers("/api/courses/**").authenticated()
                         .requestMatchers("/api/course-content/**").authenticated()
                         .requestMatchers("/api/resources/**").authenticated()
