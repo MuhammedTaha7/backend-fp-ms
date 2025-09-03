@@ -72,7 +72,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/resources/**").authenticated()
                         .requestMatchers("/api/exams/**").authenticated()
                         .requestMatchers("/api/auth/user").authenticated()
-                        .requestMatchers("/api/chat").authenticated() // Ensure this is also covered
+                        .requestMatchers("/api/chat").authenticated()
+                        .requestMatchers("/api/exam-responses/**").authenticated()
 
                         // Role-based Endpoints (must be defined last before anyRequest)
                         .requestMatchers("/api/reports/**").hasAuthority("ROLE_ADMIN")
