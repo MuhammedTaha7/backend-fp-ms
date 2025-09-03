@@ -47,13 +47,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints (must be defined first)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/register", "/api/login", "/api/chatbot").permitAll()                        .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
+                        .requestMatchers("/api/register", "/api/login").permitAll()
+                        .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
                         .requestMatchers("/api/extension/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
 
                         // Authenticated Endpoints (for all services)
+
                         .requestMatchers("/api/chat/**").authenticated()
+                        .requestMatchers("/api/chatbot/**").authenticated()
                         .requestMatchers("/api/community/**").authenticated()
                         .requestMatchers("/api/friends/**").authenticated()
                         .requestMatchers("/api/jobs/**").authenticated()
