@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints (must be defined first)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/register", "/api/login", "/api/chat", "/api/chat/test").permitAll()                        .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
+                        .requestMatchers("/api/register", "/api/login", "/api/chatbot").permitAll()                        .requestMatchers("/api/auth/extension", "/api/auth/extension/**").permitAll()
                         .requestMatchers("/api/extension/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
