@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/extension/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
-                        
+
                         // Authenticated Endpoints (for all services)
                         .requestMatchers("/api/chat/**").authenticated()
                         .requestMatchers("/api/community/**").authenticated()
@@ -68,30 +68,47 @@ public class SecurityConfig {
                         .requestMatchers("/api/lecturers/**").authenticated()
                         .requestMatchers("/api/courses/**").authenticated()
                         .requestMatchers("/api/course-content/**").authenticated()
-                        .requestMatchers("/api/grades/**").authenticated()
                         .requestMatchers("/api/resources/**").authenticated()
                         .requestMatchers("/api/exams/**").authenticated()
                         .requestMatchers("/api/auth/user").authenticated()
                         .requestMatchers("/api/chat").authenticated()
+
+                        // EXAM RESPONSES - Specific role-based permissions
+                        .requestMatchers(HttpMethod.GET, "/api/exam-responses/**").hasAnyAuthority("ROLE_LECTURER", "ROLE_STUDENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/exam-responses/manual-grade").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.PUT, "/api/exam-responses/grade").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.PUT, "/api/exam-responses/*/question-score").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.POST, "/api/exam-responses/*/auto-grade").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.PUT, "/api/exam-responses/*/flag").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.PUT, "/api/exam-responses/*/unflag").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.POST, "/api/exam-responses/batch-grade").hasAuthority("ROLE_LECTURER")
+                        .requestMatchers(HttpMethod.POST, "/api/exam-responses/export-detailed").hasAuthority("ROLE_LECTURER")
                         .requestMatchers("/api/exam-responses/**").authenticated()
 
-                        // Role-based Endpoints (must be defined last before anyRequest)
-                        .requestMatchers("/api/reports/**").hasAuthority("ROLE_ADMIN")
+                        // GRADES - Role-based permissions
                         .requestMatchers(HttpMethod.POST, "/api/grades").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
                         .requestMatchers(HttpMethod.PUT, "/api/grades/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
                         .requestMatchers(HttpMethod.DELETE, "/api/grades/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LECTURER")
+                        .requestMatchers("/api/grades/**").authenticated()
+
+                        // COURSES - Admin only for modifications
                         .requestMatchers(HttpMethod.POST, "/api/courses").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/courses/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/courses/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/courses/*/enroll").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/courses/*/enrollments").hasAuthority("ROLE_ADMIN")
+
+                        // USER MANAGEMENT - Role-based permissions
                         .requestMatchers(HttpMethod.POST, "/api/users/admin-create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/users/by-ids").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users/role/**").authenticated()
+
+                        // ADMIN ENDPOINTS
+                        .requestMatchers("/api/reports/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/departments/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/profile-analytics/**").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/grades/**").authenticated() // This is a general rule, can be more specific
-                        .requestMatchers(HttpMethod.GET, "/api/users/role/**").authenticated() // Redundant, better to have a single broader rule
+                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
                         // Fallback - All other requests must be authenticated
                         .anyRequest().authenticated()
@@ -121,7 +138,8 @@ public class SecurityConfig {
                 "chrome-extension://*",
                 "moz-extension://*",
                 "http://localhost:*",
-                "http://13.49.225.86:*"
+                "http://13.49.225.86:*",
+                "http://13.61.114.153:*"  // Added your current server IP
         ));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
